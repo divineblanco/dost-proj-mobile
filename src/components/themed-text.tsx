@@ -4,7 +4,7 @@ import { Fonts, ThemeColor } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 export type ThemedTextProps = TextProps & {
-  type?: 'default' | 'title' | 'small' | 'smallBold' | 'subtitle' | 'link' | 'linkPrimary' | 'code';
+  type?: 'default' | 'title' | 'titleLogin' | 'small' | 'smallBold' | "smallBoldColor" | 'subtitle' | 'subtitleLight' | 'subtitleItalic' | 'link' | 'buttonCaption' |'linkPrimary' | 'code';
   themeColor?: ThemeColor;
 };
 
@@ -17,9 +17,14 @@ export function ThemedText({ style, type = 'default', themeColor, ...rest }: The
         { color: theme[themeColor ?? 'text'] },
         type === 'default' && styles.default,
         type === 'title' && styles.title,
+        type === 'titleLogin' && styles.titleLogin,
         type === 'small' && styles.small,
+        type === 'smallBoldColor' && styles.smallBoldColor,
         type === 'smallBold' && styles.smallBold,
         type === 'subtitle' && styles.subtitle,
+        type === 'subtitleLight' && styles.subtitleLight,
+        type === 'subtitleItalic' && styles.subtitleItalic,   
+        type === 'buttonCaption' && styles.buttonCaption,
         type === 'link' && styles.link,
         type === 'linkPrimary' && styles.linkPrimary,
         type === 'code' && styles.code,
@@ -32,29 +37,62 @@ export function ThemedText({ style, type = 'default', themeColor, ...rest }: The
 
 const styles = StyleSheet.create({
   small: {
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 9,
+    lineHeight: 17,
     fontWeight: 500,
+    color: "#35408E"
+  },
+  smallBoldColor:{
+    fontSize: 9,
+    lineHeight: 17,
+    fontWeight: 700,
+    color: "#FFB633"
   },
   smallBold: {
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 11,
+    lineHeight: 17,
     fontWeight: 700,
+    color: "#35408E"
   },
   default: {
-    fontSize: 16,
-    lineHeight: 24,
+    fontSize: 11,
+    lineHeight: 17,
     fontWeight: 500,
+    color: "#35408E"
   },
   title: {
-    fontSize: 48,
-    fontWeight: 600,
-    lineHeight: 52,
+    fontSize: 20,
+    color: "#35408E",
+    textAlign: "center",
+    fontWeight: "bold",
+  },
+  titleLogin: {
+    fontSize: 20,
+    color: "#ffffff",
+    textAlign: "center",
+    fontWeight: "bold",
   },
   subtitle: {
-    fontSize: 32,
-    lineHeight: 44,
+    fontSize: 15,
+    fontWeight: 800,
+    color: "#35408E"
+  },
+  subtitleLight: {
+    fontSize: 15,
     fontWeight: 600,
+    color: "#35408E"
+  },
+  subtitleItalic: {
+    fontSize: 15,
+    fontWeight: 400,
+    fontStyle: "italic",
+    color: "#35408E"
+  },
+  buttonCaption: {
+    fontSize: 15,
+    textAlign: "center",
+    color: "white",
+    fontWeight: "bold",
   },
   link: {
     lineHeight: 30,

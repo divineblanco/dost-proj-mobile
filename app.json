@@ -4,11 +4,11 @@
     "slug": "advocaid",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/splash-icon.png",
     "scheme": "advocaid",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/images/splash-icon.png"
     },
     "android": {
       "adaptiveIcon": {
