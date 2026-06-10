@@ -1,4 +1,5 @@
 import { DasboardCard } from '@/components/dashboardcard';
+import { HomeFilter } from '@/components/home-filter';
 import { MisinformationCard } from '@/components/misinformation-card';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -6,8 +7,8 @@ import { TrendsCard } from '@/components/trends-card';
 import { FontAwesome5 } from "@expo/vector-icons";
 import * as Device from 'expo-device';
 import { useRouter } from 'expo-router';
-import React from 'react';
-import { Platform, ScrollView, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { Platform, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 
 function getDevMenuHint() {
   if (Platform.OS === 'web') {
@@ -31,6 +32,7 @@ function getDevMenuHint() {
 export default function Home() {
 
   const router = useRouter();
+  const [showFilter, setShowFilter] = useState(false);
 
   return (
     <ScrollView style={styles.pageContainer} contentContainerStyle={styles.scrollContent}>
@@ -39,8 +41,16 @@ export default function Home() {
           <ThemedText type='title'>
             Daily Overview
           </ThemedText>
-          <FontAwesome5 name='filter' size={24} color="#35408E"></FontAwesome5>
+          <TouchableOpacity onPress={() => {
+              console.log("Filter clicked");
+              setShowFilter(!showFilter);
+            }} style={{ zIndex: 1000 }}>
+            <FontAwesome5 name="filter" size={24} color="#35408E" />
+          </TouchableOpacity>
         </ThemedView>
+        {showFilter && (
+            <HomeFilter onClose={() => setShowFilter(false)} />
+          )}
 
         <ThemedView style={styles.summaryContainer}>
           <DasboardCard/>
@@ -209,7 +219,8 @@ const styles = StyleSheet.create({
   headerContainer:{
     flexDirection: 'row', 
     justifyContent: "space-between",
-    padding: 15
+    padding: 15,
+    position: "relative"
   },
   summaryContainer: {
     backgroundColor: "#E4E8F0",
@@ -289,5 +300,5 @@ const styles = StyleSheet.create({
   morePredictionsInfo: {
     padding: 5,
     backgroundColor: "transparent"
-  }
+  },
 });

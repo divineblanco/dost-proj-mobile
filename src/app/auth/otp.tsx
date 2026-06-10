@@ -40,13 +40,13 @@ export default function OTP() {
     console.log("Button pressed");
     setModal2Visible(false);
     setTimeout(() => {
-    router.replace('/home');
+    router.replace('/drawer/tabs/home');
     }, 100);
   };
 
   const EmailChange = () => {
     console.log("Link pressed");
-    router.push('/'); 
+    router.replace('/'); 
   };
 
   return (

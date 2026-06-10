@@ -37,7 +37,7 @@ export default function Login() {
 
   const handlePress = () => {
     console.log("Button pressed");
-    router.push('/otp'); 
+    router.push('/auth/otp'); 
   };
 
   return (
