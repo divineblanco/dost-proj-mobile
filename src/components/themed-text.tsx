@@ -4,7 +4,7 @@ import { Fonts, ThemeColor } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
 export type ThemedTextProps = TextProps & {
-  type?: 'default' | 'title' | 'titleLogin' | 'small' | 'smallBold' | "smallBoldColor" | 'subtitle' | 'subtitleLight' | 'subtitleItalic' | 'filterLabel' | 'filterOptions' | 'filterApply' | 'link' | 'buttonCaption' |'linkPrimary' | 'code';
+  type?: 'default' | 'title' | 'titleLogin' | 'small' | 'smallBold' | "smallBoldColor" | 'subtitle' | 'subtitleLight' | 'subtitleItalic' | 'trendCard' | 'filterLabel' | 'filterOptions' | 'filterApply' | 'link' | 'buttonCaption' |'linkPrimary' | 'code';
   themeColor?: ThemeColor;
 };
 
@@ -25,6 +25,7 @@ export function ThemedText({ style, type = 'default', themeColor, ...rest }: The
         type === 'subtitleLight' && styles.subtitleLight,
         type === 'subtitleItalic' && styles.subtitleItalic,   
         type === 'buttonCaption' && styles.buttonCaption,
+        type === 'trendCard' && styles.trendCard,
         type === 'filterLabel' && styles.filterLabel,
         type === 'filterOptions' && styles.filterOptions,
         type === 'filterApply' && styles.filterApply,
@@ -96,6 +97,12 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "white",
     fontWeight: "bold",
+  },
+  trendCard: {
+    fontSize: 13,
+    color: "#35408E",
+    fontWeight: "bold",
+    textAlign: "center"
   },
   filterLabel: {
     fontSize: 12,

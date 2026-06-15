@@ -13,7 +13,7 @@ export default function DrawerLayout() {
     >
       {/* HOME */}
       <Drawer.Screen
-        name="(tabs)/home"
+        name="tabs"
         options={{
           title: "Home",
           drawerIcon: ({ color }) => (
@@ -24,7 +24,7 @@ export default function DrawerLayout() {
 
       {/* MAP */}
       <Drawer.Screen
-        name="(tabs)/map"
+        name="/map"
         options={{
           title: "Map",
           drawerIcon: ({ color }) => (
@@ -35,7 +35,7 @@ export default function DrawerLayout() {
 
       {/* TRENDS */}
       <Drawer.Screen
-        name="(tabs)/trends"
+        name="/trends"
         options={{
           title: "Trends",
           drawerIcon: ({ color }) => (
@@ -46,7 +46,7 @@ export default function DrawerLayout() {
 
       {/* REPORTS */}
       <Drawer.Screen
-        name="(tabs)/reports"
+        name="/reports"
         options={{
           title: "Reports",
           drawerIcon: ({ color }) => (
@@ -57,7 +57,7 @@ export default function DrawerLayout() {
 
       {/* REWARDS */}
       <Drawer.Screen
-        name="(tabs)/rewards"
+        name="/rewards"
         options={{
           title: "Rewards",
           drawerIcon: ({ color }) => (
