@@ -103,12 +103,20 @@ export default function Map() {
             <ThemedText style={styles.contentProvince}>
               Metro Manila
             </ThemedText>
-            <ThemedText style={styles.otherContent}>
-              Sentiment: <ThemedText style={styles.moreContent}>0.2% Neutral</ThemedText>
-            </ThemedText>
-            <ThemedText style={styles.otherContent}>
+              
+            <ThemedView style={{flexDirection: "row", justifyContent: "space-between", backgroundColor: "transparent",}}>
+              <ThemedText style={styles.otherContent}>
               Mentions: <ThemedText style={styles.moreContent}>1,458</ThemedText>
+              </ThemedText>
+              <ThemedText style={styles.otherContent}>
+              Stigma Index: <ThemedText style={styles.moreContent}>14.2</ThemedText>
+              </ThemedText>
+            </ThemedView>
+            
+            <ThemedText style={styles.otherContent}>
+                Sentiment: <ThemedText style={styles.moreContent}>0.2% Neutral</ThemedText>
             </ThemedText>
+            
             <ThemedText style={styles.otherContent}>
               Top Trending Topic: <ThemedText style={styles.moreContent}>#HIVAwareness</ThemedText>
             </ThemedText>

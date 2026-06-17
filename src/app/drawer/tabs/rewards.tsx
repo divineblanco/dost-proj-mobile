@@ -1,6 +1,6 @@
 import { Text, View } from "react-native";
 
-export default function Profile() {
+export default function Rewards() {
   return (
     <View>
       <Text>Rewards Page</Text>

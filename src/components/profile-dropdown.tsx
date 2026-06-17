@@ -13,21 +13,21 @@ export function ProfileDropDown() {
     <ThemedView
         style={styles.dropdownMenu}>
 
-        <TouchableOpacity onPress={() => router.push("/drawer/tabs/home")} style={styles.dropdown}>
+        <TouchableOpacity onPress={() => router.push("/drawer/tabs/profile")} style={styles.dropdown}>
         <ThemedView style={styles.dropdownItem}>
             <Ionicons name="person-outline" size={20} color="#35408E"/>
             <ThemedText style={styles.dropdownLabel}>Profile</ThemedText>
         </ThemedView>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => router.push("/drawer/tabs/home")} style={styles.dropdown}>
+        <TouchableOpacity onPress={() => router.push("/drawer/tabs/notifications")} style={styles.dropdown}>
         <ThemedView style={styles.dropdownItem}>
             <Ionicons name="notifications-outline" size={20} color="#35408E"/>
             <ThemedText style={styles.dropdownLabel}>Notifications</ThemedText>
         </ThemedView>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => router.push("/drawer/tabs/home")} style={styles.dropdown}>
+        <TouchableOpacity onPress={() => router.push("/drawer/tabs/settings")} style={styles.dropdown}>
         <ThemedView style={styles.dropdownItem}>
             <Ionicons name="settings-outline" size={20} color="#35408E"/>
             <ThemedText style={styles.dropdownLabel}>Settings</ThemedText>

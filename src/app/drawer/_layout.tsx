@@ -1,68 +1,56 @@
-import { Ionicons } from "@expo/vector-icons";
+import CustomDrawer from "@/components/CustomDrawer";
+import { ProfileDropDown } from "@/components/profile-dropdown";
+import { ThemedView } from "@/components/themed-view";
 import { Drawer } from "expo-router/drawer";
+import { useState } from "react";
+import { Image, TouchableOpacity } from "react-native";
 
 export default function DrawerLayout() {
+  const [showMenu, setShowMenu] = useState(false);
+
   return (
     <Drawer
       screenOptions={{
-        headerShown: false,
-        headerStyle: { backgroundColor: "#35408E" },
+        headerStyle: {
+          backgroundColor: "#35408E",
+        },
+
         headerTintColor: "#fff",
-        drawerActiveTintColor: "#FFB633",
+        headerTitleAlign: "center",
+
+        headerRight: () => (
+          <ThemedView
+            style={{
+              marginRight: 15,
+              backgroundColor: "transparent",
+            }}
+          >
+            <TouchableOpacity
+              onPress={() => setShowMenu(!showMenu)}
+            >
+              <Image
+                source={require("@/assets/images/profile.jpg")}
+                style={{
+                  width: 30,
+                  height: 30,
+                  borderRadius: 15,
+                }}
+              />
+            </TouchableOpacity>
+
+            {showMenu && <ProfileDropDown />}
+          </ThemedView>
+        ),
       }}
+      drawerContent={(props) => (
+        <CustomDrawer {...props} />
+      )}
     >
-      {/* HOME */}
       <Drawer.Screen
         name="tabs"
         options={{
-          title: "Home",
-          drawerIcon: ({ color }) => (
-            <Ionicons name="home-outline" size={22} color={color} />
-          ),
-        }}
-      />
-
-      {/* MAP */}
-      <Drawer.Screen
-        name="/map"
-        options={{
-          title: "Map",
-          drawerIcon: ({ color }) => (
-            <Ionicons name="map-outline" size={22} color={color} />
-          ),
-        }}
-      />
-
-      {/* TRENDS */}
-      <Drawer.Screen
-        name="/trends"
-        options={{
-          title: "Trends",
-          drawerIcon: ({ color }) => (
-            <Ionicons name="trending-up" size={22} color={color} />
-          ),
-        }}
-      />
-
-      {/* REPORTS */}
-      <Drawer.Screen
-        name="/reports"
-        options={{
-          title: "Reports",
-          drawerIcon: ({ color }) => (
-            <Ionicons name="document-text-outline" size={22} color={color} />
-          ),
-        }}
-      />
-
-      {/* REWARDS */}
-      <Drawer.Screen
-        name="/rewards"
-        options={{
-          title: "Rewards",
-          drawerIcon: ({ color }) => (
-            <Ionicons name="star-outline" size={22} color={color} />
-          ),
+          headerTitle: "AdvocAid PH",
+          headerShown: true,
         }}
       />
     </Drawer>
