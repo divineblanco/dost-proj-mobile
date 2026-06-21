@@ -84,7 +84,7 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
           onPress={() => router.push("/drawer/tabs/rewards")}
         />
 
-        {/* 🔴 LOG OUT (ALWAYS RED) */}
+        {/* LOG OUT (ALWAYS RED) */}
         <Item
           icon="exit"
           label="Log Out"
@@ -135,7 +135,7 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
 /* ================= ITEM ================= */
 
 type ItemProps = {
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: string;
   label: string;
   route: string;
   pathname: string;
@@ -155,22 +155,31 @@ function Item({
     pathname === route ||
     pathname.startsWith(route + "/");
 
+  // Logout stays red
   if (danger) {
     return (
       <TouchableOpacity
         onPress={onPress}
         style={[styles.drawerItem, styles.logoutItem]}
       >
-        <Ionicons name={icon} size={25} color="#FF4F4F" />
+        <Ionicons
+          name="log-out-outline"
+          size={25}
+          color="white"
+        />
 
-        <ThemedText style={[styles.label, { color: "#FF4F4F" }]}>
+        <ThemedText style={[styles.label, { color: "white" }]}>
           {label}
         </ThemedText>
       </TouchableOpacity>
     );
   }
 
-  // NORMAL ITEMS
+  const activeIcon =
+    isActive && !icon.endsWith("-outline")
+      ? icon
+      : `${icon}-outline`;
+
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -180,7 +189,11 @@ function Item({
       ]}
     >
       <Ionicons
-        name={icon}
+        name={
+          isActive
+            ? (icon as keyof typeof Ionicons.glyphMap)
+            : (`${icon}-outline` as keyof typeof Ionicons.glyphMap)
+        }
         size={25}
         color={isActive ? "#35408E" : "white"}
       />
@@ -244,20 +257,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 25,
-    paddingHorizontal: 15,
-    paddingVertical: 15,
+    paddingHorizontal: 18,
+    paddingVertical: 12,
     borderRadius: 12,
   },
 
   activeDrawerItem: {
-    backgroundColor: "#FFB633",
+    backgroundColor: "white",
     borderRadius: 15,
   },
 
   logoutItem: {
-    backgroundColor: "#ff2b2b40",
-    borderColor: "#c91010c6",
-    borderWidth: 1,
+    backgroundColor: "#c91010c6",
     borderRadius: 15
   },
 

@@ -1,6 +1,6 @@
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { Ionicons } from "@expo/vector-icons";
+import { Feather, Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
   ScrollView,
@@ -9,32 +9,34 @@ import {
   View,
 } from "react-native";
 
-type Category = {
+type Resources = {
   label: string;
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: keyof typeof Feather.glyphMap;
 };
 
-type CategoriesDropdownProps = {
-  selectedCategory: string;
-  setSelectedCategory: (value: string) => void;
+type ResourcesDropdownProps = {
+  selectedResources: string;
+  setSelectectedResources: (value: string) => void;
 };
 
-const categories: Category[] = [
-  { label: "All Types", icon: "layers-outline" },
-  { label: "Sentiment", icon: "happy-outline" },
-  { label: "Demographic", icon: "people-outline" },
-  { label: "Regional", icon: "location-outline" },
-  { label: "Trends", icon: "trending-up-outline" },
+const resources: Resources[] = [
+  { label: "All Categories", icon: "layers" },
+  { label: "Prevention", icon: "shield" },
+  { label: "Testing", icon: "check" },
+  { label: "Treatment", icon: "file-text" },
+  { label: "Support", icon: "heart" },
+  { label: "Awareness", icon: "user" },
+  { label: "Research", icon: "book" },
 ];
 
-export default function CategoriesDropdown({
-  selectedCategory,
-  setSelectedCategory,
-}: CategoriesDropdownProps) {
+export default function ResourcesDropdown({
+  selectedResources,
+  setSelectectedResources,
+}: ResourcesDropdownProps) {
   const [open, setOpen] = useState(false);
 
   const selectedItem =
-    categories.find((c) => c.label === selectedCategory) || null;
+    resources.find((c) => c.label === selectedResources) || null;
 
   return (
     <ThemedView style={styles.container}>
@@ -47,7 +49,7 @@ export default function CategoriesDropdown({
           {/* LEFT SIDE (ICON + TEXT) */}
           <View style={styles.leftContent}>
             {selectedItem && (
-              <Ionicons
+              <Feather
                 name={selectedItem.icon}
                 size={18}
                 color="#35408E"
@@ -55,7 +57,7 @@ export default function CategoriesDropdown({
             )}
 
             <ThemedText style={styles.dropdownText}>
-              {selectedCategory || "Select Category"}
+              {selectedResources || "Select Resources"}
             </ThemedText>
           </View>
 
@@ -72,8 +74,8 @@ export default function CategoriesDropdown({
       {open && (
         <ThemedView style={styles.dropdownMenu}>
           <ScrollView nestedScrollEnabled style={{ maxHeight: 250 }}>
-            {categories.map((item) => {
-              const isActive = selectedCategory === item.label;
+            {resources.map((item) => {
+              const isActive = selectedResources === item.label;
 
               return (
                 <TouchableOpacity
@@ -83,11 +85,11 @@ export default function CategoriesDropdown({
                     isActive && styles.activeItem,
                   ]}
                   onPress={() => {
-                    setSelectedCategory(item.label);
+                    setSelectectedResources(item.label);
                     setOpen(false);
                   }}
                 >
-                  <Ionicons
+                  <Feather
                     name={item.icon}
                     size={18}
                     color={isActive ? "white" : "#35408E"}
@@ -113,7 +115,7 @@ export default function CategoriesDropdown({
 
 const styles = StyleSheet.create({
   container: {
-    width: "85%",
+    width: "100%",
     backgroundColor: "transparent",
     zIndex: 100,
   },

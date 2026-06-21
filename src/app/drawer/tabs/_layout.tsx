@@ -7,7 +7,7 @@ export default function TabsLayout() {
       screenOptions={{
         headerShown: false,
 
-        tabBarActiveTintColor: "#FFB633",
+        tabBarActiveTintColor: "#35408E",
         tabBarInactiveTintColor: "#35408E",
 
         tabBarStyle: {
@@ -44,8 +44,11 @@ export default function TabsLayout() {
         name="home"
         options={{
           title: "Home",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" size={size} color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons 
+            name={focused ? "home" : "home-outline"} 
+            size={size} 
+            color={color} />
           ),
         }}
       />
@@ -54,8 +57,11 @@ export default function TabsLayout() {
         name="map"
         options={{
           title: "Map",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="map" size={size} color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons 
+            name={focused ? "map" : "map-outline"} 
+            size={size} 
+            color={color} />
           ),
         }}
       />
@@ -64,8 +70,11 @@ export default function TabsLayout() {
         name="contribute"
         options={{
           title: "Contribute",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="chatbubble" size={size} color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons 
+            name={focused ? "chatbubble" : "chatbubble-outline"} 
+            size={size} 
+            color={color} />
           ),
         }}
       />
@@ -74,8 +83,11 @@ export default function TabsLayout() {
         name="resources"
         options={{
           title: "Learn",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="book" size={size} color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons 
+            name={focused ? "book" : "book-outline"} 
+            size={size} 
+            color={color} />
           ),
         }}
       />
@@ -84,8 +96,11 @@ export default function TabsLayout() {
         name="rewards"
         options={{
           title: "Rewards",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="star" size={size} color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons 
+            name={focused ? "star" : "star-outline"} 
+            size={size} 
+            color={color} />
           ),
         }}
       />
@@ -122,6 +137,13 @@ export default function TabsLayout() {
 
       <Tabs.Screen
         name="notifications"
+        options={{
+          href: null,
+        }}
+      />
+
+      <Tabs.Screen
+        name="resources-details"
         options={{
           href: null,
         }}

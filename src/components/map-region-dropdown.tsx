@@ -3,9 +3,9 @@ import { ThemedView } from "@/components/themed-view";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
-    ScrollView,
-    StyleSheet,
-    TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
 } from "react-native";
 
 type MapDropdownProps = {
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
   },
 
   dropdownButton: {
-    backgroundColor: "#E4E8F0",
+    backgroundColor: "white",
     padding: 15,
     borderRadius: 12,
   },
@@ -278,7 +278,7 @@ const styles = StyleSheet.create({
   },
 
   dropdownMenu: {
-    backgroundColor: "#E4E8F0",
+    backgroundColor: "white",
     borderRadius: 12,
     marginTop: 5,
     position: "absolute",

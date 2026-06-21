@@ -86,7 +86,7 @@ export default function Home() {
           </ThemedView>
         </ThemedView>
 
-        <ThemedView style={styles.titleContainer}>
+        {/* <ThemedView style={styles.titleContainer}>
           <ThemedView style={styles.title}>
             <ThemedText type='subtitle'>
               Demographics
@@ -114,7 +114,7 @@ export default function Home() {
               <ThemedText type='default'>Male</ThemedText>
             </ThemedView>
           </ThemedView>
-        </ThemedView>
+        </ThemedView> */}
 
         <ThemedView style={styles.titleContainer}>
           <ThemedView style={styles.title}>
@@ -143,7 +143,7 @@ export default function Home() {
           <MisinformationCard/>
         </ThemedView>
 
-        <ThemedView style={styles.titleLine}/>
+        {/* <ThemedView style={styles.titleLine}/>
 
         <ThemedView style={styles.titleContainer}>
           <ThemedView style={styles.title}>
@@ -201,7 +201,7 @@ export default function Home() {
             </ThemedView>
           </ThemedView>
 
-        </ThemedView>
+        </ThemedView> */}
 
       </ThemedView>
     </ScrollView>

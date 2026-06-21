@@ -40,10 +40,10 @@ export default function Map() {
 
   const [open, setOpen] = useState(false);
 
-  const slideAnim = useRef(new Animated.Value(-260)).current;
+  const slideAnim = useRef(new Animated.Value(500)).current;
 
   const toggleDrawer = () => {
-    const toValue = open ? -260 : 0;
+    const toValue = open ? 500 : 0;
 
     Animated.timing(slideAnim, {
       toValue,
@@ -75,7 +75,7 @@ export default function Map() {
             filters={filters}
             setFilters={setFilters}
             slideAnim={slideAnim}
-            onClose={() => {}}
+            onClose={toggleDrawer}
           />
 
           <ThemedView style={styles.boxBG}>
@@ -129,7 +129,7 @@ export default function Map() {
             Nearby Resources
           </ThemedText>
 
-          <ThemedView style={styles.boxBG}>
+          <ThemedView style={styles.resourcesBG}>
             <ThemedView style={styles.resources}>
                 <ThemedText style={styles.resourcePlace}>Manila Health Center</ThemedText>
                 <ThemedView style={styles.resourceLabelBG}>
@@ -152,9 +152,13 @@ export default function Map() {
                 </ThemedText>
               </TouchableOpacity>
             </ThemedView>
-
           </ThemedView>
 
+          <TouchableOpacity style={styles.resourcesBG}>
+            <ThemedText style={styles.buttonText}>
+              + Add New Resource
+            </ThemedText>
+          </TouchableOpacity>
         </ThemedView>
       </ThemedView>
     </ScrollView>
@@ -187,7 +191,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2
   },
   regionBG: {
-    backgroundColor: "#E4E8F0", 
+    backgroundColor: "white", 
     width: "85%", 
     padding: 15, 
     borderRadius: 12,
@@ -209,7 +213,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,  
   },
   boxBG:{
-    backgroundColor: "#E4E8F0", 
+    backgroundColor: "white", 
     width: "100%", 
     padding: 15, 
     borderRadius: 12,
@@ -274,7 +278,7 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   contentBG:{
-    backgroundColor: "#E4E8F0", 
+    backgroundColor: "white", 
     width: "100%", 
     padding: 15, 
     borderRadius: 12,
@@ -299,6 +303,23 @@ const styles = StyleSheet.create({
   resourcesContainer: {
     paddingVertical: 20,
     paddingHorizontal: 10
+  },
+   resourcesBG:{
+    backgroundColor: "white", 
+    width: "100%", 
+    padding: 15, 
+    borderRadius: 12,
+    marginBottom: 10,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: "#E4E8F0",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.12,
+    shadowRadius: 3,
   },
   resourcesTitle: {
     paddingVertical: 10,
@@ -354,6 +375,12 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: "700",
     color: "#3781C1"
+  },
+  buttonText: {
+    fontSize: 20, 
+    fontWeight: "bold", 
+    textAlign: "center", 
+    padding: 10
   }
 
 });

@@ -59,9 +59,9 @@ const styles = StyleSheet.create({
     color: "#35408E"
   },
   default: {
-    fontSize: 11,
+    fontSize: 12,
     lineHeight: 17,
-    fontWeight: 500,
+    fontWeight: 400,
     color: "#35408E"
   },
   title: {
@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   subtitle: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: 800,
     color: "#35408E"
   },
