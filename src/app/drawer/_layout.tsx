@@ -14,10 +14,15 @@ export default function DrawerLayout() {
   const pathname = usePathname();
   const router = useRouter();
 
-  // Detect resource details page
+  // ✅ BACK BUTTON CONDITIONS
   const isResourceDetails =
-    pathname.startsWith("/drawer/tabs/resources-detail") &&
-    pathname !== "/drawer/tabs/resources-detail";
+    pathname.startsWith("/drawer/tabs/learn/resources-detail");
+
+  const isAddContribute =
+    pathname.startsWith("/drawer/tabs/contributions/add-contribute");
+
+  // ✅ SINGLE FLAG FOR BACK BEHAVIOR
+  const showBackButton = isResourceDetails || isAddContribute;
 
   return (
     <Drawer
@@ -30,9 +35,9 @@ export default function DrawerLayout() {
 
         // ✅ LEFT HEADER (DRAWER OR BACK BUTTON)
         headerLeft: () =>
-          isResourceDetails ? (
+          showBackButton ? (
             <TouchableOpacity
-              onPress={() => router.push("/drawer/tabs/resources")}
+              onPress={() => router.back()}
               style={{ marginLeft: 15 }}
             >
               <Ionicons name="chevron-back" size={26} color="#fff" />
@@ -41,12 +46,15 @@ export default function DrawerLayout() {
             <DrawerToggleButton tintColor="#fff" />
           ),
 
-        // RIGHT HEADER (PROFILE MENU)
+        // ✅ RIGHT HEADER (PROFILE MENU)
         headerRight: () => (
-          <ThemedView style={{ marginRight: 15, backgroundColor: "transparent" }}>
-            <TouchableOpacity
-              onPress={() => setShowMenu(!showMenu)}
-            >
+          <ThemedView
+            style={{
+              marginRight: 15,
+              backgroundColor: "transparent",
+            }}
+          >
+            <TouchableOpacity onPress={() => setShowMenu(!showMenu)}>
               <Image
                 source={require("@/assets/images/profile.jpg")}
                 style={{

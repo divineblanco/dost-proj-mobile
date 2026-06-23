@@ -67,7 +67,7 @@ export default function TabsLayout() {
       />
 
       <Tabs.Screen
-        name="contribute"
+        name="contributions"
         options={{
           title: "Contribute",
           tabBarIcon: ({ color, size, focused }) => (
@@ -80,7 +80,7 @@ export default function TabsLayout() {
       />
 
       <Tabs.Screen
-        name="resources"
+        name="learn"
         options={{
           title: "Learn",
           tabBarIcon: ({ color, size, focused }) => (

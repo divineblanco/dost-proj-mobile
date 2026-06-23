@@ -142,7 +142,7 @@ export function ResourcesCard() {
                   ]}
                   onPress={() =>
                     router.push({
-                      pathname: "/drawer/tabs/resources-details",
+                      pathname: "/drawer/tabs/learn/resources-details",
                       params: { id: item.id },
                     })
                   }

@@ -10,6 +10,7 @@ import {
   createMaterialTopTabNavigator,
   MaterialTopTabBarProps,
 } from "@react-navigation/material-top-tabs";
+import { router } from "expo-router";
 import * as React from "react";
 import { Animated, ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 
@@ -27,7 +28,14 @@ function ContributionsScreen() {
       >
         {/* Action bar */}
         <ThemedView style={styles.actionBar}>
-          <TouchableOpacity style={styles.primaryBtn} activeOpacity={0.85}>
+          <TouchableOpacity 
+            style={styles.primaryBtn} 
+            activeOpacity={0.85}
+            onPress={() =>
+              router.push({
+                pathname: "/drawer/tabs/contributions/add-contribute",
+              })
+            }>
             <Ionicons name="add" size={18} color="white" />
             <ThemedText style={styles.primaryBtnText}>Add Contribution</ThemedText>
           </TouchableOpacity>
