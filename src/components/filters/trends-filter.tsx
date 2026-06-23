@@ -3,15 +3,15 @@ import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-import { ThemedText } from './themed-text';
+import { ThemedText } from '../themed-text';
 
 
-export function MisinformationFilter({ onClose }: { onClose: () => void }) {
+export function TrendsFilter({ onClose }: { onClose: () => void }) {
 
 const [showCalendar, setShowCalendar] = useState(false);
 
 const [selectedPlatform, setSelectedPlatform] = useState("All Platforms");
-const [selectedType, setSelectedType] = useState("All Types");
+const [selectedRegion, setSelectedRegion] = useState("All Regions");
 const [selectedDate, setSelectedDate] = useState("Last 7 Days");
 
 const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
@@ -94,37 +94,41 @@ const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
                     <ThemedView style={styles.optionContent}>
                         <ThemedText type='filterLabel'>
-                            Type of Misinformation
+                            Region
                         </ThemedText>
                         <ThemedView style={styles.optionBG}>
                             <ThemedView style={styles.optionChoices}>
                                 <ThemedText type='filterOptions' style={styles.dropdownChoice}>
-                                    {selectedType}
+                                    {selectedRegion}
                                 </ThemedText>
 
                                 <Ionicons
-                                    name={activeDropdown === "type" ? "chevron-up-outline" : "chevron-down-outline"}
+                                    name={activeDropdown === "region" ? "chevron-up-outline" : "chevron-down-outline"}
                                     size={15}
                                     color="#35408E"
                                     style={styles.dropdown}
                                     onPress={() =>
-                                    setActiveDropdown(activeDropdown === "type" ? null : "type")
+                                    setActiveDropdown(activeDropdown === "region" ? null : "region")
                                     }
                                 />
                             </ThemedView>
                             {/* Dropdown Options */}
-                            {activeDropdown === "type" && (
+                            {activeDropdown === "region" && (
                                 <ThemedView style={styles.dropdownList}>
                                     <ScrollView style={{ maxHeight: 180 }}
                                         showsVerticalScrollIndicator={true}>
-                                        {["All Types", "False Information", "Conspiracy Theory",
-                                        "Harmful Content", "Unverified Treatment"].map((item) => (
+                                        {["All Regions", "Region I", "Region II",
+                                        "Region III", "Region IV-A", "Region V",
+                                        "Region VI", "Region VII", "Region VIII",
+                                        "Region IX", "Region X", "Region XI",
+                                        "Region XII", "National Capital Region (NCR)", "Region XIII",
+                                        "Region IV-B"].map((item) => (
                                         <ThemedText
                                             type='filterOptions'
                                             key={item}
                                             style={styles.dropdownItem}
                                             onPress={() => {
-                                            setSelectedType(item);
+                                            setSelectedRegion(item);
                                             setActiveDropdown(null);
                                             }}
                                         >
@@ -203,7 +207,7 @@ const styles = StyleSheet.create({
   },
   filterDropdown: {
     position: "absolute",
-    top: 60,
+    top: 45,
     right: 15,
     width: "65%",
     backgroundColor: "#35408E",

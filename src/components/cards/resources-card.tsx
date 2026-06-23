@@ -3,7 +3,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React from "react";
 import { ScrollView, StyleSheet, TouchableOpacity } from "react-native";
-import { ThemedText } from "./themed-text";
+import { ThemedText } from "../themed-text";
 
 type ResourceItem = {
   id: string;

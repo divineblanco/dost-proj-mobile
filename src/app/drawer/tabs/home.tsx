@@ -1,9 +1,9 @@
-import { DasboardCard } from '@/components/dashboardcard';
-import { HomeFilter } from '@/components/home-filter';
-import { MisinformationCard } from '@/components/misinformation-card';
+import { DasboardCard } from '@/components/cards/dashboardcard';
+import { MisinformationCard } from '@/components/cards/misinformation-card';
+import { TrendsCard } from '@/components/cards/trends-card';
+import { HomeFilter } from '@/components/filters/home-filter';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { TrendsCard } from '@/components/trends-card';
 import { Ionicons } from "@expo/vector-icons";
 import * as Device from 'expo-device';
 import { useRouter } from 'expo-router';

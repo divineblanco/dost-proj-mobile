@@ -2,12 +2,12 @@ import { ThemedView } from "@/components/themed-view";
 import { Fontisto, Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
-  Image,
-  ImageSourcePropType,
-  ScrollView,
-  StyleSheet,
+    Image,
+    ImageSourcePropType,
+    ScrollView,
+    StyleSheet,
 } from "react-native";
-import { ThemedText } from "./themed-text";
+import { ThemedText } from "../themed-text";
 
 type MisinformationItem = {
   icon: ImageSourcePropType;

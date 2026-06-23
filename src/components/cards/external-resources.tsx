@@ -2,7 +2,7 @@ import { ThemedView } from "@/components/themed-view";
 import { Feather } from "@expo/vector-icons";
 import React from "react";
 import { Linking, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
-import { ThemedText } from "./themed-text";
+import { ThemedText } from "../themed-text";
 
 type ResourceItem = {
   iconColor: string;

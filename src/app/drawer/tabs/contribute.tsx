@@ -1,7 +1,7 @@
-import { ContributionsCard } from "@/components/contributions-card";
-import { ContributionsFilter } from "@/components/contributions-filter";
-import { MisinformationPost } from "@/components/misinfomartion-card";
-import { MisinformationFilter } from "@/components/misinformation-filter";
+import { ContributionsCard } from "@/components/cards/contributions-card";
+import { MisinformationPost } from "@/components/cards/misinfomartion-post";
+import { ContributionsFilter } from "@/components/filters/contributions-filter";
+import { MisinformationFilter } from "@/components/filters/misinformation-filter";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { Ionicons, Octicons } from "@expo/vector-icons";

@@ -1,5 +1,5 @@
 import CustomDrawer from "@/components/CustomDrawer";
-import { ProfileDropDown } from "@/components/profile-dropdown";
+import { ProfileDropDown } from "@/components/dropdown/profile-dropdown";
 import { ThemedView } from "@/components/themed-view";
 import { Ionicons } from "@expo/vector-icons";
 import { DrawerToggleButton } from "@react-navigation/drawer";

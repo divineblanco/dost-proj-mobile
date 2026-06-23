@@ -1,5 +1,5 @@
-import MapDropdown from "@/components/map-region-dropdown";
-import MapFilterDrawer from "@/components/mapfilter-drawer";
+import MapDropdown from "@/components/dropdown/map-region-dropdown";
+import MapFilterDrawer from "@/components/filters/mapfilter-drawer";
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Ionicons } from '@expo/vector-icons';

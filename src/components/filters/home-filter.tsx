@@ -3,14 +3,15 @@ import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-import { ThemedText } from './themed-text';
+import { ThemedText } from '../themed-text';
 
 
-export function TrendsFilter({ onClose }: { onClose: () => void }) {
+export function HomeFilter({ onClose }: { onClose: () => void }) {
 
 const [showCalendar, setShowCalendar] = useState(false);
 
 const [selectedPlatform, setSelectedPlatform] = useState("All Platforms");
+const [selectedAges, setSelectedAges] = useState("All Ages");
 const [selectedRegion, setSelectedRegion] = useState("All Regions");
 const [selectedDate, setSelectedDate] = useState("Last 7 Days");
 
@@ -141,6 +142,49 @@ const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
                         </ThemedView>
                     </ThemedView>
 
+                    <ThemedView style={styles.optionContent}>
+                        <ThemedText type='filterLabel'>
+                            Age Group
+                        </ThemedText>
+                        <ThemedView style={styles.optionBG}>
+                            <ThemedView style={styles.optionChoices}>
+                                <ThemedText type='filterOptions' style={styles.dropdownChoice}>
+                                    {selectedAges}
+                                </ThemedText>
+
+                                <Ionicons
+                                    name={activeDropdown === "ages" ? "chevron-up-outline" : "chevron-down-outline"}
+                                    size={15}
+                                    color="#35408E"
+                                    style={styles.dropdown}
+                                    onPress={() =>
+                                    setActiveDropdown(activeDropdown === "ages" ? null : "ages")
+                                    }
+                                />
+                            </ThemedView>
+                            {/* Dropdown Options */}
+                            {activeDropdown === "ages" && (
+                            <ThemedView style={styles.dropdownList}>
+                                <ScrollView style={{ maxHeight: 180 }}
+                                    showsVerticalScrollIndicator={true}>
+                                    {["All Ages", "15-24", "25-34", "35-44", "45-54", "55-64", "65-74", "75+"].map((item) => (
+                                    <ThemedText
+                                        type='filterOptions'
+                                        key={item}
+                                        style={styles.dropdownItem}
+                                        onPress={() => {
+                                        setSelectedAges(item);
+                                        setActiveDropdown(null);
+                                        }}
+                                    >
+                                        {item}
+                                    </ThemedText>
+                                    ))}
+                                </ScrollView>
+                            </ThemedView>
+                            )}
+                        </ThemedView>
+                    </ThemedView>
 
                     <ThemedView style={styles.optionContent}>
                         <ThemedText type='filterLabel'>
@@ -207,9 +251,9 @@ const styles = StyleSheet.create({
   },
   filterDropdown: {
     position: "absolute",
-    top: 45,
+    top: 60,
     right: 15,
-    width: "65%",
+    width: "93%",
     backgroundColor: "#35408E",
     borderRadius: 10,
     padding: 8,
@@ -231,7 +275,7 @@ filterContainer: {
 optionContainer: {
     backgroundColor: "transparent", 
     marginTop: 10,
-    padding: 10,
+    padding: 15,
     flexDirection: "row",
     flexWrap: "wrap",
     alignItems: "flex-start",

@@ -1,6 +1,6 @@
-import { ExternalResources } from "@/components/external-resources";
-import { ResourcesCard } from "@/components/resources-card";
-import ResourcesDropdown from "@/components/resources-dropdown";
+import { ExternalResources } from "@/components/cards/external-resources";
+import { ResourcesCard } from "@/components/cards/resources-card";
+import ResourcesDropdown from "@/components/dropdown/resources-dropdown";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { Ionicons } from "@expo/vector-icons";

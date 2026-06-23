@@ -3,7 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-import { ThemedText } from './themed-text';
+import { ThemedText } from '../themed-text';
 
 
 export function ContributionsFilter({ onClose }: { onClose: () => void }) {

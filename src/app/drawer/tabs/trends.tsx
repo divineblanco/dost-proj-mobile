@@ -1,8 +1,8 @@
-import { RecentTable } from '@/components/recent-table';
+import { TrendingTopics } from '@/components/cards/trendtopics-box';
+import { TrendsFilter } from '@/components/filters/trends-filter';
+import { RecentTable } from '@/components/table/recent-table';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { TrendsFilter } from '@/components/trends-filter';
-import { TrendingTopics } from '@/components/trendtopics-box';
 import { Ionicons } from "@expo/vector-icons";
 import * as Device from 'expo-device';
 import { useRouter } from 'expo-router';

@@ -1,16 +1,16 @@
-import CategoriesDropdown from "@/components/categories-dropdown";
-import { ReportsCard } from "@/components/reports-card";
+import { ReportsCard } from "@/components/cards/reports-card";
+import CategoriesDropdown from "@/components/dropdown/categories-dropdown";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import React, { useState } from "react";
 import {
-  Platform,
-  ScrollView,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity
+    Platform,
+    ScrollView,
+    StyleSheet,
+    TextInput,
+    TouchableOpacity
 } from "react-native";
 
 export default function Reports() {
