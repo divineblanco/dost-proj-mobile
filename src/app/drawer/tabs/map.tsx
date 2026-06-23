@@ -238,17 +238,20 @@ const styles = StyleSheet.create({
   highColor: {
     backgroundColor: "red", 
     padding: 10, 
-    marginRight: 5
+    marginRight: 5,
+    borderRadius: 5
   },
   mediumColor: {
     backgroundColor: "#FFB633", 
     padding: 10, 
-    marginRight: 5
+    marginRight: 5,
+    borderRadius: 5
   },
   lowColor: {
     backgroundColor: "#3BB329", 
     padding: 10, 
-    marginRight: 5
+    marginRight: 5,
+    borderRadius: 5
   },
   checkboxBG: {
     backgroundColor: "#E4E8F0", 

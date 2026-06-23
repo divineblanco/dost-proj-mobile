@@ -3,7 +3,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { TrendsFilter } from '@/components/trends-filter';
 import { TrendingTopics } from '@/components/trendtopics-box';
-import { FontAwesome5 } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import * as Device from 'expo-device';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
@@ -43,8 +43,8 @@ export default function Trends() {
           <TouchableOpacity onPress={() => {
               console.log("Filter clicked");
               setShowFilter(!showFilter);
-            }} style={{ zIndex: 1000 }}>
-            <FontAwesome5 name="filter" size={24} color="#35408E" />
+            }} style={styles.filterBtn}>
+            <Ionicons name="options-outline" size={24} color="#35408E" />
           </TouchableOpacity>
         </ThemedView>
         {showFilter && (
@@ -158,7 +158,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row', 
     justifyContent: "space-between",
     padding: 10,
-    position: "relative"
+    position: "relative",
+    alignItems: "center"
+  },
+  filterBtn: {
+    zIndex: 1000, 
+    borderWidth: 1, 
+    borderColor: "#35408E", 
+    borderRadius: 5, 
+    padding: 5
   },
   summaryContainer: {
     padding: 5,

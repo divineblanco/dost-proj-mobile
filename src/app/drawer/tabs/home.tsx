@@ -4,7 +4,7 @@ import { MisinformationCard } from '@/components/misinformation-card';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { TrendsCard } from '@/components/trends-card';
-import { FontAwesome5 } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import * as Device from 'expo-device';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
@@ -44,8 +44,8 @@ export default function Home() {
           <TouchableOpacity onPress={() => {
               console.log("Filter clicked");
               setShowFilter(!showFilter);
-            }} style={{ zIndex: 1000 }}>
-            <FontAwesome5 name="filter" size={24} color="#35408E" />
+            }} style={styles.filterBtn}>
+            <Ionicons name="options-outline" size={20} color="#35408E" />
           </TouchableOpacity>
         </ThemedView>
         {showFilter && (
@@ -220,7 +220,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row', 
     justifyContent: "space-between",
     padding: 15,
-    position: "relative"
+    position: "relative",
+    alignItems: "center"
+  },
+  filterBtn: {
+    zIndex: 1000, 
+    borderWidth: 1, 
+    borderColor: "#35408E", 
+    borderRadius: 5, 
+    padding: 5
   },
   summaryContainer: {
     backgroundColor: "#E4E8F0",
