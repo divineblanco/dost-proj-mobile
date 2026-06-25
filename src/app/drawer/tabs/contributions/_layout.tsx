@@ -5,6 +5,7 @@ export default function ContributeLayout() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="contribute" />
       <Stack.Screen name="add-contribute" />
+      <Stack.Screen name="report-misinfo" />
     </Stack>
   );
 }

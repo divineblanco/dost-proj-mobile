@@ -77,7 +77,14 @@ function MisinformationScreen() {
       >
         {/* Action bar */}
         <ThemedView style={styles.actionBar}>
-          <TouchableOpacity style={styles.dangerBtn} activeOpacity={0.85}>
+          <TouchableOpacity 
+            style={styles.dangerBtn} 
+            activeOpacity={0.85}
+            onPress={() =>
+              router.push({
+                pathname: "/drawer/tabs/contributions/report-misinfo",
+              })
+            }>
             <Octicons name="alert" size={15} color="white" />
             <ThemedText style={styles.primaryBtnText}>Report Misinformation</ThemedText>
           </TouchableOpacity>

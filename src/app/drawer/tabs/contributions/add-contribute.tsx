@@ -1,8 +1,10 @@
 import { QuestionOne } from '@/components/cards/question-one';
 import { QuestionTwo } from '@/components/cards/question-two';
+import ContributeSuccess from '@/components/modals/contribute-success';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Feather, Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 
@@ -15,6 +17,12 @@ const SENTIMENT_OPTIONS = [
 export default function AddContribute() {
   const [experience, setExperience] = useState('');
   const [selectedSentiment, setSelectedSentiment] = useState<number | null>(null);
+
+  const [successContribute, setSuccessContribute] = useState(false);
+
+  const handleSubmit = () => {
+  setSuccessContribute(true);
+  };
 
   return (
     <ScrollView
@@ -89,7 +97,7 @@ export default function AddContribute() {
           <ThemedView style={styles.qNumber}>
             <ThemedText style={styles.qNumberText}>4</ThemedText>
           </ThemedView>
-          <ThemedText style={styles.question}>Attach Supporting Evidence 
+          <ThemedText style={styles.question}>Attach Supporting Evidence {" "}
             <ThemedText style={styles.optional}>(Optional)</ThemedText>
             </ThemedText>
         </ThemedView>
@@ -167,10 +175,29 @@ export default function AddContribute() {
       </ThemedView>
 
       {/* Submit */}
-      <TouchableOpacity style={styles.submitBtn} activeOpacity={0.85}>
-        <Ionicons name="send-outline" size={18} color="white" />
-        <ThemedText style={styles.submitTxt}>Submit Contribution</ThemedText>
+      <TouchableOpacity
+        style={styles.submitBtn}
+        activeOpacity={0.85}
+        onPress={handleSubmit}
+      >
+        <Ionicons
+          name="send-outline"
+          size={18}
+          color="white"
+        />
+
+        <ThemedText style={styles.submitTxt}>
+          Submit Contribution
+        </ThemedText>
       </TouchableOpacity>
+
+      <ContributeSuccess
+        visible={successContribute}
+        onClose={() => {
+          setSuccessContribute(false);
+          router.back();
+        }}
+      />
     </ScrollView>
   );
 }

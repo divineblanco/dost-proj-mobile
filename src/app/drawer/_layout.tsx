@@ -21,8 +21,11 @@ export default function DrawerLayout() {
   const isAddContribute =
     pathname.startsWith("/drawer/tabs/contributions/add-contribute");
 
+  const isReportMisinformation =
+    pathname.startsWith("/drawer/tabs/contributions/report-misinfo");
+
   // ✅ SINGLE FLAG FOR BACK BEHAVIOR
-  const showBackButton = isResourceDetails || isAddContribute;
+  const showBackButton = isResourceDetails || isAddContribute || isReportMisinformation;
 
   return (
     <Drawer
@@ -65,7 +68,11 @@ export default function DrawerLayout() {
               />
             </TouchableOpacity>
 
-            {showMenu && <ProfileDropDown />}
+            {showMenu && (
+              <ProfileDropDown
+                onNavigate={() => setShowMenu(false)}
+              />
+            )}
           </ThemedView>
         ),
       }}

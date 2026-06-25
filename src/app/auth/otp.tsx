@@ -1,13 +1,13 @@
-import { AnimatedIcon } from '@/components/animated-icon';
+import { LoginSuccess } from '@/components/modals/login-success';
+import { ResendCode } from '@/components/modals/resend-code';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { WebBadge } from '@/components/web-badge';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
-import { Ionicons } from "@expo/vector-icons";
 import * as Device from 'expo-device';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Modal, Platform, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { Image, Platform, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 function getDevMenuHint() {
@@ -46,14 +46,22 @@ export default function OTP() {
 
   const EmailChange = () => {
     console.log("Link pressed");
-    router.replace('/'); 
+    router.replace('/auth/login'); 
   };
 
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
         <ThemedView style={styles.heroSection}>
-          <AnimatedIcon /> /* change this to static */ 
+           <ThemedView style={styles.iconContainer}>
+                <ThemedView style={styles.glow}>
+                  <Image style={styles.glow} source={require('@/assets/images/logo-glow.png')} />
+                </ThemedView>
+                <ThemedView style={styles.background} />
+                <ThemedView style={styles.imageContainer}>
+                  <Image style={styles.image} source={require('@/assets/images/splash-icon.png')} />
+                </ThemedView>
+              </ThemedView>
         </ThemedView>
 
         <ThemedText type='titleLogin'>
@@ -150,69 +158,15 @@ export default function OTP() {
           </TouchableOpacity>
           </ThemedView>
 
-          //RESEND CODE MODAL
-           <Modal
-                  visible={modal1Visible}
-                  animationType="fade"
-                >
-                  <ThemedView
-                    style={styles.modalContainer}>
-                    <ThemedView
-                      style={styles.bgContainer}>
-                      <TouchableOpacity
-                      onPress={() => setModal1Visible(false)}
-                      style={styles.closeButton}
-                      >
-                        <ThemedText
-                          style={styles.closeIcon}
-                        >
-                          ✕
-                        </ThemedText>
-                      </TouchableOpacity>
+          <ResendCode
+            visible={modal1Visible}
+            onClose={() => setModal1Visible(false)}
+          />
 
-                      <ThemedView style={{flexDirection: "column", alignItems: "center"}}>
-                        <Ionicons name="mail-outline" size={70} color="#35408E" />
-                        <ThemedText type="title" style={styles.modalTitle}>
-                          CHECK YOUR EMAIL
-                        </ThemedText>
-                        <ThemedText style={styles.modaldesc}>
-                          Please check your inbox to acquire the one time password.
-                        </ThemedText>
-                        <TouchableOpacity style={styles.check} onPress={() => setModal1Visible(false)}>
-                            <ThemedText style={{textAlign: "center", fontSize: 20}}>✓</ThemedText>
-                        </TouchableOpacity>
-                      </ThemedView>
-
-                    </ThemedView>
-                  </ThemedView>
-                </Modal>
-
-              //SUCCESS MODAL
-                <Modal
-                  visible={modal2Visible}
-                  animationType="fade"
-                >
-                  <ThemedView
-                    style={styles.modalContainer}>
-                    <ThemedView
-                      style={styles.bgContainer}>
-
-                      <ThemedView style={{flexDirection: "column", alignItems: "center"}}>
-                        <Ionicons name="checkmark" size={70} color="#35408E" />
-                        <ThemedText type="title" style={styles.modalTitle}>
-                          SUCCESS!!
-                        </ThemedText>
-                        <ThemedText style={styles.modaldesc}>
-                          You are now authenticated. Please proceed to login.
-                        </ThemedText>
-                        <TouchableOpacity style={styles.signin} onPress={handlePress}>
-                            <ThemedText style={{textAlign: "center", fontSize: 14, fontWeight: "bold"}}>SIGN IN</ThemedText>
-                        </TouchableOpacity>
-                      </ThemedView>
-
-                    </ThemedView>
-                  </ThemedView>
-                </Modal>
+          <LoginSuccess
+            visible={modal2Visible}
+            onSignIn={handlePress}
+          />
 
         </ThemedView>
 
@@ -247,6 +201,40 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: Spacing.four,
     backgroundColor: "#35408E",
+  },
+  imageContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  glow: {
+    width: 201,
+    height: 201,
+    position: 'absolute',
+    backgroundColor: "transparent"
+  },
+  iconContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 128,
+    height: 128,
+    zIndex: 100,
+  },
+  image: {
+    position: 'absolute',
+    width: 277.5,
+    height: 265.08,
+  },
+  background: {
+    borderRadius: 999,
+    backgroundColor: "white",
+    width: 275,
+    height: 275,
+    position: 'absolute',
+    elevation: 6,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    shadowColor: '#000',
   },
   stepContainer: {
     gap: Spacing.three,

@@ -1,5 +1,7 @@
 import MapDropdown from "@/components/dropdown/map-region-dropdown";
 import MapFilterDrawer from "@/components/filters/mapfilter-drawer";
+import MapResource from "@/components/modals/map-resources";
+import SubmitResource from "@/components/modals/submit-resource";
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Ionicons } from '@expo/vector-icons';
@@ -53,6 +55,14 @@ export default function Map() {
 
     setOpen(!open);
   };
+
+  const [showMapResource, setShowMapResource] =
+    useState(false);
+
+  const [showSubmitResource, setShowSubmitResource] =
+    useState(false);
+
+  const [modalVisible, setModalVisible] = useState(false);
 
   return (
     <ScrollView style={styles.pageContainer} contentContainerStyle={styles.scrollContent}>
@@ -154,11 +164,24 @@ export default function Map() {
             </ThemedView>
           </ThemedView>
 
-          <TouchableOpacity style={styles.resourcesBG}>
+          <TouchableOpacity style={styles.resourcesBG} onPress={() => setShowMapResource(true)} >
             <ThemedText style={styles.buttonText}>
               + Add New Resource
             </ThemedText>
           </TouchableOpacity>
+
+          <MapResource
+            visible={showMapResource}
+            onClose={() => setShowMapResource(false)}
+            onSubmit={() => setShowSubmitResource(true)}
+          />
+
+          <SubmitResource
+            visible={showSubmitResource}
+            onClose={() => setShowSubmitResource(false)}
+          />
+
+
         </ThemedView>
       </ThemedView>
     </ScrollView>
