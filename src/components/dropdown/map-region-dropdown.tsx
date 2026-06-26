@@ -302,21 +302,20 @@ const styles = StyleSheet.create({
     borderBottomColor: "#D3D7E0",
     backgroundColor: "transparent",
   },
-
   regionLabel: {
-  backgroundColor: "#35408E",
-  paddingVertical: 10,
-  paddingHorizontal: 15,
-},
+    backgroundColor: "#35408E",
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+  },
 
-regionLabelText: {
-  color: "#FFFFFF",
-  fontWeight: "bold",
-  fontSize: 15,
-},
+  regionLabelText: {
+    color: "#FFFFFF",
+    fontWeight: "bold",
+    fontSize: 15,
+  },
 
-provinceText: {
-  paddingLeft: 15,
-  fontSize: 13
-},
+  provinceText: {
+    paddingLeft: 15,
+    fontSize: 13
+  },
 });

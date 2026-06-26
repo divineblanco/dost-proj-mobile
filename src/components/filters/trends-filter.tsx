@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
   },
   filterDropdown: {
     position: "absolute",
-    top: 45,
+    top: 55,
     right: 15,
     width: "65%",
     backgroundColor: "#35408E",

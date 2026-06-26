@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
   },
   trendsBox: {
     width: '48%',         
-    minHeight: 70,
+    minHeight: 80,
     padding: 10,          
     justifyContent: 'center',
     alignItems: 'center',
