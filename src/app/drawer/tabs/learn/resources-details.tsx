@@ -2,7 +2,7 @@ import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ScrollView, StyleSheet, TouchableOpacity } from "react-native";
+import { ScrollView, Share, StyleSheet, TouchableOpacity } from "react-native";
 
 export default function ResourceDetails() {
   const { id } = useLocalSearchParams();
@@ -82,18 +82,23 @@ export default function ResourceDetails() {
     );
   }
 
+  const onShare = async () => {
+  try {
+    await Share.share({
+      title: resource.title,
+      message: `${resource.title}
+
+  ${resource.description}
+
+  Read more about HIV resources in the AdvocAid PH app.`,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-
-      {/* Back button */}
-      {/* <TouchableOpacity
-        style={styles.backBtn}
-        onPress={() => router.push("/drawer/tabs/resources")}
-        activeOpacity={0.7}
-      >
-        <Ionicons name="chevron-back" size={18} color="#35408E" />
-        <ThemedText style={styles.backText}>Resources</ThemedText>
-      </TouchableOpacity> */}
 
       {/* Accent bar */}
       <ThemedView
@@ -128,7 +133,7 @@ export default function ResourceDetails() {
           <ThemedText style={styles.actionBtnText}>Download</ThemedText>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.actionBtn} activeOpacity={0.75}>
+        <TouchableOpacity style={styles.actionBtn} activeOpacity={0.75} onPress={onShare}>
           <Ionicons name="share-social-outline" size={18} color="#35408E" />
           <ThemedText style={styles.actionBtnText}>Share</ThemedText>
         </TouchableOpacity>

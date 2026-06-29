@@ -63,7 +63,7 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
         <Item
           icon="chatbubble"
           label="Contribute"
-          route="/drawer/tabs/contribute"
+          route="/drawer/tabs/contributions/contribute"
           pathname={pathname}
           onPress={() => router.push("/drawer/tabs/contributions/contribute")}
         />
@@ -71,7 +71,7 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
         <Item
           icon="book"
           label="Learn"
-          route="/drawer/tabs/resources"
+          route="/drawer/tabs/learn/resources"
           pathname={pathname}
           onPress={() => router.push("/drawer/tabs/learn/resources")}
         />

@@ -141,13 +141,6 @@ export default function TabsLayout() {
           href: null,
         }}
       />
-
-      <Tabs.Screen
-        name="resources-details"
-        options={{
-          href: null,
-        }}
-      />
     </Tabs>
   );
 }

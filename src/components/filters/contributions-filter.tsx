@@ -287,7 +287,7 @@ optionContent: {
     gap: 8
 },
 optionBG: {
-    backgroundColor: "#E4E8F0", 
+    backgroundColor: "white", 
     padding: 10, 
     width: 135, 
     borderRadius: 8
