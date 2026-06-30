@@ -8,6 +8,7 @@ import {
   View,
 } from "react-native";
 import { TextInput } from "react-native-gesture-handler";
+import LocationPicker from "./location-picker";
 
 type MapResourceProps = {
   visible: boolean;
@@ -39,6 +40,13 @@ export default function MapResource({
       onSubmit();
     }, 200);
   };
+
+  const [showMap, setShowMap] = useState(false);
+
+  const [selectedLocation, setSelectedLocation] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
 
   return (
     <Modal
@@ -158,6 +166,7 @@ export default function MapResource({
 
             <TouchableOpacity
               style={styles.locationButton}
+              onPress={() => setShowMap(true)}
             >
               <Ionicons
                 name="location"
@@ -166,7 +175,9 @@ export default function MapResource({
               />
 
               <ThemedText style={styles.locationText}>
-                Select Location on Map
+                {selectedLocation
+                ? "Location Selected ✓"
+                : "Select Location on Map"}
               </ThemedText>
             </TouchableOpacity>
           </View>
@@ -188,6 +199,13 @@ export default function MapResource({
           </TouchableOpacity>
         </View>
       </View>
+
+      <LocationPicker
+        visible={showMap}
+        onClose={() => setShowMap(false)}
+        selectedLocation={selectedLocation}
+        onSelectLocation={setSelectedLocation}
+      />
     </Modal>
   );
 }
