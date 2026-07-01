@@ -24,8 +24,15 @@ export default function DrawerLayout() {
   const isReportMisinformation =
     pathname.startsWith("/drawer/tabs/contributions/report-misinfo");
 
+  const isProfileSettings =
+    pathname.startsWith("/drawer/tabs/settings/profile-settings");
+
+  const isEditProfile =
+    pathname.startsWith("/drawer/tabs/settings/profile/edit-");
+
   // ✅ SINGLE FLAG FOR BACK BEHAVIOR
-  const showBackButton = isResourceDetails || isAddContribute || isReportMisinformation;
+  const showBackButton = isResourceDetails || isAddContribute || isReportMisinformation
+                      || isProfileSettings || isEditProfile;
 
   return (
     <Drawer

@@ -1,9 +1,9 @@
 import { Text, View } from "react-native";
 
-export default function Profile() {
+export default function Language() {
   return (
     <View>
-      <Text>Settings Page</Text>
+      <Text>Language Page</Text>
     </View>
   );
 }
