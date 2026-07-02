@@ -1,10 +1,11 @@
 import { ThemedText } from "@/components/themed-text";
 import React from "react";
 import {
-    Modal,
-    StyleSheet,
-    TouchableOpacity,
-    View,
+  Modal,
+  Platform,
+  StyleSheet,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 
@@ -33,22 +34,26 @@ export default function LocationPicker({
       animationType="slide"
     >
       <View style={styles.container}>
-        <MapView
-          style={styles.map}
-          initialRegion={{
-            latitude: 14.5995,
-            longitude: 120.9842,
-            latitudeDelta: 0.05,
-            longitudeDelta: 0.05,
-          }}
-          onPress={(e) =>
-            onSelectLocation(e.nativeEvent.coordinate)
-          }
-        >
-          {selectedLocation && (
-            <Marker coordinate={selectedLocation} />
-          )}
-        </MapView>
+        {Platform.OS === "ios" ? (
+          <MapView
+            style={styles.map}
+            initialRegion={{
+              latitude: 14.5995,
+              longitude: 120.9842,
+              latitudeDelta: 0.05,
+              longitudeDelta: 0.05,
+            }}
+            onPress={(e) =>
+              onSelectLocation(e.nativeEvent.coordinate)
+            }
+          >
+            {selectedLocation && (
+              <Marker coordinate={selectedLocation} />
+            )}
+          </MapView>
+        ) : (
+          <View style={styles.androidMapPlaceholder} />
+        )}
 
         <View style={styles.bottom}>
           <TouchableOpacity
@@ -93,4 +98,9 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     fontSize: 16,
   },
+
+  androidMapPlaceholder: {
+  flex: 1,
+  backgroundColor: "#DFF4FF",
+},
 });

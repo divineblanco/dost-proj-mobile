@@ -118,7 +118,7 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
           name="settings"
           size={25}
           color="white"
-          onPress={() => router.push("/drawer/tabs/settings")}
+          onPress={() => router.push("/drawer/tabs/setting/settings")}
         />
 
         <Ionicons

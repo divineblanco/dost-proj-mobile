@@ -23,7 +23,7 @@ export default function Profile() {
     >
       <ThemedView>
         <ThemedView style={styles.headerContainer}>
-          <TouchableOpacity onPress={() => router.push("/drawer/tabs/settings/settings")}>
+          <TouchableOpacity onPress={() => router.push("/drawer/tabs/setting/settings")}>
             <Feather
             name="settings"
             size={20}

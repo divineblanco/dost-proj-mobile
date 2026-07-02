@@ -264,6 +264,15 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     padding: 15,
     borderRadius: 12,
+    borderColor: "#E0E4F0",
+    borderWidth: 1,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 5,
   },
 
   dropdownContent: {

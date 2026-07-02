@@ -1,8 +1,9 @@
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { Ionicons } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
 import { Href, useRouter } from "expo-router";
-import React from "react";
+import React, { useState } from "react";
 import {
   Image,
   ScrollView,
@@ -20,25 +21,52 @@ const PROFILE_INFO: {
     label: "Username",
     value: "Username",
     icon: "person-outline",
-    path: "/drawer/tabs/settings/profile/edit-username",
+    path: "/drawer/tabs/setting/profile/edit-username",
   },
   {
     label: "Email",
     value: "username@email.com",
     icon: "mail-outline",
-    path: "/drawer/tabs/settings/profile/edit-email",
+    path: "/drawer/tabs/setting/profile/edit-email",
   },
   {
     label: "Address",
     value: "Calamba, Laguna",
     icon: "location-outline",
-    path: "/drawer/tabs/settings/profile/edit-address",
+    path: "/drawer/tabs/setting/profile/edit-address",
   },
 ];
 
 export default function ProfileSettings() {
 
   const router = useRouter();
+
+  const [profileImage, setProfileImage] = useState(
+    require("@/assets/images/profile.jpg")
+  );
+
+  const pickImage = async () => {
+  const permission =
+    await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+  if (!permission.granted) {
+    alert("Permission to access gallery is required.");
+    return;
+  }
+
+  const result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ["images"],
+    allowsEditing: true,
+    aspect: [1, 1],
+    quality: 1,
+  });
+
+  if (!result.canceled) {
+    setProfileImage({
+      uri: result.assets[0].uri,
+    });
+  }
+  };
 
   
   return (
@@ -51,12 +79,12 @@ export default function ProfileSettings() {
         <ThemedView style={styles.profileContainer}>
           <ThemedView style={styles.imageShadow}>
             <Image
-              source={require("@/assets/images/profile.jpg")}
+              source={profileImage}
               style={styles.profileImg}
             />
           </ThemedView>
 
-          <TouchableOpacity>
+          <TouchableOpacity onPress={pickImage}>
             <ThemedText style={styles.edit}>
               Edit Photo
             </ThemedText>

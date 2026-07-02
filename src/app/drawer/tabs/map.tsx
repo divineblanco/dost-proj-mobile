@@ -8,6 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Device from 'expo-device';
 import React, { useRef, useState } from 'react';
 import { Animated, Linking, Platform, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import MapView from "react-native-maps";
 
 function getDevMenuHint() {
   if (Platform.OS === 'web') {
@@ -62,17 +63,64 @@ export default function Map() {
   const [showSubmitResource, setShowSubmitResource] =
     useState(false);
 
-  const [modalVisible, setModalVisible] = useState(false);
+  const [region, setRegion] = useState({
+    latitude: 14.5995,
+    longitude: 120.9842,
+    latitudeDelta: 0.15,
+    longitudeDelta: 0.15,
+  });
+
+const resources = [
+  {
+    id: 1,
+    title: "Manila Health Center",
+    description: "Free HIV testing",
+    latitude: 14.5995,
+    longitude: 120.9842,
+  },
+  {
+    id: 2,
+    title: "Love Yourself Manila",
+    description: "HIV Screening",
+    latitude: 14.6043,
+    longitude: 120.9828,
+  },
+];
 
   return (
     <ScrollView style={styles.pageContainer} contentContainerStyle={styles.scrollContent}>
       <ThemedView>
-        <ThemedView style={styles.mapBG}>
+        <ThemedView style={styles.mapContainer}>
 
-          <MapDropdown
-            selectedRegion={selectedRegion}
-            setSelectedRegion={setSelectedRegion}
-          />
+          {Platform.OS === "ios" ? (
+            <MapView
+              style={StyleSheet.absoluteFillObject}
+              initialRegion={{
+                latitude: 14.5995,
+                longitude: 120.9842,
+                latitudeDelta: 0.15,
+                longitudeDelta: 0.15,
+              }}
+            >
+              {/* markers */}
+            </MapView>
+          ) : (
+            <ThemedView
+              style={[
+                StyleSheet.absoluteFillObject,
+                {
+                  backgroundColor: "#DFF4FF", // light blue
+                },
+              ]}
+            />
+          )}
+
+          <ThemedView style={styles.mapDropdown}>
+            <MapDropdown
+              selectedRegion={selectedRegion}
+              setSelectedRegion={setSelectedRegion}
+            />
+          </ThemedView>
 
             {/* FILTER BUTTON */}
           <TouchableOpacity style={styles.filterBtn} onPress={toggleDrawer}>
@@ -88,49 +136,57 @@ export default function Map() {
             onClose={toggleDrawer}
           />
 
-          <ThemedView style={styles.boxBG}>
-            <ThemedView style={styles.legendContainer}>
-                <ThemedView style={styles.legend}>
-                  <ThemedView style={styles.highColor}/>
-                  <ThemedText style={styles.legendLabel}>High</ThemedText>
-                </ThemedView>
-                <ThemedView style={styles.legend}>
-                  <ThemedView style={styles.mediumColor}/>
-                  <ThemedText style={styles.legendLabel}>Medium</ThemedText>
-                </ThemedView>
-                <ThemedView style={styles.legend}>
-                  <ThemedView style={styles.lowColor}/>
-                  <ThemedText style={styles.legendLabel}>Low</ThemedText>
-                </ThemedView>
+
+          <ThemedView style={styles.legendBox}>
+            <ThemedView style={styles.boxBG}>
+              <ThemedView style={styles.legendContainer}>
+                  <ThemedView style={styles.legend}>
+                    <ThemedView style={styles.highColor}/>
+                    <ThemedText style={styles.legendLabel}>High</ThemedText>
+                  </ThemedView>
+                  <ThemedView style={styles.legend}>
+                    <ThemedView style={styles.mediumColor}/>
+                    <ThemedText style={styles.legendLabel}>Medium</ThemedText>
+                  </ThemedView>
+                  <ThemedView style={styles.legend}>
+                    <ThemedView style={styles.lowColor}/>
+                    <ThemedText style={styles.legendLabel}>Low</ThemedText>
+                  </ThemedView>
             </ThemedView>
+            </ThemedView>
+          </ThemedView>
+          
+
+          <ThemedView style={styles.contentContainer}>
+            <ThemedView style={styles.contentBG}>
+              <ThemedText style={{alignSelf: "flex-end"}}>
+                14.5995° N, 120.9842° E
+              </ThemedText>
+              <ThemedText style={styles.contentProvince}>
+                Metro Manila
+              </ThemedText>
+                
+              <ThemedView style={{flexDirection: "row", justifyContent: "space-between", backgroundColor: "transparent",}}>
+                <ThemedText style={styles.otherContent}>
+                Mentions: <ThemedText style={styles.moreContent}>1,458</ThemedText>
+                </ThemedText>
+                <ThemedText style={styles.otherContent}>
+                Stigma Index: <ThemedText style={styles.moreContent}>14.2</ThemedText>
+                </ThemedText>
+              </ThemedView>
+              
+              <ThemedText style={styles.otherContent}>
+                  Sentiment: <ThemedText style={styles.moreContent}>0.2% Neutral</ThemedText>
+              </ThemedText>
+              
+              <ThemedText style={styles.otherContent}>
+                Top Trending Topic: <ThemedText style={styles.moreContent}>#HIVAwareness</ThemedText>
+              </ThemedText>
+            </ThemedView>
+
           </ThemedView>
 
           
-          <ThemedView style={styles.contentBG}>
-            <ThemedText style={{alignSelf: "flex-end"}}>
-              14.5995° N, 120.9842° E
-            </ThemedText>
-            <ThemedText style={styles.contentProvince}>
-              Metro Manila
-            </ThemedText>
-              
-            <ThemedView style={{flexDirection: "row", justifyContent: "space-between", backgroundColor: "transparent",}}>
-              <ThemedText style={styles.otherContent}>
-              Mentions: <ThemedText style={styles.moreContent}>1,458</ThemedText>
-              </ThemedText>
-              <ThemedText style={styles.otherContent}>
-              Stigma Index: <ThemedText style={styles.moreContent}>14.2</ThemedText>
-              </ThemedText>
-            </ThemedView>
-            
-            <ThemedText style={styles.otherContent}>
-                Sentiment: <ThemedText style={styles.moreContent}>0.2% Neutral</ThemedText>
-            </ThemedText>
-            
-            <ThemedText style={styles.otherContent}>
-              Top Trending Topic: <ThemedText style={styles.moreContent}>#HIVAwareness</ThemedText>
-            </ThemedText>
-          </ThemedView>
           
         </ThemedView>
 
@@ -206,34 +262,20 @@ const styles = StyleSheet.create({
   summaryContainer: {
     padding: 5,
   },
-  mapBG: {
-    padding: 10,
+  mapContainer: {
     height: 750,
-    backgroundColor: '#7DB9EE',
+    borderBottomWidth: 2,
     borderBottomColor: "#35408E",
-    borderBottomWidth: 2
+    overflow: "hidden",
+    position: "relative",
   },
-  regionBG: {
-    backgroundColor: "white", 
-    width: "85%", 
-    padding: 15, 
-    borderRadius: 12,
-    marginBottom: 10
-  },
-  regionsDropdown: {
-    flexDirection: "row", 
-    justifyContent: "space-between", 
-    backgroundColor: "transparent"
-  },
-  graphBG:{
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'flex-start',
-    padding: 10,
-    height: 150,
-    gap: 10,
-    backgroundColor: '#E4E8F0',
-    borderRadius: 12,  
+  mapDropdown: {
+    position: "absolute",
+    top: 10,
+    left: 10,
+    right: 60,
+    backgroundColor: "transparent",
+    zIndex: 999,
   },
   boxBG:{
     backgroundColor: "white", 
@@ -241,11 +283,29 @@ const styles = StyleSheet.create({
     padding: 15, 
     borderRadius: 12,
     marginBottom: 10,
+    borderColor: "#E0E4F0",
+    borderWidth: 1,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 5,
+    elevation: 2
+  },
+  legendBox: {
+    position: "absolute",
+    top: 75,
+    left: 10,
+    right: 10,
+    backgroundColor: "transparent",
+    zIndex: 20,
   },
   legendContainer: {
     justifyContent: "space-around",
     backgroundColor: "transparent",
-    flexDirection: "row"
+    flexDirection: "row",
   },
   legend: {
     flexDirection: "row", 
@@ -276,24 +336,6 @@ const styles = StyleSheet.create({
     marginRight: 5,
     borderRadius: 5
   },
-  checkboxBG: {
-    backgroundColor: "#E4E8F0", 
-    width: "50%", 
-    padding: 20, 
-    alignSelf: "flex-end", 
-    borderRadius: 12,
-    gap: 10
-  },
-  checkboxContent: {
-    flexDirection: "row", 
-    justifyContent: "flex-start", 
-    backgroundColor: "transparent", 
-    gap: 10
-  },
-  checkboxLabel: {
-    fontSize: 12,
-    fontWeight: "500"
-  },
   filterBtn: {
     position: "absolute",
     top: 10,
@@ -303,6 +345,14 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     zIndex: 10,
   },
+  contentContainer: {
+    position: "absolute",
+    bottom: 10,
+    left: 10,
+    right: 10,
+    backgroundColor: "transparent",
+    zIndex: 20,
+  },
   contentBG:{
     backgroundColor: "white", 
     width: "100%", 
@@ -310,6 +360,16 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginBottom: 10,
     marginTop: "auto", 
+    borderColor: "#E0E4F0",
+    borderWidth: 1,
+        shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.10,
+    shadowRadius: 5,
+    elevation: 2
     
   },
   contentProvince: {

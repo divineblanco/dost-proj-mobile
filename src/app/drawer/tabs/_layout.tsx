@@ -129,7 +129,7 @@ export default function TabsLayout() {
       />
 
       <Tabs.Screen
-        name="settings"
+        name="setting"
         options={{
           href: null,
         }}

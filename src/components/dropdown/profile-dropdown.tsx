@@ -49,7 +49,7 @@ export function ProfileDropDown({
       </TouchableOpacity>
 
       <TouchableOpacity
-        onPress={() => handleNavigation("/drawer/tabs/settings")}
+        onPress={() => handleNavigation("/drawer/tabs/setting/settings")}
         style={styles.dropdown}
       >
         <ThemedView style={styles.dropdownItem}>

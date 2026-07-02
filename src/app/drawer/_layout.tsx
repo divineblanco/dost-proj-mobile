@@ -25,14 +25,17 @@ export default function DrawerLayout() {
     pathname.startsWith("/drawer/tabs/contributions/report-misinfo");
 
   const isProfileSettings =
-    pathname.startsWith("/drawer/tabs/settings/profile-settings");
+    pathname.startsWith("/drawer/tabs/setting/profile-settings");
 
   const isEditProfile =
-    pathname.startsWith("/drawer/tabs/settings/profile/edit-");
+    pathname.startsWith("/drawer/tabs/setting/profile/edit-");
+
+   const isActivityLog =
+    pathname.startsWith("/drawer/tabs/setting/activity-log");
 
   // ✅ SINGLE FLAG FOR BACK BEHAVIOR
   const showBackButton = isResourceDetails || isAddContribute || isReportMisinformation
-                      || isProfileSettings || isEditProfile;
+                      || isProfileSettings || isEditProfile || isActivityLog;
 
   return (
     <Drawer
