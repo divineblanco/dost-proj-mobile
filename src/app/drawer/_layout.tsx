@@ -30,12 +30,32 @@ export default function DrawerLayout() {
   const isEditProfile =
     pathname.startsWith("/drawer/tabs/setting/profile/edit-");
 
-   const isActivityLog =
+  const isActivityLog =
     pathname.startsWith("/drawer/tabs/setting/activity-log");
+  
+  const isDeviceSessions = 
+    pathname.startsWith("/drawer/tabs/setting/device-sessions");
+  
+  const isLanguage = 
+    pathname.startsWith("/drawer/tabs/setting/language");
+
+  const isAppearance = 
+    pathname.startsWith("/drawer/tabs/setting/appearance");
+
+  const isHelp = 
+    pathname.startsWith("/drawer/tabs/setting/help");
+
+  const isReportHelp = 
+    pathname.startsWith("/drawer/tabs/setting/problem/report-problem");
+
+  const isAbout = 
+    pathname.startsWith("/drawer/tabs/setting/about");
+
 
   // ✅ SINGLE FLAG FOR BACK BEHAVIOR
   const showBackButton = isResourceDetails || isAddContribute || isReportMisinformation
-                      || isProfileSettings || isEditProfile || isActivityLog;
+                      || isProfileSettings || isEditProfile || isActivityLog || isDeviceSessions
+                      || isLanguage || isAppearance || isHelp || isReportHelp || isAbout;
 
   return (
     <Drawer
