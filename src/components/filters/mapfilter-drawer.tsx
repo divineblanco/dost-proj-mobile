@@ -1,9 +1,11 @@
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { mapFilterDrawerStyles } from "@/styles/map-styles";
+import { useResponsive } from "@/styles/responsive";
 import { Ionicons } from "@expo/vector-icons";
 import Checkbox from "expo-checkbox";
-import React from "react";
-import { Animated, StyleSheet, TouchableOpacity } from "react-native";
+import React, { useMemo } from "react";
+import { Animated, TouchableOpacity } from "react-native";
 
 export type FilterState = {
   heatmap: boolean;
@@ -30,6 +32,9 @@ export default function MapFilterDrawer({
 }: Props) {
   // ✅ FULLY HIDDEN WHEN CLOSED
   if (!visible) return null;
+
+    const r = useResponsive();
+    const styles = useMemo(() => mapFilterDrawerStyles(r), [r]);
 
   return (
     <Animated.View
@@ -120,6 +125,8 @@ function CheckboxRow({
   value: boolean;
   onChange: (val: boolean) => void;
 }) {
+    const r = useResponsive();
+    const styles = useMemo(() => mapFilterDrawerStyles(r), [r]);
   return (
     <ThemedView style={styles.row}>
       <Checkbox value={value} onValueChange={onChange} />
@@ -128,78 +135,78 @@ function CheckboxRow({
   );
 }
 
-const styles = StyleSheet.create({
-  drawer: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    bottom: 0,
+// const styles = StyleSheet.create({
+//   drawer: {
+//     position: "absolute",
+//     left: 0,
+//     right: 0,
+//     bottom: 0,
 
-    backgroundColor: "#FFFFFF",
-    borderTopLeftRadius: 22,
-    borderTopRightRadius: 22,
+//     backgroundColor: "#FFFFFF",
+//     borderTopLeftRadius: 22,
+//     borderTopRightRadius: 22,
 
-    padding: 18,
-    paddingBottom: 28,
+//     padding: 18,
+//     paddingBottom: 28,
 
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: -3 },
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
+//     shadowColor: "#000",
+//     shadowOffset: { width: 0, height: -3 },
+//     shadowOpacity: 0.15,
+//     shadowRadius: 10,
 
-    elevation: 12,
-    zIndex: 999,
-  },
+//     elevation: 12,
+//     zIndex: 999,
+//   },
 
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
+//   header: {
+//     flexDirection: "row",
+//     justifyContent: "space-between",
+//     alignItems: "center",
+//   },
 
-  title: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: "#1A1F5E",
-    paddingVertical: 5
-  },
+//   title: {
+//     fontSize: 20,
+//     fontWeight: "700",
+//     color: "#1A1F5E",
+//     paddingVertical: 5
+//   },
 
-  subtitle: {
-    fontSize: 12,
-    color: "#6B7280",
-    marginBottom: 14,
-  },
+//   subtitle: {
+//     fontSize: 12,
+//     color: "#6B7280",
+//     marginBottom: 14,
+//   },
 
-  closeBtn: {
-    padding: 6,
-    borderRadius: 20,
-    backgroundColor: "#EEF1FA",
-  },
+//   closeBtn: {
+//     padding: 6,
+//     borderRadius: 20,
+//     backgroundColor: "#EEF1FA",
+//   },
 
-  section: {
-    marginTop: 10,
-    paddingTop: 10,
-    borderTopWidth: 1,
-    borderTopColor: "#F0F2F8",
-  },
+//   section: {
+//     marginTop: 10,
+//     paddingTop: 10,
+//     borderTopWidth: 1,
+//     borderTopColor: "#F0F2F8",
+//   },
 
-  sectionTitle: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#35408E",
-    marginBottom: 10,
-  },
+//   sectionTitle: {
+//     fontSize: 13,
+//     fontWeight: "600",
+//     color: "#35408E",
+//     marginBottom: 10,
+//   },
 
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    paddingVertical: 10,
-  },
+//   row: {
+//     flexDirection: "row",
+//     alignItems: "center",
+//     gap: 12,
+//     paddingVertical: 10,
+//   },
 
-  label: {
-    fontSize: 15,
-    fontWeight: "500",
-    color: "#35408E",
-  },
-});
+//   label: {
+//     fontSize: 15,
+//     fontWeight: "500",
+//     color: "#35408E",
+//   },
+// });

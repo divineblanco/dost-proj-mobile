@@ -31,7 +31,7 @@ export default function EditAddress() {
     if (!validations.notOnlySpaces)   return "Address cannot be empty";
     if (!validations.minLength)       return `${10 - address.trim().length} more character${10 - address.trim().length !== 1 ? "s" : ""} needed`;
     if (!validations.maxLength)       return "Maximum of 100 characters allowed";
-    if (!validations.hasLetter)       return "Address must contain letters (e.g. street or barangay name)";
+    if (!validations.hasLetter)       return "Address must contain letters (e.g. city or province)";
     if (!validations.noDoubleSpaces)  return "Remove extra consecutive spaces";
     return "Address looks good!";
   };
@@ -79,7 +79,7 @@ export default function EditAddress() {
             />
             <TextInput
               style={styles.input}
-              placeholder="e.g. 12 Rizal St., Brgy. 1, Calamba, Laguna"
+              placeholder="i.e. House/Bldg No., Street Name, Barangay, City/Municipality, Province"
               placeholderTextColor="#9BA8C0"
               value={address}
               onChangeText={(text) => setAddress(text.slice(0, 100))}
@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
 
   inputRow: {
     flexDirection: "row",
-    alignItems: "flex-start",
+    alignItems: "center",
     gap: 8,
     borderWidth: 1.5,
     borderRadius: 10,

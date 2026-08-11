@@ -1,145 +1,170 @@
 import { ExternalResources } from "@/components/cards/external-resources";
 import { ResourcesCard } from "@/components/cards/resources-card";
+import { MaterialType, MaterialTypeDropdown } from "@/components/dropdown/material-dropdown";
 import ResourcesDropdown from "@/components/dropdown/resources-dropdown";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { resourcesPageStyles } from "@/styles/resources/resources-styles";
+import { icon, scale, useResponsive } from "@/styles/responsive";
 import { Ionicons } from "@expo/vector-icons";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import React, { useState } from "react";
-import {
-  Platform,
-  ScrollView,
-  StyleSheet,
-  TextInput
-} from "react-native";
+import React, { useMemo, useState } from "react";
+import { ScrollView, TextInput, TouchableOpacity } from "react-native";
+import { resourcesData } from "./resource-data";
+
+const ITEMS_PER_PAGE = 5;
 
 export default function Resources() {
   const [selectedResources, setSelectectedResources] = useState("All Categories");
+  const [search, setSearch]               = useState("");
+  const [currentPage, setCurrentPage]     = useState(1);
+  const [selectedTypes, setSelectedTypes] = useState<MaterialType[]>([]);
 
-  const [showCalendar, setShowCalendar] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const filteredResources = useMemo(() => {
+    return resourcesData.filter((item) => {
+      const matchesSearch =
+        item.title.toLowerCase().includes(search.toLowerCase()) ||
+        item.description.toLowerCase().includes(search.toLowerCase());
 
-  const onChangeDate = (event: any, date?: Date) => {
-    setShowCalendar(false); 
-    if (date) setSelectedDate(date);
-  };
+      const matchesCategory =
+        selectedResources === "All Categories" ||
+        item.label === selectedResources;
+
+      const matchesMaterial =
+        selectedTypes.length === 0 ||
+        selectedTypes.includes(item.materialType);
+
+      return matchesSearch && matchesCategory && matchesMaterial;
+    });
+  }, [search, selectedResources, selectedTypes]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredResources.length / ITEMS_PER_PAGE));
+
+  const paginatedResources = filteredResources.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
+  const r = useResponsive();
+  const styles = useMemo(() => resourcesPageStyles(r), [r]);
+
+  const resetPage = () => setCurrentPage(1);
+
+  const hasActiveFilters =
+    selectedTypes.length > 0 ||
+    selectedResources !== "All Categories" ||
+    search !== "";
 
   return (
     <ScrollView
       style={styles.pageContainer}
       contentContainerStyle={styles.scrollContent}
     >
-      <ThemedView>
+      <ThemedView style={styles.pageInner}>
+
+        {/* Header */}
         <ThemedView style={styles.headerContainer}>
-          <ThemedText type="title" style={{ textAlign: "left" }}>
+          <ThemedText type="title" style={styles.headerTitle}>
             HIV Educational Resources
           </ThemedText>
-
-          <ThemedText style={{fontSize: 12, fontWeight: "400"}}>
+          <ThemedText style={styles.headerTxt}>
             Read educational materials about HIV prevention, treatment, awareness, and more.
           </ThemedText>
         </ThemedView>
 
+        {/* Search */}
         <ThemedView style={styles.search}>
-          <Ionicons name="search" size={20} color="#868686" />
+          <Ionicons name="search" size={icon(20)} color="#868686" />
           <TextInput
+            value={search}
+            onChangeText={(text) => { setSearch(text); resetPage(); }}
             placeholder="Search educational resources..."
             placeholderTextColor="#868686"
             style={styles.searchInput}
           />
         </ThemedView>
 
+        {/* Filter row */}
         <ThemedView style={styles.filterRow}>
           <ResourcesDropdown
             selectedResources={selectedResources}
-            setSelectectedResources={setSelectectedResources}
+            setSelectectedResources={(value) => {
+              setSelectectedResources(value);
+              resetPage();
+            }}
+          />
+
+          <MaterialTypeDropdown
+            selected={selectedTypes}
+            onChange={(updated) => { setSelectedTypes(updated); resetPage(); }}
           />
         </ThemedView>
 
-        {selectedDate && (
-          <ThemedText style={styles.dateText}>
-            Selected: {selectedDate.toDateString()}
+        {/* Results count + clear */}
+        <ThemedView style={styles.resultsRow}>
+          <ThemedText style={styles.resultsTxt}>
+            {filteredResources.length} result{filteredResources.length !== 1 ? "s" : ""}
+            {selectedTypes.length > 0 && (
+              <ThemedText style={styles.resultsBadge}>
+                {" "}· {selectedTypes.join(", ")}
+              </ThemedText>
+            )}
           </ThemedText>
-        )}
 
-        {showCalendar && (
-          <DateTimePicker
-            value={selectedDate || new Date()}
-            mode="date"
-            display={Platform.OS === "ios" ? "spinner" : "default"}
-            onChange={onChangeDate}
-          />
-        )}
-
-        <ThemedView style={{padding: 10}}>
-          <ResourcesCard/>
+          {hasActiveFilters && (
+            <TouchableOpacity
+              onPress={() => {
+                setSelectedTypes([]);
+                setSelectectedResources("All Categories");
+                setSearch("");
+                resetPage();
+              }}
+              activeOpacity={0.7}
+            >
+              <ThemedText style={styles.clearTxt}>Clear filters</ThemedText>
+            </TouchableOpacity>
+          )}
         </ThemedView>
 
-        <ThemedView style={{padding: 10, marginBottom: 10}}>
-          <ThemedText style={{fontSize: 20, fontWeight: "bold", lineHeight: 20}}>
-            External Resources
-          </ThemedText>
+        {/* Cards + Pagination */}
+        <ThemedView style={{ padding: scale(10) }}>
+          <ResourcesCard data={paginatedResources} />
 
-          <ExternalResources/>
+          <ThemedView style={styles.pagination}>
+            <TouchableOpacity
+              disabled={currentPage === 1}
+              onPress={() => setCurrentPage((prev) => prev - 1)}
+            >
+              <Ionicons
+                name="chevron-back-circle"
+                size={icon(34)}
+                color={currentPage === 1 ? "#D4D4D4" : "#35408E"}
+              />
+            </TouchableOpacity>
 
+            <ThemedText style={styles.paginationTxt}>
+              {currentPage} / {totalPages}
+            </ThemedText>
+
+            <TouchableOpacity
+              disabled={currentPage === totalPages}
+              onPress={() => setCurrentPage((prev) => prev + 1)}
+            >
+              <Ionicons
+                name="chevron-forward-circle"
+                size={icon(34)}
+                color={currentPage === totalPages ? "#D4D4D4" : "#35408E"}
+              />
+            </TouchableOpacity>
+          </ThemedView>
+        </ThemedView>
+
+        {/* External Resources */}
+        <ThemedView style={styles.extContainer}>
+          <ThemedText style={styles.extTitle}>External Resources</ThemedText>
+          <ExternalResources />
         </ThemedView>
 
       </ThemedView>
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  pageContainer: {
-    flex: 1,
-    backgroundColor: "white",
-    padding: 5,
-  },
-  scrollContent: {
-    paddingBottom: 95,
-  },
-
-  headerContainer: {
-    padding: 10,
-  },
-
-  search: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#E4E8F0",
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: 10,
-    marginHorizontal: 10,
-    gap: 10,
-  },
-
-  searchInput: {
-    fontSize: 12,
-    color: "#868686",
-    flex: 1,
-  },
-
-  filterRow: {
-    paddingHorizontal: 10,
-    marginTop: 10,
-  },
-
-  calendarButton: {
-    backgroundColor: "#35408E",
-    width: 45,
-    height: 40,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  dateText: {
-    alignSelf: "flex-end",
-    marginRight: 10,
-    marginTop: 10,
-    fontSize: 12,
-    color: "#35408E",
-    fontWeight: "600",
-  },
-});

@@ -1,11 +1,11 @@
 import TerminateSession from "@/components/modals/terminate-session";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { settingsStyles as styles } from "@/styles/settings-styles";
 import { Ionicons, Octicons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
   ScrollView,
-  StyleSheet,
   TouchableOpacity
 } from "react-native";
 
@@ -24,14 +24,14 @@ export default function DeviceSessions() {
           </ThemedText>
         </ThemedView>
 
-        <ThemedView style={styles.line}></ThemedView>
+        <ThemedView style={styles.dividerLine}></ThemedView>
 
         <ThemedView style={styles.deviceContainer}>
             <ThemedView style={styles.boxBG}>
-              <ThemedText style={styles.title}>
+              <ThemedText style={styles.deviceTitle}>
                 This Device
               </ThemedText>
-              <ThemedView style={styles.row}>
+              <ThemedView style={styles.deviceRow}>
                 <ThemedView style={styles.icon}>
                   <Octicons name="device-mobile" size={20} color="#35408E"/>
                 </ThemedView>
@@ -83,103 +83,103 @@ export default function DeviceSessions() {
   );
 }
 
-const styles = StyleSheet.create({
-  pageContainer: {
-    flex: 1,
-    backgroundColor: "white",
-    padding: 5,
-  },
-  scrollContent: {
-    paddingBottom: 95,
-  },
+// const styles = StyleSheet.create({
+//   pageContainer: {
+//     flex: 1,
+//     backgroundColor: "white",
+//     padding: 5,
+//   },
+//   scrollContent: {
+//     paddingBottom: 95,
+//   },
 
-  headerContainer: {
-    padding: 20,
-  },
+//   headerContainer: {
+//     padding: 20,
+//   },
 
-  headerTxt: {
-    fontSize: 12, 
-    fontWeight: "400",
-    textAlign: "center"
-  },
+//   headerTxt: {
+//     fontSize: 12, 
+//     fontWeight: "400",
+//     textAlign: "center"
+//   },
 
-  line: {
-    backgroundColor: "#c7c7c7",
-    padding: 0.5,
-    width: "85%",
-    alignSelf: "center",
-    marginBottom: 15
-  },
+//   line: {
+//     backgroundColor: "#c7c7c7",
+//     padding: 0.5,
+//     width: "85%",
+//     alignSelf: "center",
+//     marginBottom: 15
+//   },
 
-  row: {
-    flexDirection: "row",
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-    gap: 15,
-    alignItems: "center"
-  },
+//   row: {
+//     flexDirection: "row",
+//     paddingHorizontal: 20,
+//     paddingVertical: 20,
+//     gap: 15,
+//     alignItems: "center"
+//   },
 
-  row2: {
-    flexDirection: "row",
-    paddingHorizontal: 35,
-    paddingVertical: 5,
-    gap: 15,
-    alignItems: "center"
-  },
+//   row2: {
+//     flexDirection: "row",
+//     paddingHorizontal: 35,
+//     paddingVertical: 5,
+//     gap: 15,
+//     alignItems: "center"
+//   },
 
-  boxBG: {
-    backgroundColor: "white",
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: "#E0E4F0",
-    padding: 15,
-    elevation: 2,
-    shadowColor: "#1A1F5E",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.07,
-    shadowRadius: 8,
-  },
+//   boxBG: {
+//     backgroundColor: "white",
+//     borderRadius: 14,
+//     borderWidth: 1.5,
+//     borderColor: "#E0E4F0",
+//     padding: 15,
+//     elevation: 2,
+//     shadowColor: "#1A1F5E",
+//     shadowOffset: { width: 0, height: 2 },
+//     shadowOpacity: 0.07,
+//     shadowRadius: 8,
+//   },
 
-  title: {
-    fontSize: 15,
-    fontWeight: "bold",
-    paddingBlockStart: 10,
-  },
+//   title: {
+//     fontSize: 15,
+//     fontWeight: "bold",
+//     paddingBlockStart: 10,
+//   },
 
-  icon: {
-    backgroundColor: "#353f8e2d",
-    padding: 20,
-    borderRadius: 999
-  },
+//   icon: {
+//     backgroundColor: "#353f8e2d",
+//     padding: 20,
+//     borderRadius: 999
+//   },
 
-  deviceInfo: {
-    flexDirection: "column",
-    gap: 5
-  },
+//   deviceInfo: {
+//     flexDirection: "column",
+//     gap: 5
+//   },
 
-  device: {
-    fontSize: 15,
-    fontWeight: "600",
-  },
+//   device: {
+//     fontSize: 15,
+//     fontWeight: "600",
+//   },
 
-  location: {
-    fontSize: 12,
-    fontWeight: "400"
-  },
+//   location: {
+//     fontSize: 12,
+//     fontWeight: "400"
+//   },
   
-  deviceContainer: {
-    padding: 15,
-  },
+//   deviceContainer: {
+//     padding: 15,
+//   },
 
-  terminateTxt: {
-    color: "red",
-    fontSize: 12,
-    fontWeight: "bold"
-  },
+//   terminateTxt: {
+//     color: "red",
+//     fontSize: 12,
+//     fontWeight: "bold"
+//   },
 
-  instruction: {
-    fontSize: 12,
-    fontWeight: "400",
-    padding: 10
-  }
-});
+//   instruction: {
+//     fontSize: 12,
+//     fontWeight: "400",
+//     padding: 10
+//   }
+// });

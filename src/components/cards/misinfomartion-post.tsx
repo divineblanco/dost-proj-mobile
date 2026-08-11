@@ -1,11 +1,13 @@
 import { ThemedView } from "@/components/themed-view";
+import { colors } from "@/styles/contribute/contribute-colors";
+import { misinformationPostStyles, sharedCardStyles } from "@/styles/contribute/contribute-component-styles";
+import { icon, useResponsive } from "@/styles/responsive";
 import { Fontisto, Ionicons } from "@expo/vector-icons";
-import React from "react";
+import React, { useMemo } from "react";
 import {
-    Image,
-    ImageSourcePropType,
-    ScrollView,
-    StyleSheet,
+  Image,
+  ImageSourcePropType,
+  ScrollView,
 } from "react-native";
 import { ThemedText } from "../themed-text";
 
@@ -22,12 +24,17 @@ type MisinformationItem = {
 };
 
 export function MisinformationPost() {
+  const r = useResponsive();
+    
+      const sharedStyles = useMemo(() => sharedCardStyles(r), [r]);
+      const styles = useMemo(() => misinformationPostStyles(r), [r]);
+  
   const contributionsData: MisinformationItem[] = [
     {
       icon: require("@/assets/images/profile.jpg"),
       name: "Anonymous User",
       type: "False Information",
-      typeBg: "#FFF0F0",
+      typeBg: colors.dangerBg,
       image: require("@/assets/images/social-media.jpg"),
       date: "May 15, 2026",
       platform: "Facebook",
@@ -38,7 +45,7 @@ export function MisinformationPost() {
       icon: require("@/assets/images/profile.jpg"),
       name: "Anonymous User",
       type: "Conspiracy Theory",
-      typeBg: "#FFF0F0",
+      typeBg: colors.dangerBg,
       image: require("@/assets/images/social-media.jpg"),
       date: "May 1, 2026",
       platform: "Reddit",
@@ -49,7 +56,7 @@ export function MisinformationPost() {
       icon: require("@/assets/images/profile.jpg"),
       name: "Anonymous User",
       type: "Harmful Content",
-      typeBg: "#FFF0F0",
+      typeBg: colors.dangerBg,
       image: require("@/assets/images/social-media.jpg"),
       date: "April 24, 2026",
       platform: "X",
@@ -71,8 +78,8 @@ export function MisinformationPost() {
 
             {/* Header */}
             <ThemedView style={styles.headerRow}>
-              <ThemedView style={styles.userRow}>
-                <Image source={item.icon} style={styles.avatar} />
+              <ThemedView style={sharedStyles.cardUserRow}>
+                <Image source={item.icon} style={sharedStyles.cardAvatar} />
 
                 <ThemedView style={{ backgroundColor: "transparent" }}>
                   <ThemedText style={styles.nameText}>
@@ -96,8 +103,8 @@ export function MisinformationPost() {
               <ThemedView style={styles.warnBadge}>
                 <Ionicons
                   name="warning-outline"
-                  size={16}
-                  color="#C62828"
+                  size={icon(16)}
+                  color={colors.danger}
                 />
               </ThemedView>
             </ThemedView>
@@ -114,21 +121,21 @@ export function MisinformationPost() {
               <ThemedView style={styles.metaItem}>
                 <Ionicons
                   name="calendar-outline"
-                  size={13}
-                  color="#4A7CA8"
+                  size={icon(13)}
+                  color={colors.metaBlue}
                 />
                 <ThemedText style={styles.metaText}>
                   {item.date}
                 </ThemedText>
               </ThemedView>
 
-              <ThemedView style={styles.metaDivider} />
+              <ThemedView style={sharedStyles.cardMetaDivider} />
 
               <ThemedView style={styles.metaItem}>
                 <Fontisto
                   name="world-o"
-                  size={12}
-                  color="#4A7CA8"
+                  size={icon(12)}
+                  color={colors.metaBlue}
                 />
                 <ThemedText style={styles.metaText}>
                   {item.platform}
@@ -140,12 +147,7 @@ export function MisinformationPost() {
             <ThemedView style={styles.divider} />
 
             {/* Title + Post */}
-            <ThemedView
-              style={{
-                gap: 4,
-                backgroundColor: "transparent",
-              }}
-            >
+            <ThemedView style={styles.titlePostWrap}>
               <ThemedText style={styles.titleText}>
                 {item.title}
               </ThemedText>
@@ -160,150 +162,3 @@ export function MisinformationPost() {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  scrollContainer: {
-    gap: 14,
-    paddingHorizontal: 8,
-    paddingVertical: 8,
-  },
-
-  // OUTER CONTAINER = SHADOW
-  cardShadow: {
-    borderRadius: 14,
-
-    // iOS Shadow
-    shadowColor: "#1A1F5E",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.12,
-    shadowRadius: 10,
-
-    // Android Shadow
-    elevation: 6,
-  },
-
-  // INNER CONTAINER = CLIPPING
-  card: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 14,
-    overflow: "hidden",
-  },
-
-  alertBar: {
-    height: 4,
-    backgroundColor: "#E20000",
-  },
-
-  headerRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    backgroundColor: "transparent",
-    paddingHorizontal: 14,
-    paddingTop: 14,
-  },
-
-  userRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    backgroundColor: "transparent",
-  },
-
-  avatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    borderWidth: 1.5,
-    borderColor: "#E8EAF0",
-  },
-
-  nameText: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#1A1F5E",
-    marginBottom: 3,
-  },
-
-  typePill: {
-    alignSelf: "flex-start",
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 20,
-  },
-
-  typeText: {
-    fontSize: 10,
-    fontWeight: "600",
-    color: "#C62828",
-    letterSpacing: 0.2,
-  },
-
-  warnBadge: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: "#FFF0F0",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  postImage: {
-    width: "100%",
-    height: 180,
-    marginTop: 12,
-  },
-
-  metaRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    backgroundColor: "transparent",
-    paddingHorizontal: 14,
-    paddingTop: 12,
-  },
-
-  metaItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-    backgroundColor: "transparent",
-  },
-
-  metaDivider: {
-    width: 1,
-    height: 12,
-    backgroundColor: "#E8EAF0",
-  },
-
-  metaText: {
-    fontSize: 11,
-    color: "#4A7CA8",
-  },
-
-  divider: {
-    height: 1,
-    backgroundColor: "#F0F2F8",
-    marginHorizontal: 14,
-    marginTop: 12,
-  },
-
-  titleText: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: "#35408E",
-    paddingHorizontal: 14,
-    paddingTop: 12,
-  },
-
-  postText: {
-    fontSize: 12,
-    lineHeight: 18,
-    color: "#35408E",
-    paddingHorizontal: 14,
-    paddingBottom: 14,
-  },
-});

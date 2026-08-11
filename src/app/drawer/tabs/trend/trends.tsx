@@ -3,11 +3,13 @@ import { TrendsFilter } from '@/components/filters/trends-filter';
 import { RecentTable } from '@/components/table/recent-table';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { icon, scale } from '@/styles/responsive';
+import { trendsPageStyles as styles } from '@/styles/trends/trends-styles';
 import { Ionicons } from "@expo/vector-icons";
 import * as Device from 'expo-device';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Platform, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { Platform, ScrollView, TouchableOpacity } from 'react-native';
 
 function getDevMenuHint() {
   if (Platform.OS === 'web') {
@@ -35,7 +37,7 @@ export default function Trends() {
 
   return (
     <ScrollView style={styles.pageContainer} contentContainerStyle={styles.scrollContent}>
-      <ThemedView>
+      <ThemedView style={styles.pageInner}>
         <ThemedView style={styles.headerContainer}>
           <ThemedText type='title'>
             Trending Topics
@@ -44,7 +46,7 @@ export default function Trends() {
               console.log("Filter clicked");
               setShowFilter(!showFilter);
             }} style={styles.filterBtn}>
-            <Ionicons name="options-outline" size={24} color="#35408E" />
+            <Ionicons name="options-outline" size={icon(24)} color="#35408E" />
           </TouchableOpacity>
         </ThemedView>
         {showFilter && (
@@ -95,14 +97,14 @@ export default function Trends() {
 
                 <ThemedView style={styles.legendContainer}>
                   <ThemedView style={styles.legend}>
-                    <ThemedView style={{backgroundColor: "#3BB329", padding: 10}}/>
+                    <ThemedView style={[styles.legendColor, {backgroundColor: "#3BB329"}]}/>
                     <ThemedText style={styles.legendLabel}>
                       Prevention
                     </ThemedText>
                   </ThemedView>
 
                   <ThemedView style={styles.legend}>
-                    <ThemedView style={{backgroundColor: "#FFA400", padding: 10}}>
+                    <ThemedView style={[styles.legendColor, {backgroundColor: "#FFA400"}]}>
                     </ThemedView>
                     <ThemedText style={styles.legendLabel}>
                       Misinformation
@@ -110,7 +112,7 @@ export default function Trends() {
                   </ThemedView>
 
                   <ThemedView style={styles.legend}>
-                    <ThemedView style={{backgroundColor: "red", padding: 10}}>
+                    <ThemedView style={[styles.legendColor, {backgroundColor: "red"}]}>
                     </ThemedView>
                     <ThemedText style={styles.legendLabel}>
                       Stigma
@@ -120,7 +122,7 @@ export default function Trends() {
 
               </ThemedView>
 
-              <ThemedView style={{backgroundColor: "transparent", padding: 50}}>
+              <ThemedView style={{backgroundColor: "transparent", padding: scale(50)}}>
                   <ThemedText style={{textAlign: "center"}}>Add Graph Here</ThemedText>
               </ThemedView>
 
@@ -144,92 +146,3 @@ export default function Trends() {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  pageContainer: {
-    flex: 1,
-    backgroundColor: "white",
-    padding: 5
-  },
-  scrollContent: {
-    paddingBottom: 90,
-  },
-  headerContainer:{
-    flexDirection: 'row', 
-    justifyContent: "space-between",
-    padding: 10,
-    position: "relative",
-    alignItems: "center"
-  },
-  filterBtn: {
-    zIndex: 1000, 
-    borderWidth: 1, 
-    borderColor: "#35408E", 
-    borderRadius: 5, 
-    padding: 5
-  },
-  summaryContainer: {
-    padding: 5,
-  },
-  graphBG:{
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'flex-start',
-    padding: 10,
-    height: 150,
-    gap: 10,
-    backgroundColor: '#E4E8F0',
-    borderRadius: 12,  
-  },
-  legendContainer: {
-    marginHorizontal: 20, 
-    marginTop: 10, 
-    backgroundColor: "transparent"
-  },
-  legend: {
-    flexDirection: "row", 
-    gap: 10, 
-    padding: 10, 
-    justifyContent: "flex-start", 
-    alignItems:"center", 
-    backgroundColor: "transparent"
-  },
-  legendLabel: {
-    fontSize: 12, 
-    fontWeight: "medium"
-  },
-  titleContainer: {
-    padding: 10,
-    marginBottom: 5,
-  },
-  title:{
-    marginBottom: 10,
-
-  },
-  titleLine: {
-    backgroundColor: "#35408E", 
-    padding: 0.5,
-    marginHorizontal: 10, 
-    marginTop: 1
-  },
-  titleText: {
-    fontSize: 20,
-    color: "#35408E",
-    fontWeight: "bold",
-    paddingVertical: 3
-  },
-  breakdownBG: {  
-    backgroundColor: "#E4E8F0",
-    width: "100%",
-    padding: 5,
-    marginBottom: 10
-  },
-  breakdownContent: {
-    flexDirection: "row", 
-    padding: 20, 
-    justifyContent: "center", 
-    gap: 5, 
-    backgroundColor: "transparent",
-    flexWrap: "nowrap"
-  }
-});

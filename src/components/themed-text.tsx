@@ -1,7 +1,7 @@
-import { Platform, StyleSheet, Text, type TextProps } from 'react-native';
-
 import { Fonts, ThemeColor } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { font } from '@/styles/responsive';
+import { Platform, StyleSheet, Text, type TextProps } from 'react-native';
 
 export type ThemedTextProps = TextProps & {
   type?: 'default' | 'title' | 'titleLogin' | 'small' | 'smallBold' | "smallBoldColor" | 'subtitle' | 'subtitleLight' | 'subtitleItalic' | 'trendCard' | 'filterLabel' | 'filterOptions' | 'filterApply' | 'link' | 'buttonCaption' |'linkPrimary' | 'code';
@@ -41,97 +41,97 @@ export function ThemedText({ style, type = 'default', themeColor, ...rest }: The
 
 const styles = StyleSheet.create({
   small: {
-    fontSize: 9,
+    fontSize: font(10),
     lineHeight: 17,
-    fontWeight: 500,
+    fontWeight: 400,
     color: "#35408E"
   },
   smallBoldColor:{
-    fontSize: 9,
+    fontSize: font(10),
     lineHeight: 17,
     fontWeight: 700,
     color: "#FFB633"
   },
   smallBold: {
-    fontSize: 11,
+    fontSize: font(11),
     lineHeight: 17,
     fontWeight: 700,
     color: "#35408E"
   },
   default: {
-    fontSize: 12,
+    fontSize: font(12),
     lineHeight: 17,
     fontWeight: 400,
     color: "#35408E"
   },
   title: {
-    fontSize: 20,
+    fontSize: font(20),
     color: "#35408E",
     textAlign: "center",
     fontWeight: "bold",
   },
   titleLogin: {
-    fontSize: 20,
+    fontSize: font(20),
     color: "#ffffff",
     textAlign: "center",
     fontWeight: "bold",
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: font(16),
     fontWeight: 800,
     color: "#35408E"
   },
   subtitleLight: {
-    fontSize: 15,
+    fontSize: font(15),
     fontWeight: 600,
     color: "#35408E"
   },
   subtitleItalic: {
-    fontSize: 15,
+    fontSize: font(15),
     fontWeight: 400,
     fontStyle: "italic",
     color: "#35408E"
   },
   buttonCaption: {
-    fontSize: 15,
+    fontSize: font(15),
     textAlign: "center",
     color: "white",
     fontWeight: "bold",
   },
   trendCard: {
-    fontSize: 13,
+    fontSize: font(13),
     color: "#35408E",
     fontWeight: "bold",
     textAlign: "center"
   },
   filterLabel: {
-    fontSize: 12,
+    fontSize: font(12),
     fontWeight: "bold",
     color: "white"
   },
   filterOptions: {
-    fontSize: 12,
+    fontSize: font(12),
     fontWeight: "400",
     color: "black"
   },
   filterApply: {
-    fontSize: 15,
+    fontSize: font(15),
     fontWeight: "bold",
-    color: "#35408E",
+    color: "white",
     textAlign: "center"
   },
   link: {
     lineHeight: 30,
-    fontSize: 14,
+    fontSize: font(14),
   },
   linkPrimary: {
     lineHeight: 30,
-    fontSize: 14,
+    fontSize: font(14),
     color: '#3c87f7',
   },
   code: {
     fontFamily: Fonts.mono,
     fontWeight: Platform.select({ android: 700 }) ?? 500,
-    fontSize: 12,
+    fontSize: font(12),
   },
 });

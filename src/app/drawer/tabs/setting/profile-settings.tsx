@@ -1,5 +1,6 @@
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { settingsStyles as styles } from "@/styles/settings-styles";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { Href, useRouter } from "expo-router";
@@ -7,8 +8,7 @@ import React, { useState } from "react";
 import {
   Image,
   ScrollView,
-  StyleSheet,
-  TouchableOpacity,
+  TouchableOpacity
 } from "react-native";
 
 const PROFILE_INFO: {
@@ -18,8 +18,8 @@ const PROFILE_INFO: {
   path: Href;
 }[] = [
   {
-    label: "Username",
-    value: "Username",
+    label: "Name",
+    value: "User's Name",
     icon: "person-outline",
     path: "/drawer/tabs/setting/profile/edit-username",
   },
@@ -31,7 +31,7 @@ const PROFILE_INFO: {
   },
   {
     label: "Address",
-    value: "Calamba, Laguna",
+    value: "Lot 4 Block 2, Mahogany St., Brgy. Real, Calamba City, Laguna",
     icon: "location-outline",
     path: "/drawer/tabs/setting/profile/edit-address",
   },
@@ -104,7 +104,10 @@ export default function ProfileSettings() {
                   />
 
                   <ThemedView style={styles.infoColumn}>
-                    <ThemedText style={styles.info}>
+                    <ThemedText 
+                      style={styles.info} 
+                      numberOfLines={1}
+                      ellipsizeMode="tail">
                       {item.value}
                     </ThemedText>
 
@@ -128,83 +131,83 @@ export default function ProfileSettings() {
   );
 }
 
-const styles = StyleSheet.create({
-  pageContainer: {
-    flex: 1,
-    backgroundColor: "white",
-    padding: 5,
-  },
+// const styles = StyleSheet.create({
+//   pageContainer: {
+//     flex: 1,
+//     backgroundColor: "white",
+//     padding: 5,
+//   },
 
-  scrollContent: {
-    paddingBottom: 95,
-  },
+//   scrollContent: {
+//     paddingBottom: 95,
+//   },
 
-  profileContainer: {
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 15,
-    padding: 20,
-  },
+//   profileContainer: {
+//     justifyContent: "center",
+//     alignItems: "center",
+//     gap: 15,
+//     padding: 20,
+//   },
 
-  profileImg: {
-    width: 150,
-    height: 150,
-    borderRadius: 999,
-  },
+//   profileImg: {
+//     width: 150,
+//     height: 150,
+//     borderRadius: 999,
+//   },
 
-  imageShadow: {
-    elevation: 3,
-    shadowColor: "#1A1F5E",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.18,
-    shadowRadius: 5,
-    borderRadius: 999,
-  },
+//   imageShadow: {
+//     elevation: 3,
+//     shadowColor: "#1A1F5E",
+//     shadowOffset: { width: 0, height: 3 },
+//     shadowOpacity: 0.18,
+//     shadowRadius: 5,
+//     borderRadius: 999,
+//   },
 
-  edit: {
-    textDecorationLine: "underline",
-    fontWeight: "400",
-  },
+//   edit: {
+//     textDecorationLine: "underline",
+//     fontWeight: "400",
+//   },
 
-  infoContainer: {
-    padding: 15,
-  },
+//   infoContainer: {
+//     padding: 15,
+//   },
 
-  profileInfoBG: {
-    backgroundColor: "white",
-    padding: 20,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: "#E0E4F0",
-  },
+//   profileInfoBG: {
+//     backgroundColor: "white",
+//     padding: 20,
+//     borderRadius: 10,
+//     borderWidth: 2,
+//     borderColor: "#E0E4F0",
+//   },
 
-  infoRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 15,
-    backgroundColor: "transparent",
-  },
+//   infoRow: {
+//     flexDirection: "row",
+//     alignItems: "center",
+//     gap: 15,
+//     backgroundColor: "transparent",
+//   },
 
-  infoColumn: {
-    flex: 1,
-    backgroundColor: "transparent",
-  },
+//   infoColumn: {
+//     flex: 1,
+//     backgroundColor: "transparent",
+//   },
 
-  info: {
-    fontSize: 15,
-    fontWeight: "800",
-  },
+//   info: {
+//     fontSize: 15,
+//     fontWeight: "800",
+//   },
 
-  label: {
-    fontSize: 14,
-    fontWeight: "300",
-    color: "#868686",
-    marginTop: 2,
-  },
+//   label: {
+//     fontSize: 14,
+//     fontWeight: "300",
+//     color: "#868686",
+//     marginTop: 2,
+//   },
 
-  line: {
-    height: 1,
-    backgroundColor: "#E5E7EB",
-    marginVertical: 15,
-  },
-});
+//   line: {
+//     height: 1,
+//     backgroundColor: "#E5E7EB",
+//     marginVertical: 15,
+//   },
+// });

@@ -1,12 +1,18 @@
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { Feather, Ionicons } from "@expo/vector-icons";
-import React, { useState } from "react";
 import {
+  resourcesDropdownMaxHeight,
+  resourcesDropdownStyles,
+} from "@/styles/resources/resources-components-styles";
+import { icon, useResponsive } from "@/styles/responsive";
+import { Feather, Ionicons } from "@expo/vector-icons";
+import React, { useMemo, useRef, useState } from "react";
+import {
+  Modal,
   ScrollView,
-  StyleSheet,
   TouchableOpacity,
-  View,
+  TouchableWithoutFeedback,
+  View
 } from "react-native";
 
 type Resources = {
@@ -38,12 +44,44 @@ export default function ResourcesDropdown({
   const selectedItem =
     resources.find((c) => c.label === selectedResources) || null;
 
+  const triggerRef = useRef<View>(null);
+
+  const [dropdownPos, setDropdownPos] = useState({
+    top: 0,
+    left: 0,
+    width: 0,
+  });
+
+  const openDropdown = () => {
+  if (open) {
+    setOpen(false);
+    return;
+  }
+
+  triggerRef.current?.measure(
+    (x, y, width, height, pageX, pageY) => {
+      setDropdownPos({
+        top: pageY + height + r.spacing(4),
+        left: pageX,
+        width,
+      });
+
+      setOpen(true);
+    }
+  );
+};
+
+  const r = useResponsive();
+        
+  const styles = useMemo(() => resourcesDropdownStyles(r), [r]);
+
   return (
     <ThemedView style={styles.container}>
       {/* BUTTON */}
       <TouchableOpacity
+        ref={triggerRef}
         style={styles.dropdownButton}
-        onPress={() => setOpen(!open)}
+        onPress={openDropdown}
       >
         <ThemedView style={styles.dropdownContent}>
           {/* LEFT SIDE (ICON + TEXT) */}
@@ -51,7 +89,7 @@ export default function ResourcesDropdown({
             {selectedItem && (
               <Feather
                 name={selectedItem.icon}
-                size={18}
+                size={icon(18)}
                 color="#35408E"
               />
             )}
@@ -64,7 +102,7 @@ export default function ResourcesDropdown({
           {/* ARROW */}
           <Ionicons
             name={open ? "chevron-up-outline" : "chevron-down-outline"}
-            size={16}
+            size={icon(16)}
             color="#35408E"
           />
         </ThemedView>
@@ -72,114 +110,71 @@ export default function ResourcesDropdown({
 
       {/* DROPDOWN LIST */}
       {open && (
-        <ThemedView style={styles.dropdownMenu}>
-          <ScrollView nestedScrollEnabled style={{ maxHeight: 250 }}>
-            {resources.map((item) => {
-              const isActive = selectedResources === item.label;
+  <Modal
+    visible={open}
+    transparent
+    animationType="fade"
+    supportedOrientations={[
+      "portrait",
+      "landscape",
+    ]}
+  >
+    {/* Outside area */}
+    <TouchableWithoutFeedback onPress={() => setOpen(false)}>
+      <View style={styles.overlay}>
+        {/* Prevent closing when tapping inside */}
+        <TouchableWithoutFeedback>
+          <ThemedView style={[
+                        styles.dropdownMenu,
+                        {
+                          top: dropdownPos.top,
+                          left: dropdownPos.left,
+                          width: dropdownPos.width,
+                        },
+                      ]}>
+            <ScrollView
+              nestedScrollEnabled
+              style={{ maxHeight: resourcesDropdownMaxHeight }}
+            >
+              {resources.map((item) => {
+                const isActive = selectedResources === item.label;
 
-              return (
-                <TouchableOpacity
-                  key={item.label}
-                  style={[
-                    styles.dropdownItem,
-                    isActive && styles.activeItem,
-                  ]}
-                  onPress={() => {
-                    setSelectectedResources(item.label);
-                    setOpen(false);
-                  }}
-                >
-                  <Feather
-                    name={item.icon}
-                    size={18}
-                    color={isActive ? "white" : "#35408E"}
-                  />
-
-                  <ThemedText
+                return (
+                  <TouchableOpacity
+                    key={item.label}
                     style={[
-                      styles.itemText,
-                      isActive && styles.activeText,
+                      styles.dropdownItem,
+                      isActive && styles.activeItem,
                     ]}
+                    onPress={() => {
+                      setSelectectedResources(item.label);
+                      setOpen(false);
+                    }}
                   >
-                    {item.label}
-                  </ThemedText>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
-        </ThemedView>
-      )}
+                    <Feather
+                      name={item.icon}
+                      size={icon(18)}
+                      color={isActive ? "white" : "#35408E"}
+                    />
+
+                    <ThemedText
+                      style={[
+                        styles.itemText,
+                        isActive && styles.activeText,
+                      ]}
+                    >
+                      {item.label}
+                    </ThemedText>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+          </ThemedView>
+        </TouchableWithoutFeedback>
+      </View>
+    </TouchableWithoutFeedback>
+  </Modal>
+)}
     </ThemedView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    width: "100%",
-    backgroundColor: "transparent",
-    zIndex: 100,
-  },
-
-  dropdownButton: {
-    backgroundColor: "#E4E8F0",
-    padding: 15,
-    borderRadius: 10,
-  },
-
-  dropdownContent: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    backgroundColor: "transparent"
-  },
-
-  leftContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
-
-  dropdownText: {
-    fontSize: 13,
-    color: "#35408E",
-  },
-
-  dropdownMenu: {
-    backgroundColor: "#E4E8F0",
-    borderRadius: 12,
-    marginTop: 0,
-    position: "absolute",
-    top: 55,
-    width: "100%",
-    elevation: 5,
-    zIndex: 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-  },
-
-  dropdownItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: "#D3D7E0",
-  },
-
-  itemText: {
-    fontSize: 13,
-    color: "#35408E",
-  },
-
-  activeItem: {
-    backgroundColor: "#35408E",
-    borderRadius: 10,
-  },
-
-  activeText: {
-    color: "white",
-    fontWeight: "bold",
-  },
-});

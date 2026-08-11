@@ -1,5 +1,6 @@
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { settingsStyles as styles } from "@/styles/settings-styles";
 import {
   Feather,
   Ionicons,
@@ -9,8 +10,7 @@ import { useRouter } from "expo-router";
 import React from "react";
 import {
   ScrollView,
-  StyleSheet,
-  TouchableOpacity,
+  TouchableOpacity
 } from "react-native";
 
 const SETTINGS = [
@@ -147,48 +147,48 @@ export default function Settings() {
   );
 }
 
-const styles = StyleSheet.create({
-  pageContainer: {
-    flex: 1,
-    backgroundColor: "white",
-    padding: 5,
-  },
+// const styles = StyleSheet.create({
+//   pageContainer: {
+//     flex: 1,
+//     backgroundColor: "white",
+//     padding: 5,
+//   },
 
-  scrollContent: {
-    paddingBottom: 90,
-  },
+//   scrollContent: {
+//     paddingBottom: 90,
+//   },
 
-  container: {
-    paddingVertical: 10
-  },
+//   container: {
+//     paddingVertical: 10
+//   },
 
-  tabContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 20,
-  },
+//   tabContainer: {
+//     flexDirection: "row",
+//     justifyContent: "space-between",
+//     alignItems: "center",
+//     padding: 20,
+//   },
 
-  tab: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
+//   tab: {
+//     flexDirection: "row",
+//     alignItems: "center",
+//     gap: 10,
+//   },
 
-  tabText: {
-    fontSize: 15,
-    fontWeight: "600",
-    lineHeight: 30,
-  },
+//   tabText: {
+//     fontSize: 15,
+//     fontWeight: "600",
+//     lineHeight: 30,
+//   },
 
-  tabLogout: {
-    fontSize: 15,
-    fontWeight: "600",
-    lineHeight: 30,
-    color: "#E20000",
-  },
+//   tabLogout: {
+//     fontSize: 15,
+//     fontWeight: "600",
+//     lineHeight: 30,
+//     color: "#E20000",
+//   },
 
-  tabIcon: {
-    paddingRight: 10
-  }
-});
+//   tabIcon: {
+//     paddingRight: 10
+//   }
+// });

@@ -24,6 +24,10 @@ export default function DrawerLayout() {
   const isReportMisinformation =
     pathname.startsWith("/drawer/tabs/contributions/report-misinfo");
 
+  const isViewTrendsPost =
+    pathname.startsWith("/drawer/tabs/trend/view-trendspost");
+
+
   const isProfileSettings =
     pathname.startsWith("/drawer/tabs/setting/profile-settings");
 
@@ -53,7 +57,7 @@ export default function DrawerLayout() {
 
 
   // ✅ SINGLE FLAG FOR BACK BEHAVIOR
-  const showBackButton = isResourceDetails || isAddContribute || isReportMisinformation
+  const showBackButton = isResourceDetails || isAddContribute || isReportMisinformation || isViewTrendsPost
                       || isProfileSettings || isEditProfile || isActivityLog || isDeviceSessions
                       || isLanguage || isAppearance || isHelp || isReportHelp || isAbout;
 

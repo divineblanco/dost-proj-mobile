@@ -1,21 +1,25 @@
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { mapDropdownStyles } from "@/styles/map-styles";
+import { useResponsive } from "@/styles/responsive";
 import { Ionicons } from "@expo/vector-icons";
-import React, { useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import {
   ScrollView,
-  StyleSheet,
   TouchableOpacity,
+  View
 } from "react-native";
 
 type MapDropdownProps = {
   selectedRegion: string;
   setSelectedRegion: (region: string) => void;
+  onProvinceSelect: (province: string) => void;
 };
 
 export default function MapDropdown({
   selectedRegion,
   setSelectedRegion,
+  onProvinceSelect,
 }: MapDropdownProps) {
   const [showRegions, setShowRegions] = useState(false);
 
@@ -192,11 +196,31 @@ export default function MapDropdown({
   },
 ];
 
+  const r = useResponsive();
+  const styles = useMemo(() => mapDropdownStyles(r), [r]);
+
+  const triggerRef = useRef<View>(null);
+
+  const [dropdownWidth, setDropdownWidth] = useState(0);
+  const [dropdownTop, setDropdownTop] = useState(0);
+
   return (
     <ThemedView style={styles.container}>
       <TouchableOpacity
-        style={styles.dropdownButton}
-        onPress={() => setShowRegions(!showRegions)}
+          ref={triggerRef}
+          style={styles.dropdownButton}
+          onPress={() => {
+            if (showRegions) {
+              setShowRegions(false);
+              return;
+            }
+
+            triggerRef.current?.measure((x, y, width, height) => {
+              setDropdownWidth(width);
+              setDropdownTop(height + 6); // 6px gap below button
+              setShowRegions(true);
+            });
+          }}
       >
         <ThemedView style={styles.dropdownContent}>
           <ThemedText style={styles.dropdownText}>{selectedRegion}</ThemedText>
@@ -214,7 +238,13 @@ export default function MapDropdown({
       </TouchableOpacity>
 
         {showRegions && (
-    <ThemedView style={styles.dropdownMenu}>
+      <ThemedView style={[
+          styles.dropdownMenu,
+          {
+            width: dropdownWidth,
+            top: dropdownTop,
+          },
+        ]}>
         <ScrollView nestedScrollEnabled style={{ maxHeight: 300 }}>
         {regions.map((item) => (
             <ThemedView
@@ -230,14 +260,15 @@ export default function MapDropdown({
 
             {/* PROVINCES */}
             {item.provinces.map((province) => (
-                <TouchableOpacity
-                key={province}
-                style={styles.dropdownItem}
-                onPress={() => {
-                    setSelectedRegion(province);
-                    setShowRegions(false);
-                }}
-                >
+              <TouchableOpacity
+                  key={province}
+                  style={styles.dropdownItem}
+                  onPress={() => {
+                      setSelectedRegion(province);
+                      onProvinceSelect(province);
+                      setShowRegions(false);
+                  }}
+              >
                 <ThemedText style={styles.provinceText}>
                     {province}
                 </ThemedText>
@@ -252,79 +283,79 @@ export default function MapDropdown({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    width: "85%",
-    backgroundColor: "transparent",
-    zIndex: 100,
-    marginBottom: 10
-  },
+// const styles = StyleSheet.create({
+//   container: {
+//     width: "85%",
+//     backgroundColor: "transparent",
+//     zIndex: 100,
+//     marginBottom: 10
+//   },
 
-  dropdownButton: {
-    backgroundColor: "white",
-    padding: 15,
-    borderRadius: 12,
-    borderColor: "#E0E4F0",
-    borderWidth: 1,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 5,
-  },
+//   dropdownButton: {
+//     backgroundColor: "white",
+//     padding: 15,
+//     borderRadius: 12,
+//     borderColor: "#E0E4F0",
+//     borderWidth: 1,
+//     shadowColor: "#000",
+//     shadowOffset: {
+//       width: 0,
+//       height: 4,
+//     },
+//     shadowOpacity: 0.15,
+//     shadowRadius: 5,
+//   },
 
-  dropdownContent: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    backgroundColor: "transparent",
-    alignItems: "center",
-  },
+//   dropdownContent: {
+//     flexDirection: "row",
+//     justifyContent: "space-between",
+//     backgroundColor: "transparent",
+//     alignItems: "center",
+//   },
 
-  dropdownText: {
-    fontSize: 13
-  },
+//   dropdownText: {
+//     fontSize: 13
+//   },
 
-  dropdownMenu: {
-    backgroundColor: "white",
-    borderRadius: 12,
-    marginTop: 5,
-    position: "absolute",
-    top: 45,
-    width: "100%",
+//   dropdownMenu: {
+//     backgroundColor: "white",
+//     borderRadius: 12,
+//     marginTop: 5,
+//     position: "absolute",
+//     top: 45,
+//     width: "100%",
 
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 5,
+//     shadowColor: "#000",
+//     shadowOffset: {
+//       width: 0,
+//       height: 4,
+//     },
+//     shadowOpacity: 0.15,
+//     shadowRadius: 5,
 
-    elevation: 5,
-  },
+//     elevation: 5,
+//   },
 
-  dropdownItem: {
-    padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: "#D3D7E0",
-    backgroundColor: "transparent",
-  },
-  regionLabel: {
-    backgroundColor: "#35408E",
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-  },
+//   dropdownItem: {
+//     padding: 15,
+//     borderBottomWidth: 1,
+//     borderBottomColor: "#D3D7E0",
+//     backgroundColor: "transparent",
+//   },
+//   regionLabel: {
+//     backgroundColor: "#35408E",
+//     paddingVertical: 10,
+//     paddingHorizontal: 15,
+//   },
 
-  regionLabelText: {
-    color: "#FFFFFF",
-    fontWeight: "bold",
-    fontSize: 15,
-  },
+//   regionLabelText: {
+//     color: "#FFFFFF",
+//     fontWeight: "bold",
+//     fontSize: 15,
+//   },
 
-  provinceText: {
-    paddingLeft: 15,
-    fontSize: 13
-  },
-});
+//   provinceText: {
+//     paddingLeft: 15,
+//     fontSize: 13
+//   },
+// });

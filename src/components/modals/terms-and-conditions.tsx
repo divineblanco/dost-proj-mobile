@@ -1,11 +1,19 @@
 import { ThemedText } from "@/components/themed-text";
+import { authStyles as styles } from "@/styles/auth-styles";
+import { icon } from "@/styles/responsive";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
-import { Modal, ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
+import {
+  Modal,
+  ScrollView,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 type Props = {
   visible: boolean;
   onClose: () => void;
+  onAccept: () => void;
 };
 
 const sections = [
@@ -36,54 +44,93 @@ const sections = [
   },
 ];
 
-export default function TermsAndConditions({ visible, onClose }: Props) {
+export default function TermsAndConditions({
+  visible,
+  onClose,
+  onAccept,
+}: Props) {
   return (
-    <Modal visible={visible} animationType="slide" transparent={false} statusBarTranslucent>
-      <View style={styles.screen}>
+    <Modal
+      visible={visible}
+      animationType="slide"
+      transparent={false}
+      statusBarTranslucent
+      supportedOrientations={[
+      "portrait",
+      "landscape",
+    ]}
+    >
+      <View style={styles.tcScreen}>
 
         {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.headerLeft}>
-            <ThemedText style={styles.headerTitle}>TERMS AND CONDITIONS</ThemedText>
+        <View style={styles.tcHeader}>
+          <View style={styles.tcHeaderLeft}>
+            <ThemedText style={styles.tcHeaderTitle}>
+              TERMS AND CONDITIONS
+            </ThemedText>
           </View>
-          <TouchableOpacity onPress={onClose} style={styles.closeBtn} activeOpacity={0.7}>
-            <Ionicons name="close" size={16} color="#6B7280" />
+
+          <TouchableOpacity
+            onPress={onClose}
+            style={styles.tcCloseBtn}
+            activeOpacity={0.7}
+          >
+            <Ionicons
+              name="close"
+              size={icon(16)}
+              color="#6B7280"
+            />
           </TouchableOpacity>
         </View>
 
-        <View style={styles.headerDivider} />
+        <View style={styles.tcHeaderDivider} />
 
-        {/* Intro */}
         <ScrollView
-          style={styles.scroll}
-          contentContainerStyle={styles.scrollContent}
+          style={styles.tcScroll}
+          contentContainerStyle={styles.tcScrollContent}
           showsVerticalScrollIndicator={false}
         >
-          <ThemedText style={styles.intro}>
-            Welcome to AdvocAid PH. By accessing or using the application, you agree to comply with
-            and be bound by the following terms. Please read them carefully before using the app.
+          <ThemedText style={styles.tcIntro}>
+            Welcome to AdvocAid PH. By accessing or using the application,
+            you agree to comply with and be bound by the following terms.
+            Please read them carefully before using the app.
           </ThemedText>
 
-          {/* Sections */}
           {sections.map((s) => (
-            <View key={s.number} style={styles.section}>
-              <View style={styles.sectionHeader}>
-                <View style={styles.sectionNumber}>
-                  <ThemedText style={styles.sectionNumberText}>{s.number}</ThemedText>
+            <View key={s.number} style={styles.tcSection}>
+              <View style={styles.tcSectionHeader}>
+                <View style={styles.tcSectionNumber}>
+                  <ThemedText style={styles.tcSectionNumberText}>
+                    {s.number}
+                  </ThemedText>
                 </View>
-                <ThemedText style={styles.sectionHeading}>{s.heading}</ThemedText>
+
+                <ThemedText style={styles.tcSectionHeading}>
+                  {s.heading}
+                </ThemedText>
               </View>
-              <ThemedText style={styles.sectionBody}>{s.body}</ThemedText>
+
+              <ThemedText style={styles.tcSectionBody}>
+                {s.body}
+              </ThemedText>
             </View>
           ))}
 
-          <View style={styles.bottomPad} />
+          <View style={styles.tcBottomPad} />
         </ScrollView>
 
-        {/* Footer action */}
-        <View style={styles.footer}>
-          <TouchableOpacity style={styles.agreeBtn} onPress={onClose} activeOpacity={0.85}>
-            <ThemedText style={styles.agreeBtnText}>I Agree and Understand</ThemedText>
+        <View style={styles.tcFooter}>
+          <TouchableOpacity
+            style={[styles.modalButton, { shadowColor: "#35408E" }]}
+            activeOpacity={0.85}
+            onPress={() => {
+              onAccept();
+              onClose();
+            }}
+          >
+            <ThemedText style={styles.modalButtonText}>
+              I Agree and Understand
+            </ThemedText>
           </TouchableOpacity>
         </View>
 
@@ -91,147 +138,3 @@ export default function TermsAndConditions({ visible, onClose }: Props) {
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: "#F8F9FD",
-  },
-
-  // Header
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 16,
-    backgroundColor: "#FFFFFF",
-  },
-
-  headerLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
-
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: "#1A1F5E",
-    lineHeight: 25
-  },
-
-  closeBtn: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: "#F3F4F6",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  headerDivider: {
-    height: 3,
-    backgroundColor: "#35408E",
-    marginHorizontal: 20,
-    borderRadius: 2,
-  },
-
-  // Scroll
-  scroll: {
-    flex: 1,
-  },
-
-  scrollContent: {
-    padding: 20,
-    gap: 4,
-  },
-
-  intro: {
-    fontSize: 13,
-    color: "#35408E",
-    lineHeight: 20,
-    marginBottom: 16,
-  },
-
-  // Section
-  section: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: "#F0F2F8",
-    gap: 8,
-  },
-
-  sectionHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
-
-  sectionNumber: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    opacity: 0.55,
-    backgroundColor: "#35408E",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  sectionNumberText: {
-    fontSize: 11,
-    fontWeight: "700",
-    color: "white",
-  },
-
-  sectionHeading: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: "#35408E",
-    flex: 1,
-  },
-
-  sectionBody: {
-    fontSize: 12,
-    color: "#4B5563",
-    lineHeight: 19,
-  },
-
-  bottomPad: {
-    height: 8,
-  },
-
-  // Footer
-  footer: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: "#FFFFFF",
-    borderTopWidth: 1,
-    borderTopColor: "#F0F2F8",
-  },
-
-  agreeBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 7,
-    backgroundColor: "#35408E",
-    paddingVertical: 13,
-    borderRadius: 10,
-    shadowColor: "#35408E",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.28,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-
-  agreeBtnText: {
-    color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "700",
-  },
-});

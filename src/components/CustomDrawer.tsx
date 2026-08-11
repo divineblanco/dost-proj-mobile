@@ -47,9 +47,9 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
         <Item
           icon="trending-up"
           label="Trends"
-          route="/drawer/tabs/trends"
+          route="/drawer/tabs/trend/trends"
           pathname={pathname}
-          onPress={() => router.push("/drawer/tabs/trends")}
+          onPress={() => router.push("/drawer/tabs/trend/trends")}
         />
 
         <Item
@@ -106,7 +106,7 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
 
         <ThemedView style={styles.userInfo}>
           <ThemedText style={styles.username}>
-            Username
+            First Name
           </ThemedText>
 
           <ThemedText style={styles.userEmail}>

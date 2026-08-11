@@ -4,11 +4,13 @@ import { TrendsCard } from '@/components/cards/trends-card';
 import { HomeFilter } from '@/components/filters/home-filter';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { homeStyles } from '@/styles/home-styles';
+import { useResponsive } from '@/styles/responsive';
 import { Ionicons } from "@expo/vector-icons";
 import * as Device from 'expo-device';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
-import { Platform, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { Platform, ScrollView, TouchableOpacity } from 'react-native';
 
 function getDevMenuHint() {
   if (Platform.OS === 'web') {
@@ -33,6 +35,31 @@ export default function Home() {
 
   const router = useRouter();
   const [showFilter, setShowFilter] = useState(false);
+  const r = useResponsive();
+
+  const styles = useMemo(
+      () => homeStyles(r),[r]
+  );
+  // const r = useResponsive();
+
+  // useEffect(() => {
+  //   console.log({
+  //     width: r.SCREEN_WIDTH,
+  //     height: r.SCREEN_HEIGHT,
+
+  //     isPortrait: r.isPortrait,
+  //     isLandscape: r.isLandscape,
+
+  //     isTablet: r.isTablet,
+  //     isTabletPortrait: r.isTablet && r.isPortrait,
+  //     isTabletLandscape: r.isTablet && r.isLandscape,
+
+  //     isShortScreen: r.isShortScreen,
+  //     isNormalScreen: r.isNormalScreen,
+  //     isTallScreen: r.isTallScreen,
+  //     isExtraTallScreen: r.isExtraTallScreen,
+  //   });
+  // }, [r]);
 
   return (
     <ScrollView style={styles.pageContainer} contentContainerStyle={styles.scrollContent}>
@@ -58,10 +85,10 @@ export default function Home() {
 
         <ThemedView style={styles.titleContainer}>
           <ThemedView style={styles.title}>
-            <ThemedText type='subtitle'>
+            <ThemedText style={styles.titleTxt}>
               HIV Discussion Thread
             </ThemedText>
-            <ThemedText type='default'>
+            <ThemedText style={styles.default}>
               Daily mentions across all monitored social media platforms
             </ThemedText>
           </ThemedView>
@@ -73,10 +100,10 @@ export default function Home() {
 
         <ThemedView style={styles.titleContainer}>
           <ThemedView style={styles.title}>
-            <ThemedText type='subtitle'>
+            <ThemedText style={styles.titleTxt}>
               Sentiment Distribution
             </ThemedText>
-            <ThemedText type='default'>
+            <ThemedText style={styles.default}>
               Breakdown of positive, negative, and neutral sentiment
             </ThemedText>
           </ThemedView>
@@ -118,10 +145,10 @@ export default function Home() {
 
         <ThemedView style={styles.titleContainer}>
           <ThemedView style={styles.title}>
-            <ThemedText type='subtitle'>
+            <ThemedText style={styles.titleTxt}>
               Top Trending Topics
             </ThemedText>
-            <ThemedText type='default'>
+            <ThemedText style={styles.default}>
               Most discussed HIV-related topics this week
             </ThemedText>
             <ThemedView style={styles.titleLine}/>
@@ -133,10 +160,22 @@ export default function Home() {
 
         <ThemedView style={styles.titleContainer}>
           <ThemedView style={styles.title}>
-            <ThemedText type='subtitle'>
-              Misinformation Alerts
-            </ThemedText>
-            <ThemedText type='default'>
+            <ThemedView style={styles.viewCol}>
+              <ThemedText style={styles.titleTxt}>
+                Misinformation Alerts
+              </ThemedText>
+              <ThemedText style={styles.viewTxt} 
+                onPress={()=> router.push({
+                  pathname: "/drawer/tabs/contributions/contribute",
+                  params: {
+                    tab: "Misinformation",
+                  },
+                })}
+                >
+                View All
+              </ThemedText>
+            </ThemedView>
+            <ThemedText style={styles.default}>
               Recent identified misinformation requiring attention
             </ThemedText>
           </ThemedView>
@@ -207,106 +246,3 @@ export default function Home() {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  pageContainer: {
-    flex: 1,
-    backgroundColor: "white",
-  },
-  scrollContent: {
-    paddingBottom: 90,
-  },
-  headerContainer:{
-    flexDirection: 'row', 
-    justifyContent: "space-between",
-    padding: 15,
-    position: "relative",
-    alignItems: "center"
-  },
-  filterBtn: {
-    zIndex: 1000, 
-    borderWidth: 1, 
-    borderColor: "#35408E", 
-    borderRadius: 5, 
-    padding: 5
-  },
-  summaryContainer: {
-    backgroundColor: "#E4E8F0",
-    width: "100%",
-    padding: 5,
-  },
-  graphBG:{
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'flex-start',
-    padding: 10,
-    height: 150,
-    gap: 10,
-    backgroundColor: '#E4E8F0',
-    borderRadius: 12,  
-  },
-  legendContainer: {
-    flexDirection: "row", 
-    justifyContent: "space-evenly"
-  },
-  legend: {
-    flexDirection: "row", 
-    padding: 10
-  },
-  femaleColor: {
-    backgroundColor: "red", 
-    padding: 10, 
-    marginRight: 10
-  },
-  otherColor: {
-    backgroundColor: "#FFB633", 
-    padding: 10, 
-    marginRight: 10
-  },
-  maleColor: {
-    backgroundColor: "#7DB9EE", 
-    padding: 10, 
-    marginRight: 10
-  },
-  titleContainer: {
-    padding: 15,
-  },
-  title:{
-    marginBottom: 10
-  },
-  titleLine: {
-    backgroundColor: "#35408E", 
-    padding: 0.5, 
-    marginTop: 8
-  },
-  ActualColor: {
-    borderColor: "#3781C1", 
-    borderWidth: 2,
-    width: 20,
-    height: 20,
-    marginRight: 10
-  },
-  PredictedColor: {
-    borderColor: "#E20000", 
-    borderWidth: 2,
-    borderStyle: "dashed",
-    width: 20,
-    height: 20, 
-    marginRight: 10
-  },
-  morePredictionsBG:{
-    marginTop: 10,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'flex-start',
-    padding: 10,
-    height: "auto",
-    gap: 10,
-    backgroundColor: '#E4E8F0',
-    borderRadius: 12,  
-  },
-  morePredictionsInfo: {
-    padding: 5,
-    backgroundColor: "transparent"
-  },
-});

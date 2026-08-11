@@ -1,7 +1,8 @@
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { recentTableStyles as styles } from "@/styles/trends/trends-components-styles";
 import React from "react";
-import { FlatList, StyleSheet } from "react-native";
+import { FlatList } from "react-native";
 
 type MentionItem = {
   id: string;
@@ -118,95 +119,3 @@ export function RecentTable() {
     </ThemedView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 10,
-    padding: 5,
-    elevation: 5,
-    overflow: "visible",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.20,
-    shadowRadius: 8,
-  },
-
-  headerRow: {
-    flexDirection: "row",
-    backgroundColor: "#35408E",
-    paddingVertical: 10,
-    borderRadius: 6,
-    marginBottom: 5,
-  },
-
-  headerCell: {
-    flex: 1,
-    color: "#FFFFFF",
-    fontSize: 12,
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    minHeight: 55,
-    backgroundColor: "#E4E8F0",
-    borderBottomWidth: 1,
-    borderBottomColor: "#D0D6E0",
-  },
-
-  contentCellContainer: {
-    flex: 2,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 6,
-    backgroundColor: "transparent",
-  },
-
-  cellContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 4,
-    backgroundColor: "transparent",
-  },
-
-  cell: {
-    width: "100%",
-    textAlign: "center",
-    fontSize: 12,
-  },
-
-  colorText: {
-    color: "white",
-    fontWeight: "600",
-  },
-
-  sentimentBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-    minWidth: 75,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  positiveBadge: {
-    backgroundColor: "#3BB329",
-  },
-
-  neutralBadge: {
-    backgroundColor: "#FFA400",
-  },
-
-  negativeBadge: {
-    backgroundColor: "#E20000",
-  },
-
-  sentimentText: {
-    fontSize: 11,
-    fontWeight: "700",
-  },
-});

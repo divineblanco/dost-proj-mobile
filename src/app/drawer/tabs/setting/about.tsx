@@ -1,12 +1,12 @@
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { settingsStyles as styles } from "@/styles/settings-styles";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
   ScrollView,
-  StyleSheet,
-  TouchableOpacity,
+  TouchableOpacity
 } from "react-native";
 
 const ABOUT = [
@@ -32,7 +32,7 @@ export default function About() {
       style={styles.pageContainer}
       contentContainerStyle={styles.scrollContent}
     >
-      <ThemedView style={styles.container}>
+      <ThemedView style={styles.aboutContainer}>
         {ABOUT.map((item) => (
           <TouchableOpacity
             key={item.title}
@@ -62,39 +62,39 @@ export default function About() {
   );
 }
 
-const styles = StyleSheet.create({
-  pageContainer: {
-    flex: 1,
-    backgroundColor: "white",
-    padding: 5,
-  },
+// const styles = StyleSheet.create({
+//   pageContainer: {
+//     flex: 1,
+//     backgroundColor: "white",
+//     padding: 5,
+//   },
 
-  scrollContent: {
-    paddingBottom: 90,
-  },
+//   scrollContent: {
+//     paddingBottom: 90,
+//   },
 
-  container: {
-    paddingVertical: 10,
-  },
+//   container: {
+//     paddingVertical: 10,
+//   },
 
-  tabContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 20,
-  },
+//   tabContainer: {
+//     flexDirection: "row",
+//     justifyContent: "space-between",
+//     alignItems: "center",
+//     padding: 20,
+//   },
 
-  tabText: {
-    fontSize: 15,
-    fontWeight: "600",
-    lineHeight: 30,
-  },
+//   tabText: {
+//     fontSize: 15,
+//     fontWeight: "600",
+//     lineHeight: 30,
+//   },
 
-  tabIcon: {
-    paddingRight: 10,
-  },
+//   tabIcon: {
+//     paddingRight: 10,
+//   },
 
-  versionTxt: {
-    color: "grey"
-  }
-});
+//   versionTxt: {
+//     color: "grey"
+//   } 
+// });

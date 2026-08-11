@@ -1,42 +1,52 @@
-import { ContributionsCard } from "@/components/cards/contributions-card";
-import { MisinformationPost } from "@/components/cards/misinfomartion-post";
-import { ContributionsFilter } from "@/components/filters/contributions-filter";
-import { MisinformationFilter } from "@/components/filters/misinformation-filter";
-import { ThemedText } from "@/components/themed-text";
-import { ThemedView } from "@/components/themed-view";
-import { Ionicons, Octicons } from "@expo/vector-icons";
-import { PlatformPressable } from "@react-navigation/elements";
+import { ContributionsCard } from '@/components/cards/contributions-card';
+import { MisinformationPost } from '@/components/cards/misinfomartion-post';
+import { ContributionsFilter } from '@/components/filters/contributions-filter';
+import { MisinformationFilter } from '@/components/filters/misinformation-filter';
+import { ThemedText } from '@/components/themed-text';
+import { ThemedView } from '@/components/themed-view';
+import { colors } from '@/styles/contribute/contribute-colors';
+import { contributeTabsStyles } from '@/styles/contribute/contribute-form-styles';
+import { icon, useResponsive } from '@/styles/responsive';
+import { Ionicons, Octicons } from '@expo/vector-icons';
+import { PlatformPressable } from '@react-navigation/elements';
 import {
   createMaterialTopTabNavigator,
   MaterialTopTabBarProps,
-} from "@react-navigation/material-top-tabs";
-import { router } from "expo-router";
-import * as React from "react";
-import { Animated, ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
+} from '@react-navigation/material-top-tabs';
+import { router } from 'expo-router';
+import React, { useMemo } from 'react';
+import { Animated, ScrollView, TouchableOpacity, View } from 'react-native';
 
 /* ---------------- CONTRIBUTIONS SCREEN ---------------- */
 
 function ContributionsScreen() {
   const [showFilter, setShowFilter] = React.useState(false);
 
+  const r = useResponsive();
+      
+        const styles = useMemo(() => contributeTabsStyles(r), [r]);
+
   return (
-    <ThemedView style={{ flex: 1, backgroundColor: "#F8F9FD" }}>
+    <ThemedView style={styles.pageContainerPlain}>
       <ScrollView
-        style={styles.pageContainer}
-        contentContainerStyle={styles.scrollContent}
+        style={styles.pageContainerPlain}
+        contentContainerStyle={styles.scrollContentPadded}
         showsVerticalScrollIndicator={false}
       >
         {/* Action bar */}
         <ThemedView style={styles.actionBar}>
-          <TouchableOpacity 
-            style={styles.primaryBtn} 
+          <TouchableOpacity
+            style={styles.primaryBtn}
             activeOpacity={0.85}
             onPress={() =>
               router.push({
-                pathname: "/drawer/tabs/contributions/add-contribute",
+                pathname: '/drawer/tabs/contributions/add-contribute',
               })
-            }>
-            <Ionicons name="add" size={18} color="white" />
+            }
+          >
+            <Ionicons name="add" 
+              size={ icon(18)} 
+              color="white" />
             <ThemedText style={styles.primaryBtnText}>Add Contribution</ThemedText>
           </TouchableOpacity>
 
@@ -47,8 +57,8 @@ function ContributionsScreen() {
           >
             <Ionicons
               name="options-outline"
-              size={20}
-              color={showFilter ? "#3d6ebd" : "#35408E"}
+              size={icon(20)}
+              color={showFilter ? '#3d6ebd' : colors.primary}
             />
           </TouchableOpacity>
         </ThemedView>
@@ -67,25 +77,30 @@ function ContributionsScreen() {
 
 function MisinformationScreen() {
   const [showFilter, setShowFilter] = React.useState(false);
+  const r = useResponsive();
+      
+        const styles = useMemo(() => contributeTabsStyles(r), [r]);
+
 
   return (
-    <ThemedView style={{ flex: 1, backgroundColor: "#F8F9FD" }}>
+    <ThemedView style={styles.pageContainerPlain}>
       <ScrollView
-        style={styles.pageContainer}
-        contentContainerStyle={styles.scrollContent}
+        style={styles.pageContainerPlain}
+        contentContainerStyle={styles.scrollContentPadded}
         showsVerticalScrollIndicator={false}
       >
         {/* Action bar */}
         <ThemedView style={styles.actionBar}>
-          <TouchableOpacity 
-            style={styles.dangerBtn} 
+          <TouchableOpacity
+            style={styles.dangerBtn}
             activeOpacity={0.85}
             onPress={() =>
               router.push({
-                pathname: "/drawer/tabs/contributions/report-misinfo",
+                pathname: '/drawer/tabs/contributions/report-misinfo',
               })
-            }>
-            <Octicons name="alert" size={15} color="white" />
+            }
+          >
+            <Octicons name="alert" size={icon(15)} color="white" />
             <ThemedText style={styles.primaryBtnText}>Report Misinformation</ThemedText>
           </TouchableOpacity>
 
@@ -96,8 +111,8 @@ function MisinformationScreen() {
           >
             <Ionicons
               name="options-outline"
-              size={20}
-              color={showFilter ? "#3d6ebd" : "#35408E"}
+              size={icon(20)}
+              color={showFilter ? '#3d6ebd' : colors.primary}
             />
           </TouchableOpacity>
         </ThemedView>
@@ -115,6 +130,11 @@ function MisinformationScreen() {
 /* ---------------- TAB BAR ---------------- */
 
 function MyTabBar({ state, descriptors, navigation }: MaterialTopTabBarProps) {
+
+  const r = useResponsive();
+      
+        const styles = useMemo(() => contributeTabsStyles(r), [r]);
+
   return (
     <View style={styles.tabBar}>
       {state.routes.map((route, index) => {
@@ -122,9 +142,9 @@ function MyTabBar({ state, descriptors, navigation }: MaterialTopTabBarProps) {
         const isFocused = state.index === index;
 
         const label =
-          typeof options.tabBarLabel === "string"
+          typeof options.tabBarLabel === 'string'
             ? options.tabBarLabel
-            : typeof options.title === "string"
+            : typeof options.title === 'string'
             ? options.title
             : route.name;
 
@@ -155,8 +175,12 @@ function MyTabBar({ state, descriptors, navigation }: MaterialTopTabBarProps) {
 const Tab = createMaterialTopTabNavigator();
 
 export default function Contribute() {
+  const r = useResponsive();
+      
+        const styles = useMemo(() => contributeTabsStyles(r), [r]);
+
   return (
-    <View style={{ flex: 1 }}>
+    <View style={styles.pageContainerPlain}>
       <Tab.Navigator tabBar={(props) => <MyTabBar {...props} />}>
         <Tab.Screen name="Contributions" component={ContributionsScreen} />
         <Tab.Screen name="Misinformation" component={MisinformationScreen} />
@@ -164,123 +188,3 @@ export default function Contribute() {
     </View>
   );
 }
-
-/* ---------------- STYLES ---------------- */
-
-const styles = StyleSheet.create({
-  pageContainer: {
-    flex: 1,
-  },
-
-  scrollContent: {
-    paddingBottom: 100,
-    paddingHorizontal: 14,
-    paddingTop: 14,
-    gap: 12,
-  },
-
-  // Action bar
-  actionBar: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    backgroundColor: "transparent",
-  },
-
-  primaryBtn: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 6,
-    backgroundColor: "#35408E",
-    paddingVertical: 11,
-    borderRadius: 10,
-    shadowColor: "#35408E",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.25,
-    shadowRadius: 6,
-    elevation: 4,
-  },
-
-  dangerBtn: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 6,
-    backgroundColor: "#C62828",
-    paddingVertical: 11,
-    borderRadius: 10,
-    shadowColor: "#C62828",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.25,
-    shadowRadius: 6,
-    elevation: 4,
-  },
-
-  primaryBtnText: {
-    color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "700",
-  },
-
-  filterBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: 10,
-    borderWidth: 1.5,
-    borderColor: "#35408E",
-    backgroundColor: "#F8F9FD",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  cardList: {
-    gap: 0,
-  },
-
-  // Tab bar
-  tabBar: {
-    flexDirection: "row",
-    backgroundColor: "#FFFFFF",
-    borderBottomWidth: 1,
-    borderBottomColor: "#F0F2F8",
-  },
-
-  tabItem: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 13,
-    position: "relative",
-  },
-
-  tabItemActive: {
-    backgroundColor: "transparent",
-  },
-
-  tabLabel: {
-    fontSize: 15,
-  },
-
-  tabLabelActive: {
-    color: "#35408E",
-    fontWeight: "700",
-  },
-
-  tabLabelInactive: {
-    color: "#9BA8C0",
-    fontWeight: "400",
-  },
-
-  tabIndicator: {
-    position: "absolute",
-    bottom: 0,
-    left: "15%",
-    right: "15%",
-    height: 2.5,
-    borderRadius: 2,
-    backgroundColor: "#35408E",
-  },
-});

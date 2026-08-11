@@ -1,7 +1,9 @@
 import { ThemedView } from "@/components/themed-view";
+import { externalResourcesStyles } from "@/styles/resources/resources-components-styles";
+import { icon, useResponsive } from "@/styles/responsive";
 import { Feather } from "@expo/vector-icons";
-import React from "react";
-import { Linking, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
+import React, { useMemo } from "react";
+import { Linking, ScrollView, TouchableOpacity } from "react-native";
 import { ThemedText } from "../themed-text";
 
 type ResourceItem = {
@@ -47,16 +49,20 @@ export function ExternalResources() {
     }
   };
 
+  const r = useResponsive();
+        
+  const styles = useMemo(() => externalResourcesStyles(r), [r]);
+
   return (
-    <ScrollView contentContainerStyle={{ gap: 5, padding: 5 }}>
+    <ScrollView contentContainerStyle={styles.scrollContent}>
       {resourcesData.map((item, index) => (
         <TouchableOpacity 
             key={index}
-            style={styles.card} 
+            style={styles.extcard} 
             onPress={() => handlePress(item.url)}>
                 <ThemedView style={styles.row}>
                     <ThemedView style={[styles.iconBox, { backgroundColor: item.iconBox }]}>
-                        <Feather name="external-link" size={35} color={item.iconColor} />
+                        <Feather name="external-link" size={icon(35)} color={item.iconColor} />
                     </ThemedView>
 
                     <ThemedView style={styles.textContainer}>
@@ -64,7 +70,7 @@ export function ExternalResources() {
                             {item.title}
                         </ThemedText>
 
-                        <ThemedText style={styles.description}>
+                        <ThemedText style={styles.extdescription}>
                             {item.description}
                         </ThemedText>
                     </ThemedView>
@@ -75,49 +81,3 @@ export function ExternalResources() {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: "white",
-    padding: 15,
-    marginTop: 10,
-    borderRadius: 7,
-    elevation: 5,
-    shadowColor: "#000",
-    shadowOffset: {
-    width: 0,
-    height: 4,
-    },
-    shadowOpacity: 0.20,
-    shadowRadius: 5,
-  },
-
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: "transparent",
-  },
-
-  iconBox: {
-    padding: 10,
-    borderRadius: 10,
-  },
-
-  textContainer: {
-    flex: 1,
-    marginLeft: 10,
-    backgroundColor: "transparent"
-  },
-
-  sourceTitle: {
-    fontSize: 17,
-    fontWeight: "600",
-  },
-
-  description: {
-    fontSize: 11.5,
-    fontWeight: "400",
-    marginTop: 3,
-  },
-});

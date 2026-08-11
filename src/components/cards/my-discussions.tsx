@@ -1,11 +1,12 @@
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { profileStyles as styles } from "@/styles/profile-styles";
+import { icon } from "@/styles/responsive";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
   Image,
-  StyleSheet,
-  TouchableOpacity,
+  TouchableOpacity
 } from "react-native";
 
 const discussions = [
@@ -33,9 +34,9 @@ export default function MyDiscussions() {
   return (
     <ThemedView style={styles.card}>
       {/* Header */}
-      <ThemedView style={styles.header}>
+      <ThemedView style={styles.discussionHeader}>
         <ThemedView style={styles.headerLeft}>
-          <ThemedText style={styles.sectionTitle}>
+          <ThemedText style={styles.discSectionTitle}>
             My HIV Discussions
           </ThemedText>
         </ThemedView>
@@ -47,24 +48,24 @@ export default function MyDiscussions() {
         </TouchableOpacity>
       </ThemedView>
 
-      <ThemedView style={styles.divider} />
+      <ThemedView style={styles.discDivider} />
 
       {/* List */}
-      <ThemedView style={styles.list}>
+      <ThemedView style={styles.discList}>
         {discussions.map((item, index) => (
           <ThemedView key={item.id}>
             <ThemedView style={styles.row}>
               {/* LEFT SIDE */}
               <ThemedView style={styles.contentContainer}>
-                <ThemedView style={styles.iconBubble}>
+                <ThemedView style={styles.discIconBubble}>
                   <Ionicons
                     name="chatbubble-outline"
-                    size={20}
+                    size={icon(20)}
                     color="#333333"
                   />
                 </ThemedView>
 
-                <ThemedView style={styles.textCol}>
+                <ThemedView style={styles.discTextCol}>
                   <ThemedText
                     style={styles.itemTitle}
                     numberOfLines={1}
@@ -82,7 +83,7 @@ export default function MyDiscussions() {
                   <ThemedView style={styles.dateRow}>
                     <Ionicons
                       name="calendar-outline"
-                      size={11}
+                      size={icon(11)}
                       color="#9BA8C0"
                     />
                     <ThemedText style={styles.itemDate}>
@@ -101,7 +102,7 @@ export default function MyDiscussions() {
             </ThemedView>
 
             {index < discussions.length - 1 && (
-              <ThemedView style={styles.rowDivider} />
+              <ThemedView style={styles.discRowDivider} />
             )}
           </ThemedView>
         ))}
@@ -109,118 +110,3 @@ export default function MyDiscussions() {
     </ThemedView>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: "#E0E4F0",
-    padding: 16,
-    shadowColor: "#1A1F5E",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.07,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 12,
-    backgroundColor: "transparent",
-  },
-
-  headerLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "transparent",
-  },
-
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    lineHeight: 25,
-  },
-
-  viewAll: {
-    fontSize: 12,
-    fontWeight: "600",
-  },
-
-  divider: {
-    height: 1,
-    backgroundColor: "#F0F2F8",
-    marginBottom: 12,
-  },
-
-  list: {
-    backgroundColor: "transparent",
-  },
-
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingVertical: 10,
-    backgroundColor: "transparent",
-  },
-
-  contentContainer: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "transparent",
-    marginRight: 12,
-  },
-
-  iconBubble: {
-    width: 44,
-    height: 44,
-    borderRadius: 10,
-    backgroundColor: "#87868631",
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 12,
-  },
-
-  textCol: {
-    flex: 1,
-    flexShrink: 1,
-    backgroundColor: "transparent",
-  },
-
-  itemTitle: {
-    fontSize: 15,
-    fontWeight: "700",
-  },
-
-  itemDesc: {
-    fontSize: 11,
-    color: "#6B7280",
-  },
-
-  dateRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    backgroundColor: "transparent",
-  },
-
-  itemDate: {
-    fontSize: 11,
-    color: "#9BA8C0",
-  },
-
-  image: {
-    width: 44,
-    height: 44,
-    borderRadius: 10
-  },
-
-  rowDivider: {
-    height: 1,
-    backgroundColor: "#F0F2F8",
-  },
-});

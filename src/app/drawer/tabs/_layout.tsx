@@ -108,7 +108,7 @@ export default function TabsLayout() {
       {/* HIDDEN PAGES */}
 
       <Tabs.Screen
-        name="trends"
+        name="trend"
         options={{
           href: null,
         }}

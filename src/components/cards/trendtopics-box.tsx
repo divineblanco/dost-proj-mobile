@@ -1,143 +1,59 @@
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Ionicons } from '@expo/vector-icons';
-import React from 'react';
-import { StyleSheet } from 'react-native';
+import { ThemedText } from "@/components/themed-text";
+import { ThemedView } from "@/components/themed-view";
+import { icon } from "@/styles/responsive";
+import { trendingTopicsStyles as styles } from "@/styles/trends/trends-components-styles";
+import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
+import React from "react";
+import { TouchableOpacity } from "react-native";
 
+type TrendingTopic = {
+  id: number;
+  title: string;
+  percentage: string;
+   description: string;
+};
+
+const trendingTopics: TrendingTopic[] = [
+  { id: 1, title: "#HIVAwareness",       percentage: "+143%", description: "World AIDS Day campaign hashtag gaining traction" },
+  { id: 2, title: "HIV Treatment Access", percentage: "+88%",  description: "Discussions about accessibility of antiretroviral therapy" },
+  { id: 3, title: "Testing Centers",      percentage: "+62%",  description: "Inquiries about HIV testing locations and procedures" },
+  { id: 4, title: "Prevention Methods",   percentage: "+47%",  description: "Information about PrEP and safe sex practices" },
+];
 
 export function TrendingTopics() {
-
   return (
     <ThemedView style={styles.summaryContainer2}>
-      <ThemedView style={styles.trendsBox}>
-        <ThemedView style={styles.box}>
+      {trendingTopics.map((item) => (
+        <TouchableOpacity
+          key={item.id}
+          style={styles.trendsBox}
+          activeOpacity={0.8}
+          onPress={() =>
+            router.push({
+              pathname: "/drawer/tabs/trend/view-trendspost",
+              params: { topic: item.title, percentage: item.percentage,  description: item.description,},
+            })
+          }
+        >
+          <ThemedView style={styles.box}>
             <ThemedView style={styles.iconBG}>
-                <Ionicons name='trending-up' size={25} color="red"/>
+              <Ionicons name="trending-up" size={icon(25)} color="#FF2A2A" />
             </ThemedView>
-            <ThemedView style={styles.boxInfo}>
-                <ThemedText type='trendCard' style={styles.boxTitle}>
-                    #HIVAwareness
-                </ThemedText>
-                <ThemedView style={styles.trendRise}>
-                    <Ionicons name='arrow-up' size={15} color="#35408E"/>
-                    <ThemedText style={styles.boxMore}>+143%</ThemedText>
-                </ThemedView>
-            </ThemedView>
-        </ThemedView>
-      </ThemedView>
 
-        <ThemedView style={styles.trendsBox}>
-        <ThemedView style={styles.box}>
-            <ThemedView style={styles.iconBG}>
-                <Ionicons name='trending-up' size={25} color="red"/>
-            </ThemedView>
             <ThemedView style={styles.boxInfo}>
-                <ThemedText type='trendCard' style={styles.boxTitle}>
-                    HIV Treatment Access
-                </ThemedText>
-                <ThemedView style={styles.trendRise}>
-                    <Ionicons name='arrow-up' size={15} color="#35408E"/>
-                    <ThemedText style={styles.boxMore}>+88%</ThemedText>
-                </ThemedView>
-            </ThemedView>
-        </ThemedView>
-      </ThemedView>
+              <ThemedText type="trendCard" style={styles.boxTitle}>
+                {item.title}
+              </ThemedText>
 
-      <ThemedView style={styles.trendsBox}>
-        <ThemedView style={styles.box}>
-            <ThemedView style={styles.iconBG}>
-                <Ionicons name='trending-up' size={25} color="red"/>
+              <ThemedView style={styles.trendRise}>
+                <Ionicons name="arrow-up" size={icon(15)} color="#35408E" />
+                <ThemedText style={styles.boxMore}>{item.percentage}</ThemedText>
+              </ThemedView>
             </ThemedView>
-            <ThemedView style={styles.boxInfo}>
-                <ThemedText type='trendCard' style={styles.boxTitle}>
-                    Testing Centers
-                </ThemedText>
-                <ThemedView style={styles.trendRise}>
-                    <Ionicons name='arrow-up' size={15} color="#35408E"/>
-                    <ThemedText style={styles.boxMore}>+62%</ThemedText>
-                </ThemedView>
-            </ThemedView>
-        </ThemedView>
-      </ThemedView>
-      
-      <ThemedView style={styles.trendsBox}>
-        <ThemedView style={styles.box}>
-            <ThemedView style={styles.iconBG}>
-                <Ionicons name='trending-up' size={25} color="red"/>
-            </ThemedView>
-            <ThemedView style={styles.boxInfo}>
-                <ThemedText type='trendCard' style={styles.boxTitle}>
-                    Prevention Methods
-                </ThemedText>
-                <ThemedView style={styles.trendRise}>
-                    <Ionicons name='arrow-up' size={15} color="#35408E"/>
-                    <ThemedText style={styles.boxMore}>+47%</ThemedText>
-                </ThemedView>
-            </ThemedView>
-        </ThemedView>
-      </ThemedView>
+          </ThemedView>
+        </TouchableOpacity>
+      ))}
     </ThemedView>
   );
 }
-
-const styles = StyleSheet.create({
-  summaryContainer2: {  
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'flex-start',
-    padding: 10,
-    gap: 10,
-  },
-  trendsBox: {
-    width: '48%',         
-    minHeight: 80,
-    padding: 10,          
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#E4E8F0',
-    borderRadius: 7,
-    flexDirection: 'row',
-    position: "relative",
-    overflow: "hidden",
-  },
-  box: {
-    flexDirection: 'row',
-    backgroundColor: "transparent",
-    zIndex: 2,
-    gap: 10
-  },
-  boxInfo: {
-    flexDirection: "column", 
-    backgroundColor: "transparent", 
-    justifyContent: "center",
-    textAlign: "center",
-    flex: 1,
-    flexShrink: 1,
-  },
-  boxTitle: {
-    flexWrap: "wrap"
-  },
-  boxMore: {
-    fontSize: 12,
-    fontWeight: 400,
-    fontStyle: "italic",
-    color: "#35408E",
-    textAlign: "center"
-  },
-  iconBG: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
-    backgroundColor: "white",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  trendRise: {
-    flexDirection: "row",
-    backgroundColor: "transparent",
-    alignItems: "center",
-    flexShrink: 0,
-    justifyContent: "center",
-    marginTop: 2
-  }
-});

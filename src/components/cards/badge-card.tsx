@@ -1,8 +1,10 @@
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { icon, useResponsive } from "@/styles/responsive";
+import { badgeCardStyles } from "@/styles/rewards/rewards-components-styles";
 import { SimpleLineIcons } from "@expo/vector-icons";
-import React from "react";
-import { StyleSheet, TouchableOpacity } from "react-native";
+import React, { useMemo } from "react";
+import { TouchableOpacity } from "react-native";
 
 const badges = [
   {
@@ -20,8 +22,11 @@ const badges = [
 ];
 
 export default function BadgeCard() {
+  const r = useResponsive();
+    const styles = useMemo(() => badgeCardStyles(r), [r]);
+    
   return (
-    <ThemedView style={styles.card}>
+    <ThemedView style={styles.badgeCard}>
       <ThemedView style={styles.sectionRow}>
         <ThemedText style={styles.sectionTitle}>
           My Badges
@@ -43,7 +48,7 @@ export default function BadgeCard() {
             <ThemedView style={styles.badgeIconContainer}>
               <SimpleLineIcons
                 name="badge"
-                size={28}
+                size={icon(28)}
                 color="#35408E"
               />
             </ThemedView>
@@ -57,68 +62,3 @@ export default function BadgeCard() {
     </ThemedView>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: "white",
-    padding: 15,
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: "#E0E4F0",
-    elevation: 2,
-    shadowColor: "#1A1F5E",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-  },
-
-  sectionRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    paddingVertical: 5,
-    marginBottom: 10,
-    lineHeight: 20
-  },
-
-  view: {
-    fontSize: 12,
-    fontWeight: "600",
-  },
-
-  badgesContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    backgroundColor: "transparent",
-  },
-
-  badgeItem: {
-    flex: 1,
-    alignItems: "center",
-    borderRadius: 12,
-    paddingVertical: 5,
-    paddingHorizontal: 8,
-    marginHorizontal: 4,
-  },
-
-  badgeIconContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: "#EEF2FF",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-
-  badgeLabel: {
-    fontSize: 12,
-    textAlign: "center",
-    fontWeight: "500",
-    lineHeight: 16,
-  },
-});

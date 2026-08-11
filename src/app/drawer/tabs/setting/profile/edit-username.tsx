@@ -2,7 +2,7 @@ import EditSuccess from "@/components/modals/edit-success";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { Ionicons } from "@expo/vector-icons";
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -12,103 +12,58 @@ import {
 } from "react-native";
 
 export default function EditUsername() {
-  const [username, setUsername] = useState("");
-  const [showSuccess, setShowSuccess] = useState(false);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
 
-  const validations = useMemo(() => {
+  const NAME_REGEX =
+    /^[\p{L}]+(?:[ '\u2019-][\p{L}]+)*$/u;
+
+  const validateName = (name: string) => {
+    const trimmed = name.trim();
+
     return {
-      minLength: username.length >= 5,
-      maxLength: username.length <= 30,
-      lowercaseOnly: username === username.toLowerCase(),
-      hasLetter: /[a-z]/.test(username),
-      validCharacters: /^[a-z0-9_]*$/.test(username),
-      noSpaces: !/\s/.test(username),
-      noLeadingTrailingUnderscore:
-        username.length === 0 ||
-        (!username.startsWith("_") && !username.endsWith("_")),
-      noDoubleUnderscore: !/__/.test(username),
+      notEmpty: trimmed.length > 0,
+      minLength: trimmed.length >= 2,
+      maxLength: trimmed.length <= 50,
+      validCharacters: NAME_REGEX.test(trimmed),
     };
-  }, [username]);
-
-  const isValid =
-    Object.values(validations).every(Boolean) && username.length > 0;
-
-  const hasContent = username.length > 0;
-
-  const validationMessage = () => {
-    if (!hasContent) return "Enter a username";
-
-    if (!validations.minLength)
-      return `${5 - username.length} more character${
-        5 - username.length !== 1 ? "s" : ""
-      } needed`;
-
-    if (!validations.maxLength)
-      return "Maximum of 30 characters allowed";
-
-    if (!validations.lowercaseOnly)
-      return "Use lowercase letters only";
-
-    if (!validations.validCharacters)
-      return "Only letters, numbers and underscores allowed";
-
-    if (!validations.noSpaces)
-      return "Spaces are not allowed";
-
-    if (!validations.noLeadingTrailingUnderscore)
-      return "Cannot start or end with an underscore";
-
-    if (!validations.noDoubleUnderscore)
-      return "Consecutive underscores are not allowed";
-
-    if (!validations.hasLetter)
-      return "Must contain at least one letter";
-
-    return "Username is available";
   };
 
+  const firstNameValidation = validateName(firstName);
+  const lastNameValidation = validateName(lastName);
+
+  const isValid =
+    Object.values(firstNameValidation).every(Boolean) &&
+    Object.values(lastNameValidation).every(Boolean);
+
+  const getValidationMessage = (
+    validation: ReturnType<typeof validateName>
+  ) => {
+    if (!validation.notEmpty)
+      return "*This field is required.";
+
+    if (!validation.minLength)
+      return "Must contain at least 2 letters.";
+
+    if (!validation.maxLength)
+      return "Maximum of 50 characters.";
+
+    if (!validation.validCharacters)
+      return "Letters, spaces, hyphens (-), and apostrophes (') only.";
+
+    return "Looks good.";
+  };
+    
+  const [showSuccess, setShowSuccess] = useState(false);
+
+
   const handleSave = () => {
-  if (!isValid) return;
+    if (!isValid) return;
 
-  // Save username here (API/database/AsyncStorage)
+    console.log(firstName, lastName);
 
-  setShowSuccess(true);
-};
-
-  const RULES = [
-    {
-      label: "5–30 characters",
-      valid: validations.minLength && validations.maxLength,
-    },
-    {
-      label: "Contains lowercase letters (a-z)",
-      valid: validations.lowercaseOnly && validations.hasLetter,
-    },
-    {
-      label: "Numbers (0-9) are allowed",
-      valid: true,
-    },
-    {
-      label: "Underscores (_) are allowed",
-      valid: true,
-    },
-    {
-      label: "No spaces",
-      valid: validations.noSpaces,
-    },
-    {
-      label: "No special characters",
-      valid: validations.validCharacters,
-    },
-    {
-      label: "Cannot start or end with _",
-      valid: validations.noLeadingTrailingUnderscore,
-    },
-    {
-      label: "No consecutive underscores",
-      valid: validations.noDoubleUnderscore,
-    },
-  ];
+    setShowSuccess(true);
+  };
 
   return (
     <ScrollView
@@ -121,11 +76,11 @@ export default function EditUsername() {
         {/* Header */}
         <ThemedView style={styles.header}>
           <ThemedText style={styles.title}>
-            Edit Username
+            Edit Name
           </ThemedText>
 
           <ThemedText style={styles.subtitle}>
-            Choose a unique username for your profile.
+            Update your first and last name.
           </ThemedText>
         </ThemedView>
 
@@ -134,92 +89,85 @@ export default function EditUsername() {
         {/* Input */}
         <ThemedView style={styles.card}>
           <ThemedText style={styles.label}>
-            Username
+            First Name
           </ThemedText>
 
           <View
             style={[
               styles.inputRow,
-              hasContent &&
-                (isValid
-                  ? styles.inputValid
-                  : styles.inputError),
+              firstName.length === 0
+              ? styles.inputDefault
+              : Object.values(firstNameValidation).every(Boolean)
+              ? styles.inputValid
+              : styles.inputError,
             ]}
           >
-            <ThemedText style={styles.atSign}>
-              @
-            </ThemedText>
+            <Ionicons
+              name="person-outline"
+              size={20}
+              color="#35408E"
+            />
 
             <TextInput
               style={styles.input}
-              placeholder="your_username"
+              placeholder="Enter your first name"
               placeholderTextColor="#9BA8C0"
-              value={username}
-              onChangeText={(text) =>
-                setUsername(text.slice(0, 30))
-              }
-              autoCapitalize="none"
-              autoCorrect={false}
+              value={firstName}
+              onChangeText={setFirstName}
+              autoCapitalize="words"
             />
-
-            {hasContent && (
-              <Ionicons
-                name={
-                  isValid
-                    ? "checkmark-circle"
-                    : "close-circle"
-                }
-                size={20}
-                color={isValid ? "#2E9E3A" : "#C62828"}
-              />
-            )}
+            
           </View>
-
-          <View style={styles.inputMeta}>
-            <ThemedText
+          <ThemedText
               style={[
                 styles.validationHint,
-                hasContent &&
-                  (isValid
-                    ? styles.validationHintOk
-                    : styles.validationHintError),
+                Object.values(firstNameValidation).every(Boolean)
+                  ? styles.validationHintOk
+                  : styles.validationHintError,
               ]}
             >
-              {validationMessage()}
+              {getValidationMessage(firstNameValidation)}
             </ThemedText>
 
-            <ThemedText style={styles.charCount}>
-              {username.length}/30
-            </ThemedText>
+          <ThemedText style={styles.label}>
+            Last Name
+          </ThemedText>
+
+          <View
+            style={[
+              styles.inputRow,
+              lastName.length === 0
+              ? styles.inputDefault
+              : Object.values(lastNameValidation).every(Boolean)
+              ? styles.inputValid
+              : styles.inputError,
+            ]}
+          >
+            <Ionicons
+              name="person-outline"
+              size={20}
+              color="#35408E"
+            />
+
+            <TextInput
+              style={styles.input}
+              placeholder="Enter your last name"
+              placeholderTextColor="#9BA8C0"
+              value={lastName}
+              onChangeText={setLastName}
+              autoCapitalize="words"
+            />
           </View>
-        </ThemedView>
-
-        {/* Rules */}
-        <ThemedView style={styles.rulesCard}>
-          {RULES.map((rule) => (
-            <View key={rule.label} style={styles.ruleRow}>
-              <Ionicons
-                name={
-                  rule.valid
-                    ? "checkmark-circle"
-                    : "ellipse-outline"
-                }
-                size={16}
-                color={
-                  rule.valid ? "#2E9E3A" : "#9BA8C0"
-                }
-              />
-
-              <ThemedText
-                style={[
-                  styles.ruleText,
-                  rule.valid && styles.ruleTextValid,
-                ]}
-              >
-                {rule.label}
-              </ThemedText>
-            </View>
-          ))}
+          <ThemedText
+              style={[
+                styles.validationHint,
+                Object.values(lastNameValidation).every(Boolean)
+                  ? styles.validationHintOk
+                  : styles.validationHintError,
+              ]}
+            >
+              {getValidationMessage(lastNameValidation)}
+            </ThemedText>
         </ThemedView>
 
         {/* Button */}
@@ -237,7 +185,7 @@ export default function EditUsername() {
               !isValid && styles.saveTxtDisabled,
             ]}
           >
-            Save Username
+            Save Changes
           </ThemedText>
         </TouchableOpacity>
         <EditSuccess
@@ -324,6 +272,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#EAFBE7",
   },
 
+  inputDefault: {
+    borderColor: "#E0E4F0",
+    backgroundColor: "#F8F9FD",
+  },
+
   inputError: {
     borderColor: "#C62828",
     backgroundColor: "#FFF0F0",
@@ -350,6 +303,7 @@ const styles = StyleSheet.create({
 
   validationHint: {
     fontSize: 11,
+    textAlign: "right"
   },
 
   validationHintError: {

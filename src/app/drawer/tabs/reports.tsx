@@ -2,15 +2,16 @@ import { ReportsCard } from "@/components/cards/reports-card";
 import CategoriesDropdown from "@/components/dropdown/categories-dropdown";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { reportStyles as styles } from "@/styles/reports-styles";
+import { icon, scale } from "@/styles/responsive";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import React, { useState } from "react";
 import {
-    Platform,
-    ScrollView,
-    StyleSheet,
-    TextInput,
-    TouchableOpacity
+  Platform,
+  ScrollView,
+  TextInput,
+  TouchableOpacity
 } from "react-native";
 
 export default function Reports() {
@@ -41,7 +42,7 @@ export default function Reports() {
         </ThemedView>
 
         <ThemedView style={styles.search}>
-          <Ionicons name="search" size={20} color="#868686" />
+          <Ionicons name="search" size={icon(20)} color="#868686" />
           <TextInput
             placeholder="Search reports by title or description..."
             placeholderTextColor="#868686"
@@ -59,7 +60,7 @@ export default function Reports() {
             style={styles.calendarButton}
             onPress={() => setShowCalendar(true)}
           >
-            <Ionicons name="calendar-outline" size={24} color="white" />
+            <Ionicons name="calendar-outline" size={icon(24)} color="white" />
           </TouchableOpacity>
         </ThemedView>
 
@@ -78,7 +79,7 @@ export default function Reports() {
           />
         )}
 
-        <ThemedView style={{padding: 10, gap: 10}}>
+        <ThemedView style={{padding: scale(10), gap: scale(10)}}>
           <ReportsCard/>
           <ReportsCard/>
           <ReportsCard/>
@@ -92,61 +93,3 @@ export default function Reports() {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  pageContainer: {
-    flex: 1,
-    backgroundColor: "white",
-    padding: 5,
-  },
-  scrollContent: {
-    paddingBottom: 90,
-  },
-
-  headerContainer: {
-    padding: 10,
-  },
-
-  search: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#E4E8F0",
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: 10,
-    marginHorizontal: 10,
-    gap: 10,
-  },
-
-  searchInput: {
-    fontSize: 12,
-    color: "#868686",
-    flex: 1,
-  },
-
-  filterRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 10,
-    marginTop: 10,
-  },
-
-  calendarButton: {
-    backgroundColor: "#35408E",
-    width: 45,
-    height: 40,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  dateText: {
-    alignSelf: "flex-end",
-    marginRight: 10,
-    marginTop: 10,
-    fontSize: 12,
-    color: "#35408E",
-    fontWeight: "600",
-  },
-});

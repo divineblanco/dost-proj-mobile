@@ -14,7 +14,7 @@ export default function EditSuccess({
   visible,
   onClose,
   title = "Saved!",
-  message = "Your username has been edited and saved.",
+  message = "Your name has been edited and saved.",
 }: SuccessModalProps) {
   return (
     <Modal
@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
     width: 88,
     height: 88,
     borderRadius: 44,
-    backgroundColor: "#EAFBE7",
+    backgroundColor: "#e0e4ffaa",
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 20,
@@ -89,10 +89,10 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: "#2E9E3A",
+    backgroundColor: "#35408E",
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: "#2E9E3A",
+    shadowColor: "#35408E",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,

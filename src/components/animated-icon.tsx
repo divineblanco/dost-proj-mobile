@@ -1,11 +1,17 @@
-import { Image } from 'expo-image';
-import { useState } from 'react';
-import { Dimensions, StyleSheet, View } from 'react-native';
-import Animated, { Easing, Keyframe } from 'react-native-reanimated';
-import { scheduleOnRN } from 'react-native-worklets';
+import { Image } from "expo-image";
+import { useState } from "react";
+import { Dimensions, StyleSheet, View } from "react-native";
+import Animated, { Easing, Keyframe } from "react-native-reanimated";
+import { scheduleOnRN } from "react-native-worklets";
 
-const INITIAL_SCALE_FACTOR = Dimensions.get('screen').height / 90;
+import { useResponsive } from "@/styles/responsive";
+
+const INITIAL_SCALE_FACTOR = Dimensions.get("screen").height / 90;
 const DURATION = 600;
+
+/* ============================================================
+    SPLASH OVERLAY
+============================================================ */
 
 export function AnimatedSplashOverlay() {
   const [visible, setVisible] = useState(true);
@@ -34,7 +40,8 @@ export function AnimatedSplashOverlay() {
   return (
     <Animated.View
       entering={splashKeyframe.duration(DURATION).withCallback((finished) => {
-        'worklet';
+        "worklet";
+
         if (finished) {
           scheduleOnRN(setVisible, false);
         }
@@ -43,6 +50,10 @@ export function AnimatedSplashOverlay() {
     />
   );
 }
+
+/* ============================================================
+    ANIMATIONS
+============================================================ */
 
 const keyframe = new Keyframe({
   0: {
@@ -73,64 +84,173 @@ const logoKeyframe = new Keyframe({
 
 const glowKeyframe = new Keyframe({
   0: {
-    transform: [{ rotateZ: '0deg' }],
+    transform: [{ rotateZ: "0deg" }],
   },
   100: {
-    transform: [{ rotateZ: '7200deg' }],
+    transform: [{ rotateZ: "7200deg" }],
   },
 });
 
+/* ============================================================
+    ICON
+============================================================ */
+
 export function AnimatedIcon() {
+  const {
+    hp,
+    isCompactAndroid,
+    isFold,
+    isIPhone,
+    isLargePhone,
+    isTablet,
+    isLandscape,
+    isPortrait,
+  } = useResponsive();
+
+  const isTabletLandscape = isTablet && isLandscape;
+  const isTabletPortrait = isTablet && isPortrait;
+
+  /* ============================================================
+      RESPONSIVE SIZES
+  ============================================================ */
+
+  const logo = isTabletLandscape
+    ? hp(23) // <-- Landscape tablet
+    : isTabletPortrait
+    ? hp(18) // <-- Portrait tablet
+    : isFold
+    ? hp(18)
+    : isLargePhone
+    ? hp(15.5)
+    : isIPhone
+    ? hp(16)
+    : isCompactAndroid
+    ? hp(18)
+    : hp(12);
+
+  const backgroundSize = logo * 2.15;
+  const imageWidth = logo * 2.15;
+  const imageHeight = logo * 2.05;
+  const glowSize = logo * 1.55;
+
+  const styles = createStyles(
+    logo,
+    backgroundSize,
+    imageWidth,
+    imageHeight,
+    glowSize
+  );
+
   return (
     <View style={styles.iconContainer}>
-      <Animated.View entering={glowKeyframe.duration(60 * 1000 * 4)} style={styles.glow}>
-        <Image style={styles.glow} source={require('@/assets/images/logo-glow.png')} />
+      <Animated.View
+        entering={glowKeyframe.duration(60 * 1000 * 4)}
+        style={styles.glow}
+      >
+        <Image
+          style={styles.glow}
+          source={require("@/assets/images/logo-glow.png")}
+        />
       </Animated.View>
-      <Animated.View entering={keyframe.duration(DURATION)} style={styles.background} />
-      <Animated.View style={styles.imageContainer} entering={logoKeyframe.duration(DURATION)}>
-        <Image style={styles.image} source={require('@/assets/images/splash-icon.png')} />
+
+      <Animated.View
+        entering={keyframe.duration(DURATION)}
+        style={styles.background}
+      />
+
+      <Animated.View
+        entering={logoKeyframe.duration(DURATION)}
+        style={styles.imageContainer}
+      >
+        <Image
+          style={styles.image}
+          source={require("@/assets/images/splash-icon.png")}
+        />
       </Animated.View>
     </View>
   );
 }
 
+/* ============================================================
+    STYLES
+============================================================ */
+
+const createStyles = (
+  logo: number,
+  backgroundSize: number,
+  imageWidth: number,
+  imageHeight: number,
+  glowSize: number
+) =>
+  StyleSheet.create({
+    imageContainer: {
+      justifyContent: "center",
+      alignItems: "center",
+    },
+
+    iconContainer: {
+      justifyContent: "center",
+      alignItems: "center",
+
+      width: logo,
+      height: logo,
+
+      zIndex: 100,
+    },
+
+    glow: {
+      width: glowSize,
+      height: glowSize,
+
+      position: "absolute",
+    },
+
+    image: {
+      position: "absolute",
+
+      width: imageWidth,
+      height: imageHeight,
+    },
+
+    background: {
+      width: backgroundSize,
+      height: backgroundSize,
+
+      borderRadius: 999,
+      backgroundColor: "white",
+
+      position: "absolute",
+
+      elevation: 6,
+
+      shadowColor: "#000",
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.25,
+      shadowRadius: 3.84,
+    },
+
+    backgroundSolidColor: {
+      ...StyleSheet.absoluteFillObject,
+
+      backgroundColor: "#208AEF",
+
+      zIndex: 1000,
+    },
+  });
+
+/* ============================================================
+    STATIC STYLES
+============================================================ */
+
 const styles = StyleSheet.create({
-  imageContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  glow: {
-    width: 201,
-    height: 201,
-    position: 'absolute',
-  },
-  iconContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: 128,
-    height: 128,
-    zIndex: 100,
-  },
-  image: {
-    position: 'absolute',
-    width: 277.5,
-    height: 265.08,
-  },
-  background: {
-    borderRadius: 999,
-    backgroundColor: "white",
-    width: 275,
-    height: 275,
-    position: 'absolute',
-    elevation: 6,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    shadowColor: '#000',
-  },
   backgroundSolidColor: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#208AEF',
+
+    backgroundColor: "#208AEF",
+
     zIndex: 1000,
   },
 });

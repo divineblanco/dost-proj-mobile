@@ -1,103 +1,81 @@
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
+import { ThemedText } from "@/components/themed-text";
+import { ThemedView } from "@/components/themed-view";
+import { trendsCardStyles } from "@/styles/home-styles";
+import { icon, useResponsive } from "@/styles/responsive";
 import { Ionicons } from "@expo/vector-icons";
-import React from 'react';
-import { StyleSheet } from 'react-native';
+import { router } from "expo-router";
+import React, { useMemo } from "react";
+import { TouchableOpacity } from "react-native";
 
+type TrendItem = {
+  id: number;
+  title: string;
+  description: string;
+  percentage: string;
+};
+
+const trendsData: TrendItem[] = [
+  {
+    id: 1,
+    title: "#HIVAwareness",
+    description: "World AIDS Day campaign hashtag gaining traction",
+    percentage: "+143%",
+  },
+  {
+    id: 2,
+    title: "HIV Treatment Access",
+    description: "Discussions about accessibility of antiretroviral therapy",
+    percentage: "+88%",
+  },
+  {
+    id: 3,
+    title: "Testing Centers",
+    description: "Inquiries about HIV testing locations and procedures",
+    percentage: "+62%",
+  },
+  {
+    id: 4,
+    title: "PrEP Awareness",
+    description: "Information about PrEP and safe sex practices",
+    percentage: "+47%",
+  },
+];
 
 export function TrendsCard() {
+  const r = useResponsive();
+  const styles = useMemo(() => trendsCardStyles(r), [r]);
 
   return (
     <ThemedView style={styles.trendsContainer}>
-            <ThemedView style={styles.trendsBG}>
-              <ThemedView style={styles.trendCircle}></ThemedView>
-              <ThemedView style={styles.trendsInfo}>
-                <ThemedText type='subtitleLight'>#HIVAwareness</ThemedText>
-                <ThemedText type='small'>World AIDS Day campaign hashtag gaining traction</ThemedText>
-              </ThemedView>
-              <ThemedView style={styles.trendRise}>
-                <Ionicons name='arrow-up' size={20} color="#35408E"/>
-                <ThemedText type='subtitleItalic'>+143%</ThemedText>
-              </ThemedView>
-            </ThemedView>
+      {trendsData.map((item) => (
+        <TouchableOpacity
+          key={item.id}
+          style={styles.trendsBG}
+          activeOpacity={0.8}
+          onPress={() =>
+            router.push({
+              pathname: "/drawer/tabs/trend/view-trendspost",
+              params: { topic: item.title, percentage: item.percentage, description: item.description },
+            })
+          }
+        >
+          <ThemedView
+            style={[styles.trendCircle, { backgroundColor: "#FF2A2A" }]}
+          />
 
-            <ThemedView style={styles.trendsBG}>
-              <ThemedView style={styles.trendCircle}></ThemedView>
-              <ThemedView style={styles.trendsInfo}>
-                <ThemedText type='subtitleLight'>HIV Treatment Access</ThemedText>
-                <ThemedText type='small' numberOfLines={1} ellipsizeMode='tail'>
-                  Discussions about accessibility of antiretroviral theraphy
-                </ThemedText>
-              </ThemedView>
-              <ThemedView style={styles.trendRise}>
-                <Ionicons name='arrow-up' size={20} color="#35408E"/>
-                <ThemedText type='subtitleItalic'>+88%</ThemedText>
-              </ThemedView>
-            </ThemedView>
-          
-            <ThemedView style={styles.trendsBG}>
-              <ThemedView style={styles.trendCircle}></ThemedView>
-              <ThemedView style={styles.trendsInfo}>
-                <ThemedText type='subtitleLight'>Testing Centers</ThemedText>
-                <ThemedText type='small' numberOfLines={1} ellipsizeMode='tail'>
-                  Inquiries about HIV testing locations and procedures
-                </ThemedText>
-              </ThemedView>
-              <ThemedView style={styles.trendRise}>
-                <Ionicons name='arrow-up' size={20} color="#35408E"/>
-                <ThemedText type='subtitleItalic'>+62%</ThemedText>
-              </ThemedView>
-            </ThemedView>
-
-            <ThemedView style={styles.trendsBG}>
-              <ThemedView style={styles.trendCircle}></ThemedView>
-              <ThemedView style={styles.trendsInfo}>
-                <ThemedText type='subtitleLight'>HIV Treatment Access</ThemedText>
-                <ThemedText type='small' numberOfLines={1} ellipsizeMode='tail'>
-                  Information about PrEP and safe sex practices
-                </ThemedText>
-              </ThemedView>
-              <ThemedView style={styles.trendRise}>
-                <Ionicons name='arrow-up' size={20} color="#35408E"/>
-                <ThemedText type='subtitleItalic'>+47%</ThemedText>
-              </ThemedView>
-            </ThemedView>
-
+          <ThemedView style={styles.trendsInfo}>
+            <ThemedText type="subtitleLight">{item.title}</ThemedText>
+            <ThemedText style={styles.desc} numberOfLines={1} ellipsizeMode="tail">
+              {item.description}
+            </ThemedText>
           </ThemedView>
+
+          <ThemedView style={styles.trendRise}>
+            <Ionicons name="arrow-up" size={icon(20)} color="#35408E" />
+            <ThemedText type="subtitleItalic">{item.percentage}</ThemedText>
+          </ThemedView>
+        </TouchableOpacity>
+      ))}
+    </ThemedView>
   );
 }
-
-const styles = StyleSheet.create({
-  trendsBG:{
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 10,
-    width: "100%",
-    backgroundColor: "#E4E8F0",
-    borderRadius: 12,
-  },
-  trendsContainer: {
-    flexDirection: "column",
-    gap: 10
-  },
-  trendCircle:{
-    top: -9,
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: "red",
-    marginRight: 8,
-  },
-  trendsInfo:{
-    backgroundColor: "transparent",
-    flex: 1,
-    flexShrink: 1,
-    paddingRight: 10,
-  },
-  trendRise: {
-    flexDirection: "row",
-    backgroundColor: "transparent",
-    alignItems: "center",
-    flexShrink: 0,
-  }
-});

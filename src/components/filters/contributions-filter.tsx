@@ -1,8 +1,11 @@
 import { ThemedView } from '@/components/themed-view';
+import { colors } from '@/styles/contribute/contribute-colors';
+import { sharedFilterStyles } from '@/styles/contribute/contribute-component-styles';
+import { icon, useResponsive, verticalScale } from '@/styles/responsive';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import React, { useState } from 'react';
-import { ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { ScrollView, TouchableOpacity } from 'react-native';
 import { ThemedText } from '../themed-text';
 
 
@@ -17,51 +20,71 @@ const [selectedDate, setSelectedDate] = useState("Last 7 Days");
 
 const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
+const openDropdown = (dropdown: string) => {
+  // Close the calendar whenever another dropdown is opened
+  setShowCalendar(false);
+
+  // Toggle the dropdown
+  setActiveDropdown(prev => (prev === dropdown ? null : dropdown));
+};
+
+const selectDropdownItem = (
+  value: string,
+  setter: React.Dispatch<React.SetStateAction<string>>
+) => {
+  setter(value);
+  setActiveDropdown(null);
+  setShowCalendar(false);
+};
+
+const r = useResponsive();
+      const styles = useMemo(() => sharedFilterStyles(r), [r]);
 
   return (
-    <ThemedView style={styles.filterDropdown}>
+    <ThemedView style={[styles.filterDropdown, styles.filterDropdownWide]}>
         <ThemedView style={styles.filterContainer}>
-            <Ionicons name='close' size={25} color="white" 
+            <Ionicons name='close' size={icon(25)} color={colors.white}
                 onPress={onClose}
-                style={styles.closeButton}/>
-                <ThemedView style={styles.optionContainer}>
+                style={styles.filterCloseButton}/>
+                <ThemedView style={styles.filterOptionContainer}>
                     
-                    <ThemedView style={styles.optionContent}>
+                    <ThemedView style={styles.filterOptionContent}>
                         <ThemedText type='filterLabel'>
                             Date Range
                         </ThemedText>
-                        <ThemedView style={styles.optionBG}>
-                            <ThemedView style={styles.optionChoices}>
-                                <ThemedText type='filterOptions' style={styles.dropdownChoice}>
+                        <ThemedView style={styles.filterOptionBG}>
+                            <ThemedView style={styles.filterOptionChoices}>
+                                <ThemedText type='filterOptions' style={styles.filterDropdownChoice}>
                                     {selectedDate}
                                 </ThemedText>
 
                                 <Ionicons
                                     name={activeDropdown === "date" ? "chevron-up-outline" : "chevron-down-outline"}
-                                    size={15}
-                                    color="#35408E"
-                                    style={styles.dropdown}
-                                    onPress={() =>
-                                    setActiveDropdown(activeDropdown === "date" ? null : "date")
+                                    size={icon(15)}
+                                    color={colors.primary}
+                                    style={styles.filterDropdownAnchor}
+                                    onPress={() => openDropdown("date")
                                     }
                                 />
                             </ThemedView>
                             {/* Dropdown Options */}
                             {activeDropdown === "date" && (
-                                <ThemedView style={styles.dropdownList}>
-                                    <ScrollView style={{ maxHeight: 180 }}
+                                <ThemedView style={styles.filterDropdownList}>
+                                    <ScrollView style={{ maxHeight: verticalScale(180) }}
                                         showsVerticalScrollIndicator={true}>
                                         {["Last 7 Days", "Last 30 Days", "Last 90 Days", "Custom Range"].map((item) => (
                                         <ThemedText
                                             type='filterOptions'
                                             key={item}
-                                            style={styles.dropdownItem}
+                                            style={styles.filterDropdownItem}
                                             onPress={() => {
-                                            setSelectedDate(item);
-                                            setActiveDropdown(null);
+                                                setSelectedDate(item);
+                                                setActiveDropdown(null);
 
                                                 if (item === "Custom Range") {
                                                     setShowCalendar(true);
+                                                } else {
+                                                    setShowCalendar(false);
                                                 }
                                             }}
                                         >
@@ -74,12 +97,13 @@ const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
                             
                         </ThemedView>
+                        {/* Calendar moved below the grid */}
                         {showCalendar && (
                             <DateTimePicker
                                 style={styles.calendar}
                                 value={new Date()}
                                 mode="date"
-                                display="default"
+                                display="spinner"
                                 accentColor='#35408E'
                                 onChange={(event, date) => {
                                 setShowCalendar(false);
@@ -93,30 +117,29 @@ const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
                         
                     </ThemedView>
 
-                    <ThemedView style={styles.optionContent}>
+                    <ThemedView style={styles.filterOptionContent}>
                         <ThemedText type='filterLabel'>
                             Region
                         </ThemedText>
-                        <ThemedView style={styles.optionBG}>
-                            <ThemedView style={styles.optionChoices}>
-                                <ThemedText type='filterOptions' style={styles.dropdownChoice}>
+                        <ThemedView style={styles.filterOptionBG}>
+                            <ThemedView style={styles.filterOptionChoices}>
+                                <ThemedText type='filterOptions' style={styles.filterDropdownChoice}>
                                     {selectedRegion}
                                 </ThemedText>
 
                                 <Ionicons
                                     name={activeDropdown === "region" ? "chevron-up-outline" : "chevron-down-outline"}
-                                    size={15}
-                                    color="#35408E"
-                                    style={styles.dropdown}
-                                    onPress={() =>
-                                    setActiveDropdown(activeDropdown === "region" ? null : "region")
+                                    size={icon(15)}
+                                    color={colors.primary}
+                                    style={styles.filterDropdownAnchor}
+                                    onPress={() => openDropdown("region")
                                     }
                                 />
                             </ThemedView>
                             {/* Dropdown Options */}
                             {activeDropdown === "region" && (
-                                <ThemedView style={styles.dropdownList}>
-                                    <ScrollView style={{ maxHeight: 180 }}
+                                <ThemedView style={styles.filterDropdownList}>
+                                    <ScrollView style={{ maxHeight: verticalScale(180) }}
                                         showsVerticalScrollIndicator={true}>
                                         {["All Regions", "Region I", "Region II",
                                         "Region III", "Region IV-A", "Region V",
@@ -127,10 +150,9 @@ const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
                                         <ThemedText
                                             type='filterOptions'
                                             key={item}
-                                            style={styles.dropdownItem}
+                                            style={styles.filterDropdownItem}
                                             onPress={() => {
-                                            setSelectedRegion(item);
-                                            setActiveDropdown(null);
+                                                selectDropdownItem(item, setSelectedRegion);
                                             }}
                                         >
                                             {item}
@@ -142,39 +164,37 @@ const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
                         </ThemedView>
                     </ThemedView>
 
-                    <ThemedView style={styles.optionContent}>
+                    <ThemedView style={styles.filterOptionContent}>
                         <ThemedText type='filterLabel'>
                             Category
                         </ThemedText>
-                        <ThemedView style={styles.optionBG}>
-                            <ThemedView style={styles.optionChoices}>
-                                <ThemedText type='filterOptions' style={styles.dropdownChoice}>
+                        <ThemedView style={styles.filterOptionBG}>
+                            <ThemedView style={styles.filterOptionChoices}>
+                                <ThemedText type='filterOptions' style={styles.filterDropdownChoice}>
                                     {selectedCategories}
                                 </ThemedText>
 
                                 <Ionicons
                                     name={activeDropdown === "categories" ? "chevron-up-outline" : "chevron-down-outline"}
-                                    size={15}
-                                    color="#35408E"
-                                    style={styles.dropdown}
-                                    onPress={() =>
-                                    setActiveDropdown(activeDropdown === "categories" ? null : "ages")
+                                    size={icon(15)}
+                                    color={colors.primary}
+                                    style={styles.filterDropdownAnchor}
+                                    onPress={() => openDropdown("categories")
                                     }
                                 />
                             </ThemedView>
                             {/* Dropdown Options */}
-                            {activeDropdown === "ages" && (
-                            <ThemedView style={styles.dropdownList}>
-                                <ScrollView style={{ maxHeight: 180 }}
+                            {activeDropdown === "categories" && (
+                            <ThemedView style={styles.filterDropdownList}>
+                                <ScrollView 
                                     showsVerticalScrollIndicator={true}>
                                     {["All Categories", "Personal Experience", "Community Event", "Educational Content", "Resource Availability", "Healthcare Service"].map((item) => (
                                     <ThemedText
                                         type='filterOptions'
                                         key={item}
-                                        style={styles.dropdownItem}
+                                        style={styles.filterDropdownItem}
                                         onPress={() => {
-                                        setSelectedCategories(item);
-                                        setActiveDropdown(null);
+                                            selectDropdownItem(item, setSelectedCategories);
                                         }}
                                     >
                                         {item}
@@ -186,48 +206,48 @@ const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
                         </ThemedView>
                     </ThemedView>
 
-                    <ThemedView style={styles.optionContent}>
+                    <ThemedView style={styles.filterOptionContent}>
                         <ThemedText type='filterLabel'>
                             Sentiment
                         </ThemedText>
-                        <ThemedView style={styles.optionBG}>
-                            <ThemedView style={styles.optionChoices}>
-                                <ThemedText type='filterOptions' style={styles.dropdownChoice}>
+                        <ThemedView style={styles.filterOptionBG}>
+                            <ThemedView style={styles.filterOptionChoices}>
+                                <ThemedText type='filterOptions' style={styles.filterDropdownChoice}>
                                     {selectedSentiment}
                                 </ThemedText>
 
                                 <Ionicons
                                     name={activeDropdown === "sentiment" ? "chevron-up-outline" : "chevron-down-outline"}
-                                    size={15}
-                                    color="#35408E"
-                                    style={styles.dropdown}
-                                    onPress={() =>
-                                    setActiveDropdown(activeDropdown === "sentiment" ? null : "sentiment")
+                                    size={icon(15)}
+                                    color={colors.primary}
+                                    style={styles.filterDropdownAnchor}
+                                    onPress={() => openDropdown("sentiment")
                                     }
                                 />
                             </ThemedView>
                             {/* Dropdown Options */}
                             {activeDropdown === "sentiment" && (
-                            <ThemedView style={styles.dropdownList}>
-                                {["All Sentiment", "Low", "Medium", "High"].map((item) => (
+                            <ThemedView style={styles.filterDropdownList}>
+                                <ScrollView>
+                                    {["All Sentiment", "Low", "Medium", "High"].map((item) => (
                                 <ThemedText
                                     type='filterOptions'
                                     key={item}
-                                    style={styles.dropdownItem}
+                                    style={styles.filterDropdownItem}
                                     onPress={() => {
-                                    setSelectedSentiment(item);
-                                    setActiveDropdown(null);
+                                        selectDropdownItem(item, setSelectedSentiment);
                                     }}
                                 >
                                     {item}
                                 </ThemedText>
                                 ))}
+                                </ScrollView>
                             </ThemedView>
                             )}
                         </ThemedView>
                     </ThemedView>
 
-                    <TouchableOpacity style={styles.buttonApply}>
+                    <TouchableOpacity style={styles.filterButtonApply}>
                         <ThemedText type='filterApply'>
                             APPLY
                         </ThemedText>
@@ -240,125 +260,3 @@ const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
     </ThemedView>
   );
 }
-
-const styles = StyleSheet.create({
-
-  closeButton: {
-    position: "absolute",
-    top: 8,
-    right: 12,
-    zIndex: 1,
-  },
-  filterDropdown: {
-    position: "absolute",
-    top: 60,
-    right: 15,
-    width: "93%",
-    backgroundColor: "#35408E",
-    borderRadius: 10,
-    padding: 8,
-
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-
-    elevation: 5,
-    zIndex: 999,
-},
-filterContainer: {
-    flexDirection: "column", 
-    justifyContent: "space-evenly",
-    backgroundColor: "transparent",
-    padding: 15,
-},
-optionContainer: {
-    backgroundColor: "transparent", 
-    marginTop: 10,
-    padding: 15,
-    flexDirection: "row",
-    flexWrap: "wrap",
-    alignItems: "flex-start",
-    justifyContent: "center",
-    gap: 25,
-},
-optionContent: {
-    backgroundColor: "transparent", 
-    gap: 8
-},
-optionBG: {
-    backgroundColor: "white", 
-    padding: 10, 
-    width: 135, 
-    borderRadius: 8
-},
-optionChoices: {
-    flexDirection: "row",  
-    backgroundColor: "transparent",
-},
-buttonApply: {
-    backgroundColor: "#FFB633",
-    alignContent: "center",
-    justifyContent: "center",
-    width: "100%", 
-    height: 50, 
-    borderRadius: 13,
-    elevation: 6,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    shadowColor: '#000',
-
-},
-dropdownList: {
-  marginTop: 40,
-  backgroundColor: "#ffffff",
-  borderRadius: 8,
-  padding: 8,
-  elevation: 5,
-  width: 130,
-  position: "absolute",
-  zIndex: 2,
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.25,
-  shadowRadius: 3.84,
-  shadowColor: '#000',
-  maxHeight: 200,
-},
-
-dropdownItem: {
-  paddingVertical: 10,
-  paddingHorizontal: 8,
-},
-
-dropdownChoice: {
-  paddingHorizontal: 1,
-  position: "absolute",
-},
-
-dropdown: {
-    left: 102,
-},
-scrollContent: {
-    paddingBottom: 20
-
-},
-scroller: {
-    position: "relative"
-},
-calendar: {
-    backgroundColor: "white",
-    borderRadius: 8,
-    padding: 5,
-    marginTop: 60,
-    width: "100%", 
-    zIndex: 999,
-    position: "absolute",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    shadowColor: '#000',
-    maxHeight: 200,
-},
-
-});
