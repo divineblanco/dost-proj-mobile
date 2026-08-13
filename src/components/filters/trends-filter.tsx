@@ -1,9 +1,9 @@
 import { ThemedView } from '@/components/themed-view';
-import { icon, isExtraTallScreen, isTallScreen, verticalScale } from '@/styles/responsive';
-import { trendsFilterStyles as styles } from '@/styles/trends/trends-components-styles';
+import { icon, isExtraTallScreen, isTallScreen, useResponsive, verticalScale } from '@/styles/responsive';
+import { trendsFilterStyles } from '@/styles/trends/trends-components-styles';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ScrollView, TouchableOpacity } from 'react-native';
 import { ThemedText } from '../themed-text';
 
@@ -35,6 +35,9 @@ const selectDropdownItem = (
   setShowCalendar(false);
 };
 
+const r = useResponsive();
+    
+const styles = useMemo(() => trendsFilterStyles(r), [r]);
 
   return (
     <ThemedView style={styles.filterDropdown}>
@@ -132,7 +135,7 @@ const selectDropdownItem = (
                             {/* Dropdown Options */}
                             {activeDropdown === "region" && (
                                 <ThemedView style={styles.filterDropdownList}>
-                                    <ScrollView style={{ maxHeight: isTallScreen || isExtraTallScreen ? verticalScale(260) : verticalScale(180) }}
+                                    <ScrollView
                                         showsVerticalScrollIndicator={true}>
                                         {["All Regions", "Region I", "Region II",
                                         "Region III", "Region IV-A", "Region V",

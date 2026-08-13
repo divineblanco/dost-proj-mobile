@@ -4,7 +4,7 @@ import MyDiscussions from "@/components/cards/my-discussions";
 import { SurveyCard } from "@/components/cards/profile-survey";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { profileStyles as styles } from "@/styles/profile-styles";
+import { profileStyles as styles } from "@/styles/profile/profile-styles";
 import { icon } from "@/styles/responsive";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";

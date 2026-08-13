@@ -28,6 +28,13 @@ export default function DrawerLayout() {
     pathname.startsWith("/drawer/tabs/trend/view-trendspost");
 
 
+  const isViewResources = 
+    pathname.startsWith("/drawer/tabs/profiles/view-resources");
+
+  const isViewDiscussions = 
+    pathname.startsWith("/drawer/tabs/profiles/view-discussions");
+
+
   const isProfileSettings =
     pathname.startsWith("/drawer/tabs/setting/profile-settings");
 
@@ -58,8 +65,9 @@ export default function DrawerLayout() {
 
   // ✅ SINGLE FLAG FOR BACK BEHAVIOR
   const showBackButton = isResourceDetails || isAddContribute || isReportMisinformation || isViewTrendsPost
-                      || isProfileSettings || isEditProfile || isActivityLog || isDeviceSessions
-                      || isLanguage || isAppearance || isHelp || isReportHelp || isAbout;
+                      || isProfileSettings || isEditProfile || isViewResources || isViewDiscussions 
+                      || isActivityLog || isDeviceSessions || isLanguage || isAppearance || isHelp 
+                      || isReportHelp || isAbout;
 
   return (
     <Drawer

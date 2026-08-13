@@ -97,7 +97,7 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
 
       {/* FOOTER */}
       <ThemedView style={styles.bottomContainer}>
-        <TouchableOpacity onPress={() => router.push("/drawer/tabs/profile")}>
+        <TouchableOpacity onPress={() => router.push("/drawer/tabs/profiles/profile")}>
           <Image
             source={require("@/assets/images/profile.jpg")}
             style={{ width: 50, height: 50, borderRadius: 999 }}

@@ -1,59 +1,230 @@
-import { ThemedView } from '@/components/themed-view';
-import { reportStyles as styles } from '@/styles/reports-styles';
-import { icon } from '@/styles/responsive';
+import { ThemedText } from "@/components/themed-text";
+import { ThemedView } from "@/components/themed-view";
+import { reportStyles } from "@/styles/reports-styles";
+import { icon, useResponsive } from "@/styles/responsive";
 import { Ionicons } from "@expo/vector-icons";
-import React from 'react';
-import { TouchableOpacity } from 'react-native';
-import { ThemedText } from '../themed-text';
+import React, { useMemo } from "react";
+import { TouchableOpacity } from "react-native";
 
-export function ReportsCard() {
+type ReportCategory =
+  | "Sentiment"
+  | "Demographic"
+  | "Regional"
+  | "Trends";
+
+type ReportsCardProps = {
+  title: string;
+  description: string;
+  date: string;
+  category: ReportCategory;
+};
+
+type CategoryStyle = {
+  pillBackground: string;
+  pillText: string;
+  accent: string;
+  iconBackground: string;
+  iconColor: string;
+};
+
+const CATEGORY_STYLES: Record<
+  ReportCategory,
+  CategoryStyle
+> = {
+  Sentiment: {
+    pillBackground: "#EEE9FA",
+    pillText: "#7057A8",
+    accent: "#7057A8",
+    iconBackground: "#F3EFFB",
+    iconColor: "#7057A8",
+  },
+
+  Demographic: {
+    pillBackground: "#E8F3FD",
+    pillText: "#3781C1",
+    accent: "#3781C1",
+    iconBackground: "#EEF6FC",
+    iconColor: "#3781C1",
+  },
+
+  Regional: {
+    pillBackground: "#E7F5EC",
+    pillText: "#328456",
+    accent: "#328456",
+    iconBackground: "#EEF9F2",
+    iconColor: "#328456",
+  },
+
+  Trends: {
+    pillBackground: "#FFF4D9",
+    pillText: "#B8860B",
+    accent: "#B8860B",
+    iconBackground: "#FFF8E8",
+    iconColor: "#B8860B",
+  },
+};
+
+export function ReportsCard({
+  title,
+  description,
+  date,
+  category,
+}: ReportsCardProps) {
+
+  const r = useResponsive();
+            
+    const styles = useMemo(() => reportStyles(r), [r]);
+
+  const categoryStyle =
+    CATEGORY_STYLES[category];
+
   return (
-    // OUTER WRAPPER (shadow lives here)
     <ThemedView style={styles.shadowWrapper}>
-      
-      {/* INNER CARD (clips content + rounded corners) */}
+
       <ThemedView style={styles.card}>
-        {/* Accent bar */}
-        <ThemedView style={styles.accentBar} />
 
-        {/* Left column */}
+        {/* ================= ACCENT BAR ================= */}
+
+        <ThemedView
+          style={[
+            styles.accentBar,
+            {
+              backgroundColor:
+                categoryStyle.accent,
+            },
+          ]}
+        />
+
+        {/* ================= LEFT COLUMN ================= */}
+
         <ThemedView style={styles.leftCol}>
-          <ThemedView style={styles.iconContainer}>
-            <Ionicons name="document-text-outline" size={icon(24)} color="#4A7CA8" />
+
+          {/* ICON */}
+
+          <ThemedView
+            style={[
+              styles.iconContainer,
+              {
+                backgroundColor:
+                  categoryStyle.iconBackground,
+              },
+            ]}
+          >
+            <Ionicons
+              name="document-text-outline"
+              size={icon(24)}
+              color={categoryStyle.iconColor}
+            />
           </ThemedView>
 
-          <ThemedView style={styles.labelPill}>
-            <ThemedText style={styles.labelText}>Trends</ThemedText>
+          {/* CATEGORY */}
+
+          <ThemedView
+            style={[
+              styles.labelPill,
+              {
+                backgroundColor:
+                  categoryStyle.pillBackground,
+              },
+            ]}
+          >
+            <ThemedText
+              style={[
+                styles.labelText,
+                {
+                  color:
+                    categoryStyle.pillText,
+                },
+              ]}
+            >
+              {category}
+            </ThemedText>
           </ThemedView>
+
         </ThemedView>
 
-        {/* Divider */}
-        <ThemedView style={styles.verticalDivider} />
+        {/* ================= VERTICAL DIVIDER ================= */}
 
-        {/* Content */}
+        <ThemedView
+          style={styles.verticalDivider}
+        />
+
+        {/* ================= CONTENT ================= */}
+
         <ThemedView style={styles.content}>
+
+          {/* TITLE + DOWNLOAD */}
+
           <ThemedView style={styles.titleRow}>
-            <ThemedText style={styles.title} numberOfLines={2}>
-              Q2 HIV Awareness Campaign Impact Analysis
+
+            <ThemedText
+              style={styles.title}
+              numberOfLines={2}
+            >
+              {title}
             </ThemedText>
 
-            <TouchableOpacity style={styles.downloadBtn}>
-              <Ionicons name="download-outline" size={icon(16)} color="#35408E" />
+            <TouchableOpacity
+              style={styles.downloadBtn}
+              activeOpacity={0.7}
+              onPress={() => {
+                console.log(
+                  `Download report: ${title}`
+                );
+              }}
+            >
+              <Ionicons
+                name="download-outline"
+                size={icon(16)}
+                color="#35408E"
+              />
             </TouchableOpacity>
+
           </ThemedView>
+
+          {/* DATE */}
 
           <ThemedView style={styles.dateRow}>
-            <Ionicons name="calendar-outline" size={icon(13)} color="#4A7CA8" />
-            <ThemedText style={styles.cardDateText}>June 15, 2026</ThemedText>
+
+            <Ionicons
+              name="calendar-outline"
+              size={icon(13)}
+              color={categoryStyle.accent}
+            />
+
+            <ThemedText
+              style={[
+                styles.cardDateText,
+                {
+                  color:
+                    categoryStyle.accent,
+                },
+              ]}
+            >
+              {date}
+            </ThemedText>
+
           </ThemedView>
 
-          <ThemedView style={styles.horizontalDivider} />
+          {/* DIVIDER */}
 
-          <ThemedText style={styles.description} numberOfLines={2}>
-            Analysis of social media engagement during the Q2 HIV awareness campaign.
+          <ThemedView
+            style={styles.horizontalDivider}
+          />
+
+          {/* DESCRIPTION */}
+
+          <ThemedText
+            style={styles.description}
+            numberOfLines={2}
+          >
+            {description}
           </ThemedText>
+
         </ThemedView>
+
       </ThemedView>
+
     </ThemedView>
   );
 }

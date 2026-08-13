@@ -21,7 +21,7 @@ export function ProfileDropDown({
   return (
     <ThemedView style={styles.dropdownMenu}>
       <TouchableOpacity
-        onPress={() => handleNavigation("/drawer/tabs/profile")}
+        onPress={() => handleNavigation("/drawer/tabs/profiles/profile")}
         style={styles.dropdown}
       >
         <ThemedView style={styles.dropdownItem}>

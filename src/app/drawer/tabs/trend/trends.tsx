@@ -3,12 +3,12 @@ import { TrendsFilter } from '@/components/filters/trends-filter';
 import { RecentTable } from '@/components/table/recent-table';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { icon, scale } from '@/styles/responsive';
-import { trendsPageStyles as styles } from '@/styles/trends/trends-styles';
+import { icon, scale, useResponsive } from '@/styles/responsive';
+import { trendsPageStyles } from '@/styles/trends/trends-styles';
 import { Ionicons } from "@expo/vector-icons";
 import * as Device from 'expo-device';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Platform, ScrollView, TouchableOpacity } from 'react-native';
 
 function getDevMenuHint() {
@@ -35,6 +35,10 @@ export default function Trends() {
   const router = useRouter();
   const [showFilter, setShowFilter] = useState(false);
 
+  const r = useResponsive();
+      
+  const styles = useMemo(() => trendsPageStyles(r), [r]);
+
   return (
     <ScrollView style={styles.pageContainer} contentContainerStyle={styles.scrollContent}>
       <ThemedView style={styles.pageInner}>
@@ -46,7 +50,7 @@ export default function Trends() {
               console.log("Filter clicked");
               setShowFilter(!showFilter);
             }} style={styles.filterBtn}>
-            <Ionicons name="options-outline" size={icon(24)} color="#35408E" />
+            <Ionicons name="options-outline" size={icon(20)} color="#35408E" />
           </TouchableOpacity>
         </ThemedView>
         {showFilter && (
@@ -63,7 +67,7 @@ export default function Trends() {
             <ThemedText style={styles.titleText}>
               Mentions Timeline
             </ThemedText>
-            <ThemedText type='default'>
+            <ThemedText type='default' style={styles.desc}>
               Daily count of HIV-related mentions across all platforms
             </ThemedText>
           </ThemedView>
@@ -78,7 +82,7 @@ export default function Trends() {
             <ThemedText style={styles.titleText}>
               Distribution by Platform
             </ThemedText>
-            <ThemedText type='default'>
+            <ThemedText type='default' style={styles.desc}>
               HIV-related mentions by social media platforms
             </ThemedText>
           </ThemedView>
@@ -134,7 +138,7 @@ export default function Trends() {
             <ThemedText style={styles.titleText}>
               Recent Mentions
             </ThemedText>
-            <ThemedText type='default'>
+            <ThemedText type='default' style={styles.desc}>
               Latest HIV-related mentions from social media
             </ThemedText>
           </ThemedView>

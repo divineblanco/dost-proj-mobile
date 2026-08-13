@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import { font, radius, scale, spacing, verticalScale } from "./responsive";
+import { font, radius, scale, spacing, verticalScale } from "../responsive";
 
 export const profileStyles = StyleSheet.create({
   pageContainer: {

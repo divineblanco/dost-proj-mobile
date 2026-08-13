@@ -1,7 +1,8 @@
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { recentTableStyles as styles } from "@/styles/trends/trends-components-styles";
-import React from "react";
+import { useResponsive } from "@/styles/responsive";
+import { recentTableStyles } from "@/styles/trends/trends-components-styles";
+import React, { useMemo } from "react";
 import { FlatList } from "react-native";
 
 type MentionItem = {
@@ -37,6 +38,9 @@ const data: MentionItem[] = [
 ];
 
 export function RecentTable() {
+  const r = useResponsive();
+      
+  const styles = useMemo(() => recentTableStyles(r), [r]);
   return (
     <ThemedView style={styles.container}>
       {/* Header */}

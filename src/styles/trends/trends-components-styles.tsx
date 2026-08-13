@@ -1,45 +1,70 @@
 import { StyleSheet } from 'react-native';
 import {
-    font,
-    isExtraTallScreen,
-    isFold,
-    isNormalScreen,
-    isShortScreen,
-    isSmallPhone,
-    isTablet,
-    isTallScreen,
-    radius,
-    scale,
-    verticalScale,
+  font,
+  isAndroidTablet,
+  radius,
+  ResponsiveValues,
+  scale,
+  verticalScale
 } from '../responsive';
 import { colors } from './trends-colors';
 
-/**
- * Styles for the Trends flow's sub-components:
- *
- *   trendingTopicsStyles -> components/cards/trendtopics-box.tsx
- *   recentTableStyles    -> components/table/recent-table.tsx
- *   trendsFilterStyles   -> components/filters/trends-filter.tsx
- *
- * Page-level styles live in trends-page-styles.ts.
- */
 
-// scale() grows linearly with device width forever, which is fine
-// for phones but oversizes small fixed-size UI (the trend icon
-// badge) on fold/tablet-class screens.
 const capScale = (size: number, max: number) => Math.min(scale(size), max);
 
 /* ============================================================
     TRENDING TOPICS BOX
 ============================================================ */
 
-export const trendingTopicsStyles = StyleSheet.create({
+export function trendingTopicsStyles (r: ResponsiveValues) {
+    const {
+      isCompactAndroid,
+      isFold,
+      isIPhone,
+      isLandscape,
+      isPortrait,
+      isLargePhone,
+      isNormalScreen,
+      isShortScreen,
+      isSmallPhone,
+      isExtraTallScreen,
+      isTablet,
+      isTallScreen,
+      isIPad,
+      isIPadMini,
+      isLargeIPad,
+  } = r;
+
+    const isTallFold = r.isFold && r.isTallScreen;
+    const isNormalFold = r.isFold && r.isNormalScreen;
+
+    const isAndroidTabletPortrait = r.isAndroidTablet && r.isPortrait;
+
+    const isAndroidTabletLandscape = r.isAndroidTablet && r.isLandscape;
+
+    const isIPadPortrait = r.isIPad && r.isPortrait;
+    const isIPadLandscape = r.isIPad && r.isLandscape;
+  
+    const isLargeIPadPortrait = r.isLargeIPad && r.isPortrait;
+    const isLargeIPadLandscape = r.isLargeIPad && r.isLandscape;
+  
+    const isIPadMiniPortrait = r.isIPadMini && r.isPortrait;
+    const isIPadMiniLandscape = r.isIPadMini && r.isLandscape;
+
+  return StyleSheet.create({
+
   summaryContainer2: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignItems: 'flex-start',
+    justifyContent: "center",
     padding: scale(10),
-    gap: scale(10),
+    gap: 
+      isAndroidTabletPortrait
+      ? scale(7)
+      : isAndroidTabletLandscape
+      ? scale(10)
+      : scale(10),
   },
 
   trendsBox: {
@@ -52,18 +77,24 @@ export const trendingTopicsStyles = StyleSheet.create({
     // dashboard's stat boxes.
     width: 
         isSmallPhone 
-        ? '100%' 
-        : isTablet 
-        ? '23%' 
+        ? '100%'
+        : isAndroidTablet
+        ? "49%"  
         : isFold 
         ? '48%' 
         : '48%',
     minHeight: 
-        isFold && isNormalScreen
+        isNormalFold
         ? verticalScale(170)
-        : isFold && isTallScreen
+        : isTallFold
         ? verticalScale(150)
-        : isShortScreen
+        : isAndroidTabletPortrait || isLargeIPadPortrait || isIPadPortrait
+        || isIPadMiniPortrait
+        ? verticalScale(85)
+        : isAndroidTabletLandscape || isLargeIPadLandscape || isIPadLandscape
+        || isIPadMiniLandscape
+        ? verticalScale(100)
+        : isShortScreen 
         ? verticalScale(90)
         : verticalScale(80),
     padding: scale(10),
@@ -80,7 +111,13 @@ export const trendingTopicsStyles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: 'transparent',
     zIndex: 2,
-    gap: scale(5),
+    gap: 
+      isAndroidTabletPortrait
+      ? scale(3)
+      : isAndroidTabletLandscape || isLargeIPadLandscape || isIPadLandscape
+      || isIPadMiniLandscape
+      ? scale(2)
+      : scale(5),
   },
 
   boxInfo: {
@@ -95,15 +132,23 @@ export const trendingTopicsStyles = StyleSheet.create({
   boxTitle: {
     flexWrap: 'wrap',
     fontSize: 
-        isFold
+        isFold || isAndroidTabletLandscape || isLargeIPadLandscape
+        || isIPadLandscape || isIPadMiniLandscape
         ? font(18)
+        : isAndroidTabletPortrait || isLargeIPadPortrait || isIPadPortrait
+        || isIPadMiniPortrait
+        ? font(15)
         : font(13)
   },
 
   boxMore: {
     fontSize: 
-        isFold
+        isFold || isAndroidTabletLandscape || isLargeIPadLandscape
+        || isIPadLandscape || isIPadMiniLandscape
         ? font(15)
+        : isAndroidTabletPortrait || isLargeIPadPortrait || isIPadPortrait
+        || isIPadMiniPortrait
+        ? font(13)
         : font(12),
     // was the number 400 — React Native's fontWeight type only
     // accepts 'normal'/'bold' or a numeric *string* ('100'-'900')
@@ -111,16 +156,23 @@ export const trendingTopicsStyles = StyleSheet.create({
     fontStyle: 'italic',
     color: colors.primary,
     textAlign: 'center',
+    lineHeight: font(15)
   },
 
   iconBG: {
     width: 
-        isFold
+        isFold || isAndroidTablet || isIPadPortrait
+        || isIPadMini
         ? capScale(50, 62)
+        : isLargeIPad || isIPadLandscape
+        ? capScale(60, 70)
         : capScale(40, 52),
     height: 
-        isFold
+        isFold || isAndroidTablet || isLargeIPadPortrait
+        || isIPadPortrait || isIPadMini 
         ? capScale(50, 62)
+        : isLargeIPadLandscape || isIPadLandscape
+        ? capScale(60, 70)
         : capScale(40, 52),
     borderRadius: radius(10),
     backgroundColor: colors.white,
@@ -135,17 +187,53 @@ export const trendingTopicsStyles = StyleSheet.create({
     flexShrink: 0,
     justifyContent: 'center',
     marginTop: 
-        isFold
+        isFold || isAndroidTabletPortrait
         ? verticalScale(5)
         : verticalScale(2),
   },
-});
+})};
 
 /* ============================================================
     RECENT TABLE
 ============================================================ */
 
-export const recentTableStyles = StyleSheet.create({
+export function recentTableStyles (r: ResponsiveValues) {
+    const {
+      isCompactAndroid,
+      isFold,
+      isIPhone,
+      isLandscape,
+      isPortrait,
+      isLargePhone,
+      isNormalScreen,
+      isShortScreen,
+      isSmallPhone,
+      isExtraTallScreen,
+      isTablet,
+      isTallScreen,
+      isIPad,
+      isIPadMini,
+      isLargeIPad,
+  } = r;
+
+    const isTallFold = r.isFold && r.isTallScreen;
+    const isNormalFold = r.isFold && r.isNormalScreen;
+
+    const isAndroidTabletPortrait = r.isAndroidTablet && r.isPortrait;
+
+    const isAndroidTabletLandscape = r.isAndroidTablet && r.isLandscape;
+
+    const isIPadPortrait = r.isIPad && r.isPortrait;
+    const isIPadLandscape = r.isIPad && r.isLandscape;
+  
+    const isLargeIPadPortrait = r.isLargeIPad && r.isPortrait;
+    const isLargeIPadLandscape = r.isLargeIPad && r.isLandscape;
+  
+    const isIPadMiniPortrait = r.isIPadMini && r.isPortrait;
+    const isIPadMiniLandscape = r.isIPadMini && r.isLandscape;
+
+  return StyleSheet.create({
+
   container: {
     backgroundColor: colors.white,
     borderRadius: radius(10),
@@ -185,6 +273,7 @@ export const recentTableStyles = StyleSheet.create({
         : font(12),
     fontWeight: 'bold',
     textAlign: 'center',
+    lineHeight: font(15)
   },
 
   row: {
@@ -219,6 +308,7 @@ export const recentTableStyles = StyleSheet.create({
         isFold
         ? font(14)
         : font(12),
+    lineHeight: font(14),
     paddingVertical: 
         isFold
         ? verticalScale(45) 
@@ -235,6 +325,9 @@ export const recentTableStyles = StyleSheet.create({
     paddingVertical: 
         isFold
         ? verticalScale(15)
+        : isAndroidTablet || isLargeIPad || isIPad
+        || isIPadMini
+        ? verticalScale(7)
         : verticalScale(4),
     borderRadius: radius(12),
     minWidth: scale(70),
@@ -258,17 +351,55 @@ export const recentTableStyles = StyleSheet.create({
     fontSize: 
         isFold
         ? font(13)
+        : isAndroidTabletPortrait
+        ? font(12)
         : font(11),
     fontWeight: '700',
     lineHeight: font(13)
   },
-});
+})};
 
 /* ============================================================
     TRENDS FILTER
 ============================================================ */
 
-export const trendsFilterStyles = StyleSheet.create({
+export function trendsFilterStyles (r: ResponsiveValues) {
+    const {
+      isCompactAndroid,
+      isFold,
+      isIPhone,
+      isLandscape,
+      isPortrait,
+      isLargePhone,
+      isNormalScreen,
+      isShortScreen,
+      isSmallPhone,
+      isExtraTallScreen,
+      isTablet,
+      isTallScreen,
+      isIPad,
+      isIPadMini,
+      isLargeIPad,
+  } = r;
+
+    const isTallFold = r.isFold && r.isTallScreen;
+    const isNormalFold = r.isFold && r.isNormalScreen;
+
+    const isAndroidTabletPortrait = r.isAndroidTablet && r.isPortrait;
+
+    const isAndroidTabletLandscape = r.isAndroidTablet && r.isLandscape;
+
+    const isIPadPortrait = r.isIPad && r.isPortrait;
+    const isIPadLandscape = r.isIPad && r.isLandscape;
+  
+    const isLargeIPadPortrait = r.isLargeIPad && r.isPortrait;
+    const isLargeIPadLandscape = r.isLargeIPad && r.isLandscape;
+  
+    const isIPadMiniPortrait = r.isIPadMini && r.isPortrait;
+    const isIPadMiniLandscape = r.isIPadMini && r.isLandscape;
+
+  return StyleSheet.create({
+
   closeButton: {
     position: 'absolute',
     top: verticalScale(8),
@@ -279,13 +410,18 @@ export const trendsFilterStyles = StyleSheet.create({
   filterDropdown: {
     position: 'absolute',
     top: 
-        isFold && isTallScreen
+        isTallFold
         ? verticalScale(100)
-        : isFold && isNormalScreen
+        : isNormalFold
         ? verticalScale(120)
         : verticalScale(60),
     marginHorizontal: scale(10),
-    width: 'auto',
+    width: 
+      isAndroidTabletLandscape || isIPadLandscape || isLargeIPadLandscape
+      || isIPadMiniLandscape
+      ? "80%"
+      : 'auto',
+    alignSelf: "center",
     backgroundColor: colors.primary,
     borderRadius: radius(10),
     padding: scale(8),
@@ -367,16 +503,29 @@ export const trendsFilterStyles = StyleSheet.create({
     left: scale(0),
     right: scale(0),
     marginTop: 
-        isFold && isNormalScreen
+        isNormalFold
         ? verticalScale(55)
-        : isFold && isTallScreen
+        : isTallFold
         ? verticalScale(45)
+        : isLargeIPad 
+        ? verticalScale(40)
+        : isIPadPortrait || isIPadMiniPortrait || isIPadLandscape
+        || isIPadMiniLandscape
+        ? verticalScale(35)
+        : isAndroidTablet 
+        ? verticalScale(30)
         : verticalScale(25),
     backgroundColor: '#FFF',
     borderRadius: radius(8),
     paddingVertical: scale(8),
     paddingLeft: scale(7),
-    maxHeight: isTallScreen || isExtraTallScreen ? verticalScale(260) : verticalScale(200),
+    maxHeight: 
+      isAndroidTablet || isLargeIPad || isIPad
+      || isIPadMini
+      ? verticalScale(160)
+      : isTallScreen || isExtraTallScreen 
+      ? verticalScale(260) 
+      : verticalScale(200),
     elevation: 5,
     zIndex: 999,
     shadowColor: '#000',
@@ -421,6 +570,9 @@ export const trendsFilterStyles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     shadowColor: '#000',
-    maxHeight: isTallScreen || isExtraTallScreen ? verticalScale(260) : verticalScale(200),
+    maxHeight: 
+      isTallScreen || isExtraTallScreen 
+      ? verticalScale(260) 
+      : verticalScale(200),
   },
-});
+})};

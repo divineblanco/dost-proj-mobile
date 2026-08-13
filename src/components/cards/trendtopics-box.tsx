@@ -1,10 +1,10 @@
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { icon } from "@/styles/responsive";
-import { trendingTopicsStyles as styles } from "@/styles/trends/trends-components-styles";
+import { icon, useResponsive } from "@/styles/responsive";
+import { trendingTopicsStyles } from "@/styles/trends/trends-components-styles";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React from "react";
+import React, { useMemo } from "react";
 import { TouchableOpacity } from "react-native";
 
 type TrendingTopic = {
@@ -22,6 +22,11 @@ const trendingTopics: TrendingTopic[] = [
 ];
 
 export function TrendingTopics() {
+
+  const r = useResponsive();
+      
+  const styles = useMemo(() => trendingTopicsStyles(r), [r]);
+  
   return (
     <ThemedView style={styles.summaryContainer2}>
       {trendingTopics.map((item) => (

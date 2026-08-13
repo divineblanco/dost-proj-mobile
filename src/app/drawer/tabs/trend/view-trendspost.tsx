@@ -1,11 +1,12 @@
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { icon, useResponsive } from "@/styles/responsive";
+import { viewTrendsStyles } from "@/styles/trends/trends-styles";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   ScrollView,
-  StyleSheet,
   TouchableOpacity,
   View
 } from "react-native";
@@ -13,12 +14,12 @@ import {
 // ── Platform config ──────────────────────────────────────────────
 type Platform = "All" | "X" | "Reddit" | "Facebook" | "TikTok";
 
-const PLATFORMS: { key: Platform; icon: keyof typeof FontAwesome6.glyphMap; color: string; bg: string }[] = [
-  { key: "All",      icon: "bars",  color: "#35408E", bg: "#EEF0FA" },
-  { key: "Facebook", icon: "facebook", color: "#1877F2", bg: "#E8F0FE" },
-  { key: "X",        icon: "x-twitter",  color: "#14171A", bg: "#F0F0F0" },
-  { key: "Reddit",   icon: "reddit-alien",   color: "#FF4500", bg: "#FFF0EB" },
-  { key: "TikTok",   icon: "tiktok", color: "#FE2C55", bg: "#F3F0F7" },
+const PLATFORMS: { key: Platform; icons: keyof typeof FontAwesome6.glyphMap; color: string; bg: string }[] = [
+  { key: "All",      icons: "bars",  color: "#35408E", bg: "#EEF0FA" },
+  { key: "Facebook", icons: "facebook", color: "#1877F2", bg: "#E8F0FE" },
+  { key: "X",        icons: "x-twitter",  color: "#14171A", bg: "#F0F0F0" },
+  { key: "Reddit",   icons: "reddit-alien",   color: "#FF4500", bg: "#FFF0EB" },
+  { key: "TikTok",   icons: "tiktok", color: "#FE2C55", bg: "#F3F0F7" },
 ];
 
 // ── Mock post data ────────────────────────────────────────────────
@@ -66,11 +67,11 @@ const MOCK_POSTS: Post[] = [
 ];
 
 // ── Platform badge colors ─────────────────────────────────────────
-const PLATFORM_MAP: Record<Exclude<Platform,"All">, { color: string; bg: string; icon: keyof typeof FontAwesome6.glyphMap }> = {
-  Facebook: { color: "#1877F2", bg: "#E8F0FE", icon: "facebook" },
-  X:        { color: "#14171A", bg: "#F0F0F0", icon: "x-twitter"  },
-  Reddit:   { color: "#FF4500", bg: "#FFF0EB", icon: "reddit-alien"   },
-  TikTok:   { color: "#FE2C55", bg: "#F3F0F7", icon: "tiktok" },
+const PLATFORM_MAP: Record<Exclude<Platform,"All">, { color: string; bg: string; icons: keyof typeof FontAwesome6.glyphMap }> = {
+  Facebook: { color: "#1877F2", bg: "#E8F0FE", icons: "facebook" },
+  X:        { color: "#14171A", bg: "#F0F0F0", icons: "x-twitter"  },
+  Reddit:   { color: "#FF4500", bg: "#FFF0EB", icons: "reddit-alien"   },
+  TikTok:   { color: "#FE2C55", bg: "#F3F0F7", icons: "tiktok" },
 };
 
 // ── Screen ────────────────────────────────────────────────────────
@@ -86,12 +87,16 @@ export default function ViewTrendsPost() {
     ? MOCK_POSTS
     : MOCK_POSTS.filter((p) => p.platform === activeFilter);
 
+  const r = useResponsive();
+      
+  const styles = useMemo(() => viewTrendsStyles(r), [r]);
+
   return (
     <View style={styles.pageContainer}>
       {/* Topic hero */}
       <ThemedView style={styles.topicHero}>
         <ThemedView style={styles.trendIconBubble}>
-          <FontAwesome6 name="arrow-trend-up" size={20} color="#FF2A2A" />
+          <FontAwesome6 name="arrow-trend-up" size={icon(20)} color="#FF2A2A" />
         </ThemedView>
  
         <ThemedView style={styles.topicInfo}>
@@ -108,7 +113,7 @@ export default function ViewTrendsPost() {
           ) : null}
  
           <ThemedView style={styles.trendRise}>
-            <FontAwesome6 name="arrow-trend-up" size={12} color="#2E9E3A" />
+            <FontAwesome6 name="arrow-trend-up" size={icon(12)} color="#2E9E3A" />
             <ThemedText style={styles.trendPct}>{percentage} this week</ThemedText>
           </ThemedView>
         </ThemedView>
@@ -117,7 +122,7 @@ export default function ViewTrendsPost() {
       {/* Platform filter tabs */}
       <View style={styles.filterBar}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll}>
-          {PLATFORMS.map(({ key, icon, color, bg }) => {
+          {PLATFORMS.map(({ key, icons, color, bg }) => {
             const isActive = activeFilter === key;
             return (
               <TouchableOpacity
@@ -126,7 +131,7 @@ export default function ViewTrendsPost() {
                 onPress={() => setActiveFilter(key)}
                 activeOpacity={0.8}
               >
-                <FontAwesome6 name={icon} size={14} color={isActive ? color : "#9BA8C0"} />
+                <FontAwesome6 name={icons} size={icon(14)} color={isActive ? color : "#9BA8C0"} />
                 <ThemedText style={[styles.filterLabel, isActive && { color, fontWeight: "700" }]}>
                   {key}
                 </ThemedText>
@@ -154,7 +159,7 @@ export default function ViewTrendsPost() {
                 {/* Header */}
                 <ThemedView style={styles.postHeader}>
                   <ThemedView style={[styles.platformPill, { backgroundColor: p.bg }]}>
-                    <FontAwesome6 name={p.icon} size={12} color={p.color} />
+                    <FontAwesome6 name={p.icons} size={icon(12)} color={p.color} />
                     <ThemedText style={[styles.platformLabel, { color: p.color }]}>{post.platform}</ThemedText>
                   </ThemedView>
                 </ThemedView>
@@ -165,21 +170,21 @@ export default function ViewTrendsPost() {
                 {/* Footer */}
                 <ThemedView style={styles.postFooter}>
                   <ThemedView style={styles.dateRow}>
-                    <FontAwesome6 name="calendar-alt" size={12} color="#9BA8C0" />
+                    <FontAwesome6 name="calendar-alt" size={icon(12)} color="#9BA8C0" />
                     <ThemedText style={styles.postDate}>{post.date}</ThemedText>
                   </ThemedView>
 
                   <ThemedView style={styles.statsRow}>
                     <ThemedView style={styles.stat}>
-                      <FontAwesome6 name="heart" size={13} color="#9BA8C0" />
+                      <FontAwesome6 name="heart" size={icon(13)} color="#9BA8C0" />
                       <ThemedText style={styles.statTxt}>{post.likes}</ThemedText>
                     </ThemedView>
                     <ThemedView style={styles.stat}>
-                      <FontAwesome6 name="comment" size={13} color="#9BA8C0" />
+                      <FontAwesome6 name="comment" size={icon(13)} color="#9BA8C0" />
                       <ThemedText style={styles.statTxt}>{post.comments}</ThemedText>
                     </ThemedView>
                     <ThemedView style={styles.stat}>
-                      <FontAwesome6 name="share" size={13} color="#9BA8C0" />
+                      <FontAwesome6 name="share" size={icon(13)} color="#9BA8C0" />
                       <ThemedText style={styles.statTxt}>{post.shares}</ThemedText>
                     </ThemedView>
                   </ThemedView>
@@ -192,241 +197,3 @@ export default function ViewTrendsPost() {
     </View>
   );
 }
-
-// ── Styles ────────────────────────────────────────────────────────
-const styles = StyleSheet.create({
-  pageContainer: {
-    flex: 1,
-    backgroundColor: "#F8F9FD",
-    paddingTop: 15,
-  },
-
-  // Back button
-  backBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 2,
-    alignSelf: "flex-start",
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 8,
-    paddingRight: 10,
-  },
-
-  backText: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#35408E",
-  },
-
-  // Topic hero
-    topicHero: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 12,
-    backgroundColor: "#FFFFFF",
-    marginHorizontal: 16,
-    borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: "#E0E4F0",
-    padding: 14,
-    shadowColor: "#35408E",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.07,
-    shadowRadius: 6,
-    elevation: 3,
-  },
-
-  topicLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    backgroundColor: "transparent",
-    flex: 1,
-  },
-
-  trendIconBubble: {
-    width: 42,
-    height: 42,
-    borderRadius: 10,
-    backgroundColor: "#FFF0F0",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  topicInfo: { 
-    flex: 1, 
-    gap: 2, 
-    backgroundColor: "transparent" 
-  },
-
-  topicTitleRow: {
-    flexDirection: "row", alignItems: "center",
-    justifyContent: "space-between", gap: 8,
-    backgroundColor: "transparent",
-  },
-  topicTitle: { 
-    fontSize: 15, 
-    fontWeight: "700",
-    color: "#35408E", 
-    flex: 1 
-  },
-
-  topicDescription: { 
-    fontSize: 11, 
-    color: "#35408E", 
-    lineHeight: 17 
-  },
-
-  trendRise: {
-    flexDirection: "row", 
-    alignItems: "center",
-    gap: 3, 
-    backgroundColor: "transparent",
-  },
-
-  trendPct: { 
-    fontSize: 11, 
-    color: "#2E9E3A", 
-    fontWeight: "600",
-    fontStyle: "italic"
-  },
-
-  postCountPill: {
-    backgroundColor: "#EEF0FA", paddingHorizontal: 10,
-    paddingVertical: 3, borderRadius: 20,
-  },
-  postCountTxt: { fontSize: 11, fontWeight: "600", color: "#35408E" },
-
-
-  // Filter bar
-  filterBar: {
-    marginTop: 12,
-    paddingLeft: 16,
-  },
-
-  filterScroll: {
-    gap: 8,
-    paddingRight: 16,
-  },
-
-  filterTab: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    borderRadius: 20,
-    borderWidth: 1.5,
-    borderColor: "#E0E4F0",
-    backgroundColor: "#FFFFFF",
-  },
-
-  filterLabel: {
-    fontSize: 12,
-    color: "#9BA8C0",
-    fontWeight: "500",
-  },
-
-  // Posts
-  scroll: {
-    flex: 1,
-    marginTop: 12,
-  },
-
-  scrollContent: {
-    paddingHorizontal: 16,
-    paddingBottom: 100,
-    gap: 12,
-  },
-
-  postCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: "#E0E4F0",
-    overflow: "hidden",
-    shadowColor: "#1A1F5E",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 2,
-  },
-
-  cardAccent: {
-    height: 3,
-    width: "100%",
-  },
-
-  cardBody: {
-    padding: 14,
-    gap: 10,
-    backgroundColor: "transparent",
-  },
-
-  postHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    backgroundColor: "transparent",
-  },
-
-  platformPill: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 20,
-  },
-
-  platformLabel: {
-    fontSize: 11,
-    fontWeight: "600",
-  },
-
-  postContent: {
-    fontSize: 13,
-    color: "#35408E",
-    lineHeight: 20,
-  },
-
-  postFooter: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: "transparent",
-  },
-
-  dateRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    backgroundColor: "transparent",
-  },
-
-  postDate: {
-    fontSize: 11,
-    color: "#9BA8C0",
-  },
-
-  statsRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    backgroundColor: "transparent",
-  },
-
-  stat: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    backgroundColor: "transparent",
-  },
-
-  statTxt: {
-    fontSize: 11,
-    color: "#9BA8C0",
-    fontWeight: "500",
-  },
-});
