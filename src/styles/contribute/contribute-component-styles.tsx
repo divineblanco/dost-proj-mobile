@@ -727,10 +727,10 @@ export function contributeSuccessStyles(r: ResponsiveValues) {
   },
 
   message: {
-    fontSize: font(13),
+    fontSize: font(11),
     color: colors.textMuted,
     textAlign: 'center',
-    lineHeight: spacing(20),
+    lineHeight: spacing(13),
   },
 
   divider: {

@@ -128,7 +128,7 @@ export default function ReportMisinformation() {
         <ContributeSuccess
           visible={successContribute}
           title="Report Submitted"
-          message="Your report has been successfully received. Please allow up to (time) for it to be reviewed and verified before it is posted. Thank you for helping raise HIV awareness and support your community."
+          message="Your report has been successfully received. Please allow up to (time) for it to be reviewed and verified before it is posted."
           onClose={() => {
             setSuccessContribute(false);
             router.back();
