@@ -1,6 +1,7 @@
 import { StyleSheet } from 'react-native';
 import {
   font,
+  isAndroidTablet,
   isExtraTallScreen,
   isFold,
   isTallScreen,
@@ -83,12 +84,11 @@ export function questionOneStyles (r: ResponsiveValues) {
 
     paddingHorizontal: scale(11),
     paddingVertical: 
-        isNormalFold || isTallFold || isIPadMiniLandscape || isLargeIPadPortrait || isIPadPortrait || isAndroidTabletPortrait || isAndroidTabletLandscape
+        isNormalFold || isTallFold || isIPadPortrait 
         ? verticalScale(25)
-        : isIPadLandscape 
+        : isIPadLandscape  || isLargeIPad || isIPadMiniLandscape
+        || isAndroidTablet
         ? verticalScale(15)
-        : isLargeIPadLandscape
-        ? verticalScale(30)
         : verticalScale(12),
 
     backgroundColor: '#FFFFFF',
@@ -186,6 +186,66 @@ export function questionOneStyles (r: ResponsiveValues) {
   checkSelected: {
     backgroundColor: '#35408E',
     borderColor: '#35408E',
+  },
+
+  otherInputContainer: {
+    marginTop: 
+      isLargeIPad || isIPad || isIPadMini
+      || isAndroidTablet 
+      ? verticalScale(15)
+      : isFold
+      ? verticalScale(20)
+      : verticalScale(12),
+    width: "100%",
+  },
+
+  otherInputLabel: {
+    fontSize: 
+      isLargeIPad || isIPad  || isAndroidTablet
+      || isFold
+      ? font(14)
+      : font(13),
+    lineHeight: font(14),
+    fontWeight: "600",
+    color: "#35408E",
+    marginBottom: 
+      isLargeIPad || isIPad || isIPadMini 
+      || isAndroidTablet
+      ? verticalScale(10)
+      : isFold
+      ? verticalScale(15)
+      : verticalScale(6),
+  },
+
+  otherInput: {
+    width: "100%",
+    minHeight: 
+      isLargeIPad || isIPad || isIPadMini
+      ? verticalScale(100)
+      : isFold
+      ? verticalScale(120)
+      : verticalScale(80),
+
+    backgroundColor: "#F8F9FC",
+
+    borderWidth: 1,
+    borderColor: "#D9DEEA",
+
+    borderRadius: radius(10),
+
+    paddingHorizontal: scale(12),
+    paddingVertical: 
+      isLargeIPad || isIPad || isIPadMini
+      || isFold
+      ? verticalScale(15)
+      : verticalScale(10),
+
+    fontSize: 
+      isLargeIPad || isIPad || isAndroidTablet
+      ? font(14)
+      : font(13),
+    lineHeight: font(14),
+    color: "#35408E",
   },
 })};
 

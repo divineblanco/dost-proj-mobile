@@ -192,7 +192,7 @@ export const settingsStyles = StyleSheet.create({
   row2: {
     flexDirection: "row",
     paddingHorizontal: 35,
-    paddingVertical: 5,
+    paddingVertical: 15,
     gap: 15,
     alignItems: "center"
   },

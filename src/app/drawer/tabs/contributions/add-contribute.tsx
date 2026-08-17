@@ -178,7 +178,7 @@ export default function AddContribute() {
             Your submission will be anonymized and analyzed by AdvocAid PH's AI system to identify
             trends, stigma, and resource needs while protecting your personal privacy.
           </ThemedText>
-          <TouchableOpacity activeOpacity={0.7}>
+          <TouchableOpacity activeOpacity={0.7} onPress={() => router.push("/drawer/tabs/setting/abouts/privacy-policy")}>
             <ThemedText style={addContri.privacyLink}>Learn more about our privacy policy →</ThemedText>
           </TouchableOpacity>
         </ThemedView>

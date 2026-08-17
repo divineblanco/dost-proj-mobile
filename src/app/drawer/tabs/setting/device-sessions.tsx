@@ -53,7 +53,7 @@ export default function DeviceSessions() {
               <ThemedText style={styles.title}>
                 Active Sessions
               </ThemedText>
-              <TouchableOpacity style={styles.row}
+              <TouchableOpacity style={styles.row2}
                 onPress={() => setShowTerminateModal(true)}>
                 <ThemedView style={styles.icon}>
                   <Octicons name="device-mobile" size={20} color="#35408E"/>
