@@ -1,14 +1,54 @@
 import { StyleSheet } from "react-native";
-import { font, radius, scale, spacing, verticalScale } from "../responsive";
+import { font, isAndroidTablet, radius, ResponsiveValues, scale, spacing, verticalScale } from "../responsive";
 
-export const profileStyles = StyleSheet.create({
+export function profileStyles (r: ResponsiveValues) {
+    const {
+      isCompactAndroid,
+      isFold,
+      isIPhone,
+      isLandscape,
+      isPortrait,
+      isLargePhone,
+      isNormalScreen,
+      isShortScreen,
+      isSmallPhone,
+      isExtraTallScreen,
+      isTablet,
+      isTallScreen,
+      isIPad,
+      isIPadMini,
+      isLargeIPad,
+  } = r;
+
+    const isTallFold = r.isFold && r.isTallScreen;
+    const isNormalFold = r.isFold && r.isNormalScreen;
+
+    const isAndroidTabletPortrait = r.isAndroidTablet && r.isPortrait;
+
+    const isAndroidTabletLandscape = r.isAndroidTablet && r.isLandscape;
+
+    const isIPadPortrait = r.isIPad && r.isPortrait;
+    const isIPadLandscape = r.isIPad && r.isLandscape;
+  
+    const isLargeIPadPortrait = r.isLargeIPad && r.isPortrait;
+    const isLargeIPadLandscape = r.isLargeIPad && r.isLandscape;
+  
+    const isIPadMiniPortrait = r.isIPadMini && r.isPortrait;
+    const isIPadMiniLandscape = r.isIPadMini && r.isLandscape;
+
+    return StyleSheet.create({
   pageContainer: {
     flex: 1,
     backgroundColor: "white",
     padding: scale(5),
   },
   scrollContent: {
-    paddingBottom: verticalScale(95),
+    paddingBottom: 
+      isCompactAndroid
+      ? verticalScale(135)
+      : isFold
+      ? verticalScale(150)
+      : verticalScale(95),
   },
 
   headerContainer: {
@@ -27,13 +67,33 @@ export const profileStyles = StyleSheet.create({
   },
 
   profileImg: {
-    width: scale(100),
-    height: verticalScale(100),
+    width: 
+      isCompactAndroid
+      ? scale(90)
+      : isFold
+      ? scale(80)
+      : scale(100),
+    height: 
+      isCompactAndroid 
+      ? verticalScale(105)
+      : isLargeIPad 
+      ? verticalScale(155)
+      : isIPad 
+      ? verticalScale(145)
+      : isIPadMini
+      ? verticalScale(140)
+      : isAndroidTablet
+      ? verticalScale(135)
+      : isNormalFold
+      ? verticalScale(200)
+      : isTallFold 
+      ? verticalScale(160)
+      : verticalScale(100),
     borderRadius: radius(999),
   },
 
   imageShadow: {
-    elevation: 3,
+    elevation: 5,
     shadowColor: '#1A1F5E',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.18,
@@ -63,7 +123,11 @@ export const profileStyles = StyleSheet.create({
 
   levelBadge: {
     backgroundColor: "#FFB633",
-    paddingVertical: verticalScale(2),
+    paddingVertical: 
+      isFold || isLargeIPad || isIPad
+      || isIPadMini || isAndroidTablet
+      ? verticalScale(10)
+      : verticalScale(2),
     paddingHorizontal: scale(5),
     width: scale(80),
     borderRadius: radius(15),
@@ -76,15 +140,22 @@ export const profileStyles = StyleSheet.create({
   },
 
   levelText: {
-    fontSize: font(10),
+    fontSize: 
+      isFold || isLargeIPad || isIPad
+      || isIPadMini || isAndroidTablet
+      ? font(12)
+      : font(10),
     fontWeight: "bold",
     color: "#FFFFFF",
     textAlign: "center",
+    lineHeight: font(12)
   },
 
   role: {
     fontSize: font(15),
     fontWeight: "600",
+    lineHeight: font(15)
+
   },
 
   infoRow: {
@@ -96,6 +167,10 @@ export const profileStyles = StyleSheet.create({
 
   infoText: {
     fontSize: font(12),
+    lineHeight: 
+      isFold
+      ? font(13)
+      : font(12),
     fontWeight: "500",
     color: "#6a6a6dd6",  
   },
@@ -189,8 +264,17 @@ export const profileStyles = StyleSheet.create({
   },
 
   iconBubble: {
-    width: scale(42),
-    height: verticalScale(42),
+    width: 
+      isFold || isLargeIPad || isIPad
+      || isIPadMini || isAndroidTablet
+      ? scale(35)
+      : scale(42),
+    height: 
+      isFold
+      ? verticalScale(65)
+      : isLargeIPad || isIPad || isIPadMini
+      ? verticalScale(50)
+      : verticalScale(42),
     borderRadius: radius(10),
     justifyContent: "center",
     alignItems: "center",
@@ -205,6 +289,10 @@ export const profileStyles = StyleSheet.create({
   surveyTitle: {
     fontSize: font(14),
     fontWeight: "700",
+    lineHeight: 
+      isFold
+      ? font(16)
+      : font(14)
   },
 
   surveyDesc: {
@@ -215,7 +303,10 @@ export const profileStyles = StyleSheet.create({
 
   chevronBtn: {
     width: scale(28),
-    height: verticalScale(28),
+    height: 
+      isFold
+      ? verticalScale(45)
+      : verticalScale(28),
     borderRadius: radius(8),
     backgroundColor: "#F8F9FD",
     borderWidth: scale(1),
@@ -266,6 +357,7 @@ export const profileStyles = StyleSheet.create({
   viewAll: {
     fontSize: font(12),
     fontWeight: "600",
+    lineHeight: font(12)
   },
 
   discDivider: {
@@ -296,8 +388,17 @@ export const profileStyles = StyleSheet.create({
   },
 
   discIconBubble: {
-    width: scale(44),
-    height: verticalScale(44),
+    width: 
+      isFold || isLargeIPad || isIPad
+      || isIPadMini || isAndroidTablet
+      ? scale(35)
+      : scale(44),
+    height: 
+      isFold
+      ? verticalScale(60)
+      : isLargeIPad || isIPad || isIPadMini
+      ? verticalScale(50)
+      : verticalScale(44),
     borderRadius: radius(10),
     backgroundColor: "#87868631",
     justifyContent: "center",
@@ -308,16 +409,26 @@ export const profileStyles = StyleSheet.create({
     flex: 1,
     flexShrink: 1,
     backgroundColor: "transparent",
+    gap: scale(2)
   },
 
   itemTitle: {
     fontSize: font(15),
     fontWeight: "700",
+    lineHeight: 
+      isFold
+      ? font(18)
+      : font(15)
   },
 
   itemDesc: {
     fontSize: font(11),
     color: "#6B7280",
+    lineHeight: 
+      isFold || isLargeIPad || isIPad
+      || isIPadMini || isAndroidTablet
+      ? font(15)
+      : font(12)
   },
 
   dateRow: {
@@ -330,11 +441,19 @@ export const profileStyles = StyleSheet.create({
   itemDate: {
     fontSize: font(11),
     color: "#9BA8C0",
+    lineHeight: 
+      isFold || isLargeIPad || isIPad
+      || isIPadMini || isAndroidTablet
+      ? font(15)
+      : font(14)
   },
 
   image: {
     width: scale(44),
-    height: verticalScale(44),
+    height: 
+      isFold
+      ? verticalScale(80)
+      : verticalScale(44),
     borderRadius: radius(10)
   },
 
@@ -380,6 +499,7 @@ export const profileStyles = StyleSheet.create({
   drViewAll: {
     fontSize: font(12),
     fontWeight: "600",
+    lineHeight: font(12)
   },
 
   drDivider: {
@@ -410,8 +530,17 @@ export const profileStyles = StyleSheet.create({
   },
 
   drIconBubble: {
-    width: scale(44),
-    height: verticalScale(44),
+    width: 
+      isFold || isLargeIPad || isIPad
+      || isIPadMini || isAndroidTablet
+      ? scale(35)
+      : scale(44),
+    height: 
+      isFold
+      ? verticalScale(60)
+      : isLargeIPad || isIPad || isIPadMini
+      ? verticalScale(50)
+      : verticalScale(44),
     borderRadius: radius(10),
     backgroundColor: "#FFF4EC",
     justifyContent: "center",
@@ -422,16 +551,26 @@ export const profileStyles = StyleSheet.create({
     flex: 1,
     flexShrink: 1,
     backgroundColor: "transparent",
+    gap: scale(2)
   },
 
   drItemTitle: {
     fontSize: font(15),
     fontWeight: "700",
+    lineHeight: 
+      isFold
+      ? font(18)
+      : font(15)
   },
 
   drItemDesc: {
     fontSize: font(11),
     color: "#6B7280",
+    lineHeight: 
+      isFold || isLargeIPad || isIPad
+      || isIPadMini || isAndroidTablet
+      ? font(15)
+      : font(12)
   },
 
   drDateRow: {
@@ -444,12 +583,29 @@ export const profileStyles = StyleSheet.create({
   drItemDate: {
     fontSize: font(11),
     color: "#9BA8C0",
+    lineHeight: 
+      isFold || isLargeIPad || isIPad
+      || isIPadMini || isAndroidTablet
+      ? font(15)
+      : font(14)
   },
 
   downloadBtn: {
-    width: scale(34),
-    minWidth: scale(34),
-    height: verticalScale(34),
+    width: 
+      isCompactAndroid
+      ? scale(35)
+      : isFold || isLargeIPad || isIPad
+      || isIPadMini || isAndroidTablet
+      ? scale(25)
+      : scale(34),
+    height: 
+      isCompactAndroid
+      ? verticalScale(40)
+      : isNormalFold
+      ? verticalScale(60)
+      : isTallFold
+      ? verticalScale(50)
+      : verticalScale(34),
     borderRadius: radius(8),
     borderWidth: scale(1.5),
     borderColor: "#D1D5E8",
@@ -462,4 +618,4 @@ export const profileStyles = StyleSheet.create({
     height: verticalScale(1),
     backgroundColor: "#F0F2F8",
   },
-});
+})};

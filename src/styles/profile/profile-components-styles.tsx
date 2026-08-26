@@ -1,20 +1,56 @@
 import { StyleSheet } from "react-native";
+import { ResponsiveValues, font, isAndroidTablet, radius, scale, verticalScale } from "../responsive";
 // import { font, radius, scale, spacing, verticalScale } from "../responsive";
 
-export const viewResourceStyles = StyleSheet.create({
+export function viewResourceStyles (r: ResponsiveValues) {
+    const {
+      isCompactAndroid,
+      isFold,
+      isIPhone,
+      isLandscape,
+      isPortrait,
+      isLargePhone,
+      isNormalScreen,
+      isShortScreen,
+      isSmallPhone,
+      isExtraTallScreen,
+      isTablet,
+      isTallScreen,
+      isIPad,
+      isIPadMini,
+      isLargeIPad,
+  } = r;
+
+    const isTallFold = r.isFold && r.isTallScreen;
+    const isNormalFold = r.isFold && r.isNormalScreen;
+
+    const isAndroidTabletPortrait = r.isAndroidTablet && r.isPortrait;
+
+    const isAndroidTabletLandscape = r.isAndroidTablet && r.isLandscape;
+
+    const isIPadPortrait = r.isIPad && r.isPortrait;
+    const isIPadLandscape = r.isIPad && r.isLandscape;
+  
+    const isLargeIPadPortrait = r.isLargeIPad && r.isPortrait;
+    const isLargeIPadLandscape = r.isLargeIPad && r.isLandscape;
+  
+    const isIPadMiniPortrait = r.isIPadMini && r.isPortrait;
+    const isIPadMiniLandscape = r.isIPadMini && r.isLandscape;
+
+    return StyleSheet.create({
     headerBlock: {
-    marginBottom: 12,
-    gap: 8,
-    padding: 10
+    marginBottom: verticalScale(12),
+    gap: scale(8),
+    padding: scale(10)
   },
   pageTitle: {
-    fontSize: 22,
+    fontSize: font(22),
     fontWeight: "700",
-    lineHeight: 22,
+    lineHeight: font(22),
   },
   pageSubtitle: {
-    fontSize: 13,
-    lineHeight: 15,
+    fontSize: font(13),
+    lineHeight: font(15),
   },
 
   // Filters
@@ -22,22 +58,31 @@ export const viewResourceStyles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 10,
-    marginBottom: 16,
-    gap: 8,
+    paddingHorizontal: scale(10),
+    marginBottom: verticalScale(16),
+    gap: scale(8),
   },
   filterRow: {
     flexDirection: "row",
-    gap: 8,
+    gap: scale(8),
     flexWrap: "wrap",
     flexShrink: 1,
   },
   filterChip: {
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-    borderRadius: 20,
+    paddingVertical: 
+      isFold
+      ? verticalScale(15)
+      : isLargeIPad || isIPad || isIPadMini
+      || isAndroidTablet
+      ? verticalScale(10)
+      : verticalScale(8),
+    paddingHorizontal: 
+      isLargeIPad || isIPad || isIPadMini
+      ? scale(16)
+      : scale(14),
+    borderRadius: radius(20),
     backgroundColor: "#F1F3F9",
-    borderWidth: 1,
+    borderWidth: scale(1),
     borderColor: "#E5E9F2",
   },
   filterChipActive: {
@@ -45,9 +90,10 @@ export const viewResourceStyles = StyleSheet.create({
     borderColor: "#35408E",
   },
   filterChipText: {
-    fontSize: 12.5,
+    fontSize: font(12.5),
     fontWeight: "600",
     color: "#6B7690",
+    lineHeight: font(13)
   },
   filterChipTextActive: {
     color: "#FFFFFF",
@@ -57,27 +103,34 @@ export const viewResourceStyles = StyleSheet.create({
   sortBtn: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    borderRadius: 20,
+    gap: scale(4),
+    paddingVertical: 
+      isFold || isLargeIPad || isIPad
+      || isIPadMini || isAndroidTablet
+      ? verticalScale(10)
+      : verticalScale(8),
+    paddingHorizontal: scale(10),
+    borderRadius: radius(20),
     backgroundColor: "#35408E",
-    borderWidth: 1,
+    borderWidth: scale(1),
     borderColor: "#D6DCF3",
   },
 
   // List card
   listCard: {
     backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    borderWidth: 1.5,
+    borderRadius: radius(16),
+    borderWidth: scale(1.5),
     borderColor: '#E0E4F0',
-    paddingVertical: 6,
-    paddingHorizontal: 15,
-    marginHorizontal: 10,
+    paddingVertical: 
+      isFold
+      ? verticalScale(10)
+      : verticalScale(6),
+    paddingHorizontal: scale(15),
+    marginHorizontal: scale(10),
     shadowColor: "#000",
     shadowOpacity: 0.05,
-    shadowRadius: 10,
+    shadowRadius: radius(10),
     shadowOffset: { width: 0, height: 4 },
     elevation: 2,
   },
@@ -86,23 +139,34 @@ export const viewResourceStyles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "flex-start",
     justifyContent: "space-between",
-    paddingVertical: 14,
-    gap: 10,
+    paddingVertical: verticalScale(14),
+    gap: scale(10),
   },
   rowDivider: {
-    height: 1,
+    height: verticalScale(1),
     backgroundColor: "#EEF1F7",
   },
 
   contentContainer: {
     flexDirection: "row",
     flex: 1,
-    gap: 10,
+    gap: scale(10),
   },
   iconBubble: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
+    width: 
+      isCompactAndroid
+      ? scale(40)
+      : scale(38),
+    height: 
+      isCompactAndroid
+      ? verticalScale(40)
+      : isLargeIPad || isIPad || isIPadMini
+      || isAndroidTablet
+      ? verticalScale(50)
+      : isFold
+      ? verticalScale(80)
+      : verticalScale(38),
+    borderRadius: radius(12),
     alignItems: "center",
     justifyContent: "center",
   },
@@ -115,89 +179,144 @@ export const viewResourceStyles = StyleSheet.create({
 
   textCol: {
     flex: 1,
-    gap: 3,
+    gap: scale(3),
   },
   itemTitle: {
-    fontSize: 14,
+    fontSize: font(14),
     fontWeight: "700",
     color: "#1F2A50",
+    lineHeight: font(14)
   },
   itemDesc: {
-    fontSize: 12.5,
+    fontSize: font(12.5),
     color: "#8892A8",
-    lineHeight: 17,
+    lineHeight: font(17),
   },
 
   metaRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
-    marginTop: 6,
+    gap: scale(8),
+    marginTop: verticalScale(6),
     flexWrap: "wrap",
   },
   categoryPill: {
     backgroundColor: "#F1F3F9",
-    borderRadius: 8,
-    paddingVertical: 2,
-    paddingHorizontal: 8,
+    borderRadius: radius(8),
+    paddingVertical: 
+      isCompactAndroid || isLargeIPad || isIPad
+      || isIPadMini || isAndroidTablet
+      ? verticalScale(5)
+      : isFold
+      ? verticalScale(8)
+      : verticalScale(3),
+    paddingHorizontal: scale(8),
   },
   categoryPillText: {
-    fontSize: 10.5,
+    fontSize: font(10.5),
     fontWeight: "600",
     color: "#5A6482",
+    lineHeight: font(11)
   },
   dateRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
+    gap: scale(4),
   },
   itemDate: {
-    fontSize: 11,
+    fontSize: font(11),
     color: "#9BA8C0",
+    lineHeight: font(11)
   },
   fileType: {
-    fontSize: 10.5,
+    fontSize: font(10.5),
     fontWeight: "700",
     color: "#B7C0D6",
+    lineHeight: font(11)
   },
 
   downloadBtn: {
-    width: 30,
-        height: 30,
-        borderRadius: 6,
-        borderWidth: 1.5,
-        borderColor: "#D1D5E8",
-        backgroundColor: "#F8F9FD",
-        justifyContent: "center",
-        alignItems: "center",
+    width: scale(30),
+    height: 
+      isCompactAndroid || isAndroidTablet
+      ? verticalScale(35)
+      : isLargeIPad || isIPad || isIPadMini
+      ? verticalScale(40)
+      : isNormalFold
+      ? verticalScale(60)
+      : isTallFold 
+      ? verticalScale(50)
+      : verticalScale(30),
+    borderRadius: radius(6),
+    borderWidth: scale(1.5),
+    borderColor: "#D1D5E8",
+    backgroundColor: "#F8F9FD",
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   emptyState: {
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 40,
-    gap: 10,
+    paddingVertical: verticalScale(40),
+    gap: scale(10),
   },
   emptyText: {
-    fontSize: 13,
+    fontSize: font(13),
     color: "#9BA8C0",
+    lineHeight: font(13)
   },
-});
+})};
 
-export const viewDiscussionStyles = StyleSheet.create({
+export function viewDiscussionStyles(r: ResponsiveValues) {
+    const {
+      isCompactAndroid,
+      isFold,
+      isIPhone,
+      isLandscape,
+      isPortrait,
+      isLargePhone,
+      isNormalScreen,
+      isShortScreen,
+      isSmallPhone,
+      isExtraTallScreen,
+      isTablet,
+      isTallScreen,
+      isIPad,
+      isIPadMini,
+      isLargeIPad,
+  } = r;
+
+    const isTallFold = r.isFold && r.isTallScreen;
+    const isNormalFold = r.isFold && r.isNormalScreen;
+
+    const isAndroidTabletPortrait = r.isAndroidTablet && r.isPortrait;
+
+    const isAndroidTabletLandscape = r.isAndroidTablet && r.isLandscape;
+
+    const isIPadPortrait = r.isIPad && r.isPortrait;
+    const isIPadLandscape = r.isIPad && r.isLandscape;
+  
+    const isLargeIPadPortrait = r.isLargeIPad && r.isPortrait;
+    const isLargeIPadLandscape = r.isLargeIPad && r.isLandscape;
+  
+    const isIPadMiniPortrait = r.isIPadMini && r.isPortrait;
+    const isIPadMiniLandscape = r.isIPadMini && r.isLandscape;
+
+    return StyleSheet.create({
 headerBlock: {
-    marginBottom: 12,
-    gap: 8,
-    padding: 10,
+    marginBottom: verticalScale(12),
+    gap: scale(8),
+    padding: scale(10),
   },
   pageTitle: {
-    fontSize: 22,
+    fontSize: font(22),
     fontWeight: "700",
-    lineHeight: 22,
+    lineHeight: font(22),
   },
   pageSubtitle: {
-    fontSize: 13,
-    lineHeight: 15,
+    fontSize: font(13),
+    lineHeight: font(15),
   },
 
   // Filters
@@ -205,25 +324,34 @@ filter: {
   flexDirection: "row",
   alignItems: "flex-start",
   justifyContent: "space-between",
-  paddingHorizontal: 10,
-  paddingBottom: 15,
-  gap: 10,
+  paddingHorizontal: scale(10),
+  paddingBottom: verticalScale(15),
+  gap: scale(10),
+  overflow: "visible"
 },
 
 filterRow: {
   flexDirection: "row",
   alignItems: "center",
-  gap: 8,
+  gap: scale(8),
   flexWrap: "wrap",
-  paddingHorizontal: 10,
+  paddingHorizontal: scale(10),
   flex: 1,
 },
 
 filterStatus: {
-  width: 35,
-  height: 35,
+  width: scale(35),
+  height: 
+    isCompactAndroid
+    ? verticalScale(40)
+    : isFold
+    ? verticalScale(56)
+    : isLargeIPad || isIPad || isIPadMini
+    || isAndroidTablet
+    ? verticalScale(39)
+    : verticalScale(35),
   backgroundColor: "#35408E",
-  borderRadius: 10,
+  borderRadius: radius(10),
   alignItems: "center",
   justifyContent: "center",
 },
@@ -234,21 +362,42 @@ filterStatusActive: {
 
 filterStatusDot: {
   position: "absolute",
-  top: -3,
+  top: 
+    isFold || isLargeIPad || isIPad
+    || isIPadMini || isAndroidTablet
+    ? -6
+    : -3,
   right: -3,
-  width: 9,
-  height: 9,
-  borderRadius: 5,
+  width: scale(9),
+  height: 
+    isFold
+    ? verticalScale(20)
+    : isLargeIPad
+    ? verticalScale(15)
+    : isIPad || isIPadMini || isAndroidTablet
+    ? verticalScale(13)
+    : verticalScale(9),
+  borderRadius: radius(5),
   backgroundColor: "#FFB633",
-  borderWidth: 1.5,
+  borderWidth: scale(1.5),
   borderColor: "#FFFFFF",
 },
   filterChip: {
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-    borderRadius: 20,
+    paddingVertical: 
+      isFold
+      ? verticalScale(15)
+      : isLargeIPad || isIPad || isIPadMini
+      || isAndroidTablet
+      ? verticalScale(10)
+      : verticalScale(8),
+    paddingHorizontal: 
+      isLargeIPad || isIPad || isIPadMini
+      || isAndroidTablet
+      ? scale(16)
+      : scale(14),
+    borderRadius: radius(20),
     backgroundColor: "#F1F3F9",
-    borderWidth: 1,
+    borderWidth: scale(1),
     borderColor: "#E5E9F2",
   },
   filterChipActive: {
@@ -256,9 +405,10 @@ filterStatusDot: {
     borderColor: "#35408E",
   },
   filterChipText: {
-    fontSize: 12.5,
+    fontSize: font(12.5),
     fontWeight: "600",
     color: "#6B7690",
+    lineHeight: font(13)
   },
   filterChipTextActive: {
     color: "#FFFFFF",
@@ -267,12 +417,12 @@ filterStatusDot: {
   // List card
   listCard: {
     backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    borderWidth: 1.5,
+    borderRadius: radius(16),
+    borderWidth: scale(1.5),
     borderColor: "#E0E4F0",
-    paddingVertical: 6,
-    paddingHorizontal: 15,
-    marginHorizontal: 10,
+    paddingVertical: verticalScale(6),
+    paddingHorizontal: scale(15),
+    marginHorizontal: scale(10),
     shadowColor: "#000",
     shadowOpacity: 0.05,
     shadowRadius: 10,
@@ -284,23 +434,33 @@ filterStatusDot: {
     flexDirection: "row",
     alignItems: "flex-start",
     justifyContent: "space-between",
-    paddingVertical: 14,
-    gap: 10,
+    paddingVertical: verticalScale(14),
   },
   rowDivider: {
-    height: 1,
+    height: verticalScale(1),
     backgroundColor: "#EEF1F7",
   },
 
   contentContainer: {
     flexDirection: "row",
     flex: 1,
-    gap: 10,
+    gap: scale(10),
   },
   iconBubble: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
+    width: 
+      isCompactAndroid
+      ? scale(40)
+      : scale(38),
+    height: 
+      isCompactAndroid
+      ? verticalScale(40)
+      : isLargeIPad || isIPad || isIPadMini
+      || isAndroidTablet
+      ? verticalScale(50)
+      : isFold
+      ? verticalScale(80)
+      : verticalScale(38),
+    borderRadius: radius(12),
     alignItems: "center",
     justifyContent: "center",
   },
@@ -313,81 +473,134 @@ filterStatusDot: {
 
   textCol: {
     flex: 1,
-    gap: 3,
+    gap: scale(3),
   },
   itemTitle: {
-    fontSize: 14,
+    fontSize: font(14),
     fontWeight: "700",
     color: "#1F2A50",
+    lineHeight: 
+      isFold
+      ? font(16)
+      : font(14)
   },
   itemDesc: {
-    fontSize: 12.5,
+    fontSize: font(12.5),
     color: "#8892A8",
-    lineHeight: 17,
+    lineHeight: font(17),
   },
 
   metaRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
-    marginTop: 6,
+    gap: scale(8),
+    marginTop: verticalScale(6),
     flexWrap: "wrap",
   },
   statusPill: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
-    borderRadius: 8,
-    paddingVertical: 3,
-    paddingHorizontal: 8,
+    gap: scale(4),
+    borderRadius: radius(8),
+    paddingVertical: 
+      isFold 
+      ? verticalScale(8)
+      : isLargeIPad || isIPad || isIPadMini
+      || isAndroidTablet
+      ? verticalScale(6)
+      : verticalScale(3),
+    paddingHorizontal: scale(8),
   },
   statusPillText: {
-    fontSize: 10.5,
+    fontSize: font(10.5),
     fontWeight: "700",
+    lineHeight: font(11)
   },
   dateRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
+    gap: scale(4),
   },
   itemDate: {
-    fontSize: 11,
+    fontSize: font(11),
     color: "#9BA8C0",
+    lineHeight: font(11)
   },
 
   thumbnail: {
-    width: 44,
-    height: 44,
-    borderRadius: 10,
-    marginTop: 2,
+    width: scale(44),
+    height: 
+      isFold
+      ? verticalScale(80)
+      : isLargeIPad || isIPad || isIPadMini
+      || isAndroidTablet
+      ? verticalScale(55)
+      : verticalScale(44),
+    borderRadius: radius(10),
+    marginTop: verticalScale(2),
   },
 
   emptyState: {
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 40,
-    gap: 10,
+    paddingVertical: verticalScale(40),
+    gap: scale(10),
   },
   emptyText: {
-    fontSize: 13,
+    fontSize: font(13),
     color: "#9BA8C0",
+    lineHeight: font(13)
   },
-});
+})};
 
-export const DropdownStyles = StyleSheet.create({
-    modalContainer: {
+export function DropdownStyles (r: ResponsiveValues) {
+    const {
+      isCompactAndroid,
+      isFold,
+      isIPhone,
+      isLandscape,
+      isPortrait,
+      isLargePhone,
+      isNormalScreen,
+      isShortScreen,
+      isSmallPhone,
+      isExtraTallScreen,
+      isTablet,
+      isTallScreen,
+      isIPad,
+      isIPadMini,
+      isLargeIPad,
+  } = r;
+
+    const isTallFold = r.isFold && r.isTallScreen;
+    const isNormalFold = r.isFold && r.isNormalScreen;
+
+    const isAndroidTabletPortrait = r.isAndroidTablet && r.isPortrait;
+
+    const isAndroidTabletLandscape = r.isAndroidTablet && r.isLandscape;
+
+    const isIPadPortrait = r.isIPad && r.isPortrait;
+    const isIPadLandscape = r.isIPad && r.isLandscape;
+  
+    const isLargeIPadPortrait = r.isLargeIPad && r.isPortrait;
+    const isLargeIPadLandscape = r.isLargeIPad && r.isLandscape;
+  
+    const isIPadMiniPortrait = r.isIPadMini && r.isPortrait;
+    const isIPadMiniLandscape = r.isIPadMini && r.isLandscape;
+
+    return StyleSheet.create({
+
+  modalContainer: {
     flex: 1,
     backgroundColor: "transparent",
   },
 
   dropdown: {
     backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    paddingVertical: 6,
-
-    borderWidth: 1,
+    borderRadius: radius(12),
+    paddingVertical: verticalScale(6),
+    borderWidth: scale(1.5),
     borderColor: "#E5E9F2",
-
     shadowColor: "#000",
     shadowOpacity: 0.12,
     shadowRadius: 12,
@@ -396,7 +609,7 @@ export const DropdownStyles = StyleSheet.create({
       height: 6,
     },
 
-    elevation: 8,
+    elevation: 10,
 
     zIndex: 9999,
   },
@@ -405,9 +618,11 @@ export const DropdownStyles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-
-    paddingVertical: 10,
-    paddingHorizontal: 12,
+    paddingVertical: 
+      isFold
+      ? verticalScale(15)
+      : verticalScale(10),
+    paddingHorizontal: scale(12),
   },
 
   optionActive: {
@@ -417,19 +632,32 @@ export const DropdownStyles = StyleSheet.create({
   optionLeft: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: scale(8),
 
     backgroundColor: "transparent",
   },
 
   dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width:  
+      isFold || isLargeIPad || isIPad
+      ? scale(5)
+      : isIPadMini || isAndroidTablet
+      ? scale(5.5)
+      : scale(8),
+    height: 
+      isCompactAndroid
+      ? verticalScale(10)
+      : isNormalFold
+      ? verticalScale(13)
+      : isTallFold
+      ? verticalScale(11)
+      : verticalScale(8),
+    borderRadius: radius(4),
   },
 
   optionText: {
-    fontSize: 13,
+    fontSize: font(13),
+    lineHeight: font(13),
     fontWeight: "500",
     color: "#3D4560",
   },
@@ -438,4 +666,4 @@ export const DropdownStyles = StyleSheet.create({
     fontWeight: "700",
     color: "#1F2A50",
   },
-});
+})};

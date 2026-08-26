@@ -691,6 +691,23 @@ export function createAuthStyles(r: ResponsiveValues) {
 
     /* ── Register ─────────────────────────────────────────────── */
 
+    required: {
+      color: "#E53935",
+      fontWeight: "700",
+    },
+
+    validationError: {
+      color: "#E53935",
+      fontSize: font(11),
+      marginTop: verticalScale(4),
+      marginLeft: scale(2),
+    },
+
+    inputError: {
+      borderWidth: 1,
+      borderColor: "#E53935",
+    },
+
     cardReg: {
       width:
         isIPadMiniLandscape || isLargeIPadLandscape ? "90%"

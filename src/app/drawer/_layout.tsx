@@ -3,7 +3,7 @@ import { ProfileDropDown } from "@/components/dropdown/profile-dropdown";
 import { ThemedView } from "@/components/themed-view";
 import { Ionicons } from "@expo/vector-icons";
 import { DrawerToggleButton } from "@react-navigation/drawer";
-import { usePathname, useRouter } from "expo-router";
+import { Href, useGlobalSearchParams, usePathname, useRouter } from "expo-router";
 import { Drawer } from "expo-router/drawer";
 import { useState } from "react";
 import { Image, TouchableOpacity } from "react-native";
@@ -13,6 +13,10 @@ export default function DrawerLayout() {
 
   const pathname = usePathname();
   const router = useRouter();
+
+  const { returnTo } = useGlobalSearchParams<{
+    returnTo?: string;
+  }>();
 
   // ✅ BACK BUTTON CONDITIONS
   const isResourceDetails =
@@ -27,6 +31,8 @@ export default function DrawerLayout() {
   const isViewTrendsPost =
     pathname.startsWith("/drawer/tabs/trend/view-trendspost");
 
+  const isViewBadges =
+    pathname.startsWith("/drawer/tabs/badges/view-badges");
 
   const isViewResources = 
     pathname.startsWith("/drawer/tabs/profiles/view-resources");
@@ -65,9 +71,37 @@ export default function DrawerLayout() {
 
   // ✅ SINGLE FLAG FOR BACK BEHAVIOR
   const showBackButton = isResourceDetails || isAddContribute || isReportMisinformation || isViewTrendsPost
-                      || isProfileSettings || isEditProfile || isViewResources || isViewDiscussions 
+                      || isProfileSettings || isEditProfile || isViewBadges || isViewResources || isViewDiscussions 
                       || isActivityLog || isDeviceSessions || isLanguage || isAppearance || isHelp 
                       || isReportHelp || isAbout;
+
+  const handleBack = () => {
+    /*
+     * View Badges has an explicit returnTo parameter.
+     *
+     * Profile:
+     * /drawer/tabs/badges/view-badges
+     * ?returnTo=/drawer/tabs/profiles/profile
+     *
+     * Rewards:
+     * /drawer/tabs/badges/view-badges
+     * ?returnTo=/drawer/tabs/rewards
+     */
+
+    if (isViewBadges && returnTo) {
+      router.replace(returnTo as Href);
+          console.log("Current pathname:", pathname);
+    console.log("returnTo:", returnTo);
+      return;
+    }
+
+    /*
+     * For all the other detail pages,
+     * keep your existing behavior.
+     */
+    router.back();
+  };
+
 
   return (
     <Drawer
@@ -82,7 +116,7 @@ export default function DrawerLayout() {
         headerLeft: () =>
           showBackButton ? (
             <TouchableOpacity
-              onPress={() => router.back()}
+              onPress={handleBack}
               style={{ marginLeft: 15 }}
             >
               <Ionicons name="chevron-back" size={26} color="#fff" />

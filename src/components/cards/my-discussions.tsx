@@ -1,10 +1,10 @@
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { profileStyles as styles } from "@/styles/profile/profile-styles";
-import { icon } from "@/styles/responsive";
+import { profileStyles } from "@/styles/profile/profile-styles";
+import { icon, useResponsive } from "@/styles/responsive";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React from "react";
+import React, { useMemo } from "react";
 import {
   Image,
   TouchableOpacity
@@ -32,6 +32,9 @@ const discussions = [
 ];
 
 export default function MyDiscussions() {
+  const r = useResponsive();
+        
+          const styles = useMemo(() => profileStyles(r), [r]);
   return (
     <ThemedView style={styles.card}>
       {/* Header */}

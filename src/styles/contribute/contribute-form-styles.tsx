@@ -275,6 +275,24 @@ export function sharedFormStyles (r: ResponsiveValues) {
       ? font(18)
       : font(15)
   },
+
+  errorText: {
+    marginTop: verticalScale(6),
+    marginLeft: scale(4),
+    fontSize: font(12),
+    color: "#E53935",
+    fontWeight: "500",
+  },
+
+  inputError: {
+    borderWidth: scale(1),
+    borderColor: "#E53935",
+  },
+
+  required: {
+    color: "#E53935",
+    fontWeight: "700",
+  },
 })};
 
 /* ============================================================

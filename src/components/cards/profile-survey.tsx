@@ -1,9 +1,9 @@
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { profileStyles as styles } from "@/styles/profile/profile-styles";
-import { icon } from "@/styles/responsive";
+import { profileStyles } from "@/styles/profile/profile-styles";
+import { icon, useResponsive } from "@/styles/responsive";
 import { Feather, Ionicons } from "@expo/vector-icons";
-import React from "react";
+import React, { useMemo } from "react";
 import { TouchableOpacity } from "react-native";
 
 const surveys = [
@@ -26,6 +26,9 @@ const surveys = [
 ];
 
 export function SurveyCard() {
+  const r = useResponsive();
+        
+          const styles = useMemo(() => profileStyles(r), [r]);
   return (
     <ThemedView style={styles.surveyCard}>
 

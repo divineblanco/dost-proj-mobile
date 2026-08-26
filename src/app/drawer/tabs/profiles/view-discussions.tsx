@@ -1,22 +1,36 @@
 import StatusFilterDropdown, {
-    Anchor,
-    StatusFilterValue,
+  StatusFilterValue,
 } from "@/components/dropdown/status-dropdown";
+
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { viewDiscussionStyles as discussion } from "@/styles/profile/profile-components-styles";
-import { profileStyles as styles } from "@/styles/profile/profile-styles";
-import { icon } from "@/styles/responsive";
+
+import { viewDiscussionStyles } from "@/styles/profile/profile-components-styles";
+import { profileStyles } from "@/styles/profile/profile-styles";
+import { icon, useResponsive } from "@/styles/responsive";
+
 import { Ionicons } from "@expo/vector-icons";
-import React, { useMemo, useRef, useState } from "react";
+
+import React, {
+  useMemo,
+  useState,
+} from "react";
+
 import {
-    Image,
-    ScrollView,
-    TouchableOpacity
+  Image,
+  ScrollView,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
-type DiscussionType = "Contributions" | "Misinformation";
-type DiscussionStatus = "Verified" | "Pending" | "Declined";
+type DiscussionType =
+  | "Contributions"
+  | "Misinformation";
+
+type DiscussionStatus =
+  | "Verified"
+  | "Pending"
+  | "Declined";
 
 type Discussion = {
   id: number;
@@ -70,226 +84,554 @@ const discussions: Discussion[] = [
   },
 ];
 
-const FILTERS: { label: string; value: "All" | DiscussionType }[] = [
-  { label: "All", value: "All" },
-  { label: "Contributions", value: "Contributions" },
-  { label: "Misinformation", value: "Misinformation" },
+const FILTERS: {
+  label: string;
+  value: "All" | DiscussionType;
+}[] = [
+  {
+    label: "All",
+    value: "All",
+  },
+  {
+    label: "Contributions",
+    value: "Contributions",
+  },
+  {
+    label: "Misinformation",
+    value: "Misinformation",
+  },
 ];
 
-const STATUS_STYLES: 
-Record<DiscussionStatus, { bg: string; text: string; icon: keyof typeof Ionicons.glyphMap }> = 
-{
-  Verified: { bg: "#E6F6EC", text: "#1F9254", icon: "checkmark-circle" },
-  Pending: { bg: "#FFF6E3", text: "#B8860B", icon: "time-outline" },
-  Declined: { bg: "#FDEAEA", text: "#C0392B", icon: "close-circle-outline" },
+const STATUS_STYLES: Record<
+  DiscussionStatus,
+  {
+    bg: string;
+    text: string;
+    icon: keyof typeof Ionicons.glyphMap;
+  }
+> = {
+  Verified: {
+    bg: "#E6F6EC",
+    text: "#1F9254",
+    icon: "checkmark-circle",
+  },
+
+  Pending: {
+    bg: "#FFF6E3",
+    text: "#B8860B",
+    icon: "time-outline",
+  },
+
+  Declined: {
+    bg: "#FDEAEA",
+    text: "#C0392B",
+    icon: "close-circle-outline",
+  },
 };
 
 export default function ViewDiscussions() {
-  const [activeFilter, setActiveFilter] = useState<"All" | DiscussionType>(
+  /*
+   * Main category filter
+   */
+  const [
+    activeFilter,
+    setActiveFilter,
+  ] = useState<
+    "All" | DiscussionType
+  >("All");
+
+  /*
+   * Status filter
+   */
+  const [
+    statusFilter,
+    setStatusFilter,
+  ] = useState<StatusFilterValue>(
     "All"
   );
-  const [statusFilter, setStatusFilter] = useState<StatusFilterValue>("All");
-  const [dropdownVisible, setDropdownVisible] = useState(false);
-  const [anchor, setAnchor] = useState<Anchor | null>(null);
-  
-  const filterBtnRef = useRef<React.ComponentRef<typeof TouchableOpacity>>(null);
 
-const toggleStatusDropdown = () => {
-  if (dropdownVisible) {
-    setDropdownVisible(false);
-    return;
-  }
+  /*
+   * Dropdown visibility
+   */
+  const [
+    dropdownVisible,
+    setDropdownVisible,
+  ] = useState(false);
 
-  filterBtnRef.current?.measureInWindow(
-    (x, y, width, height) => {
-      setAnchor({
-        x,
-        y,
-        width,
-        height,
-      });
+  /*
+   * Toggle dropdown.
+   *
+   * No measuring is required because the dropdown
+   * is positioned relative to the button wrapper.
+   */
+  const toggleStatusDropdown = () => {
+    setDropdownVisible(
+      (previous) => !previous
+    );
+  };
 
-      setDropdownVisible(true);
-    }
+  /*
+   * Filter discussions
+   */
+  const filteredDiscussions =
+    useMemo(() => {
+      let filtered =
+        activeFilter === "All"
+          ? discussions
+          : discussions.filter(
+              (d) =>
+                d.type ===
+                activeFilter
+            );
+
+      if (
+        statusFilter !== "All"
+      ) {
+        filtered =
+          filtered.filter(
+            (d) =>
+              d.status ===
+              statusFilter
+          );
+      }
+
+      return filtered;
+    }, [
+      activeFilter,
+      statusFilter,
+    ]);
+
+  /*
+   * Status button active state
+   */
+  const isStatusFilterActive =
+    statusFilter !== "All";
+
+  /*
+   * Responsive styles
+   */
+  const r = useResponsive();
+
+  const styles = useMemo(
+    () => profileStyles(r),
+    [r]
   );
-};
 
-  const filteredDiscussions = useMemo(() => {
-    let filtered =
-      activeFilter === "All"
-        ? discussions
-        : discussions.filter((d) => d.type === activeFilter);
-
-    if (statusFilter !== "All") {
-      filtered = filtered.filter((d) => d.status === statusFilter);
-    }
-
-    return filtered;
-  }, [activeFilter, statusFilter]);
-
-  const isStatusFilterActive = statusFilter !== "All";
+  const discussion =
+    useMemo(
+      () =>
+        viewDiscussionStyles(r),
+      [r]
+    );
 
   return (
     <ScrollView
       style={styles.pageContainer}
-      contentContainerStyle={styles.scrollContent}
+      contentContainerStyle={
+        styles.scrollContent
+      }
     >
-      <ThemedView style={discussion.headerBlock}>
-        <ThemedText style={discussion.pageTitle}>My HIV Discussions</ThemedText>
-        <ThemedText style={discussion.pageSubtitle}>
-          Track the status of your contributions and reported misinformation.
+      {/* ==================================================
+          HEADER
+      ================================================== */}
+
+      <ThemedView
+        style={discussion.headerBlock}
+      >
+        <ThemedText
+          style={discussion.pageTitle}
+        >
+          My HIV Discussions
+        </ThemedText>
+
+        <ThemedText
+          style={
+            discussion.pageSubtitle
+          }
+        >
+          Track the status of your
+          contributions and reported
+          misinformation.
         </ThemedText>
       </ThemedView>
 
-      <ThemedView style={discussion.filter}>
-        {/* Filter Tabs */}
-        <ThemedView style={discussion.filterRow}>
-            {FILTERS.map((filter) => {
-            const active = activeFilter === filter.value;
-            return (
+      {/* ==================================================
+          FILTER SECTION
+      ================================================== */}
+
+      <ThemedView
+        style={[
+          discussion.filter,
+
+          /*
+           * IMPORTANT:
+           *
+           * Allow the dropdown to extend outside
+           * the filter container.
+           */
+          {
+            zIndex: 1000,
+            elevation: 1000,
+          },
+        ]}
+      >
+        {/* ------------------------------------------------
+            CATEGORY FILTER TABS
+        ------------------------------------------------ */}
+
+        <ThemedView
+          style={
+            discussion.filterRow
+          }
+        >
+          {FILTERS.map(
+            (filter) => {
+              const active =
+                activeFilter ===
+                filter.value;
+
+              return (
                 <TouchableOpacity
-                key={filter.value}
-                activeOpacity={0.75}
-                onPress={() => setActiveFilter(filter.value)}
-                style={[discussion.filterChip, active && discussion.filterChipActive]}
+                  key={
+                    filter.value
+                  }
+                  activeOpacity={0.75}
+                  onPress={() =>
+                    setActiveFilter(
+                      filter.value
+                    )
+                  }
+                  style={[
+                    discussion.filterChip,
+
+                    active &&
+                      discussion.filterChipActive,
+                  ]}
                 >
-                <ThemedText
+                  <ThemedText
                     style={[
-                    discussion.filterChipText,
-                    active && discussion.filterChipTextActive,
+                      discussion.filterChipText,
+
+                      active &&
+                        discussion.filterChipTextActive,
                     ]}
-                >
-                    {filter.label}
-                </ThemedText>
+                  >
+                    {
+                      filter.label
+                    }
+                  </ThemedText>
                 </TouchableOpacity>
-            );
-            })}
+              );
+            }
+          )}
         </ThemedView>
 
-        <TouchableOpacity
-        ref={filterBtnRef}
-        style={[
-            discussion.filterStatus,
-            isStatusFilterActive && discussion.filterStatusActive,
-        ]}
-        activeOpacity={0.8}
-        onPress={toggleStatusDropdown}
-        >
-        <Ionicons
-            name="filter"
-            size={15}
-            color="white"
-        />
+        {/* ------------------------------------------------
+            STATUS FILTER BUTTON + DROPDOWN
+        ------------------------------------------------ */}
 
-        {isStatusFilterActive && (
-            <ThemedView style={discussion.filterStatusDot} />
-        )}
-        </TouchableOpacity>
+        <View
+          style={{
+            position: "relative",
+
+            /*
+             * Very important.
+             *
+             * The dropdown's top: "100%" is calculated
+             * relative to THIS View.
+             */
+            zIndex: 9999,
+            elevation: 9999,
+          }}
+        >
+          {/* STATUS BUTTON */}
+
+          <TouchableOpacity
+            style={[
+              discussion.filterStatus,
+
+              isStatusFilterActive &&
+                discussion.filterStatusActive,
+            ]}
+            activeOpacity={0.8}
+            onPress={
+              toggleStatusDropdown
+            }
+          >
+            <Ionicons
+              name="filter"
+              size={15}
+              color="white"
+            />
+
+            {isStatusFilterActive && (
+              <ThemedView
+                style={
+                  discussion.filterStatusDot
+                }
+              />
+            )}
+          </TouchableOpacity>
+
+          {/* DROPDOWN */}
+
+          <StatusFilterDropdown
+            visible={
+              dropdownVisible
+            }
+            onClose={() =>
+              setDropdownVisible(
+                false
+              )
+            }
+            selected={
+              statusFilter
+            }
+            onSelect={
+              setStatusFilter
+            }
+          />
+        </View>
       </ThemedView>
 
-        <StatusFilterDropdown
-            visible={dropdownVisible}
-            onClose={() => setDropdownVisible(false)}
-            anchor={anchor}
-            selected={statusFilter}
-            onSelect={setStatusFilter}
-        />
+      {/* ==================================================
+          DISCUSSION LIST
+      ================================================== */}
 
-      {/* List */}
-      <ThemedView style={discussion.listCard}>
-        {filteredDiscussions.length === 0 ? (
-          <ThemedView style={discussion.emptyState}>
-            <Ionicons name="chatbubbles-outline" size={icon(28)} color="#B7C0D6" />
-            <ThemedText style={discussion.emptyText}>
-              No entries found in this category.
+      <ThemedView
+        style={
+          discussion.listCard
+        }
+      >
+        {filteredDiscussions.length ===
+        0 ? (
+          /* ------------------------------------------------
+             EMPTY STATE
+          ------------------------------------------------ */
+
+          <ThemedView
+            style={
+              discussion.emptyState
+            }
+          >
+            <Ionicons
+              name="chatbubbles-outline"
+              size={icon(28)}
+              color="#B7C0D6"
+            />
+
+            <ThemedText
+              style={
+                discussion.emptyText
+              }
+            >
+              No entries found in
+              this category.
             </ThemedText>
           </ThemedView>
         ) : (
-          filteredDiscussions.map((item, index) => {
-            const statusStyle = STATUS_STYLES[item.status];
-            return (
-              <ThemedView key={item.id}>
-                <ThemedView style={discussion.row}>
-                  {/* LEFT SIDE */}
-                  <ThemedView style={discussion.contentContainer}>
+          /* ------------------------------------------------
+             DISCUSSION ITEMS
+          ------------------------------------------------ */
+
+          filteredDiscussions.map(
+            (
+              item,
+              index
+            ) => {
+              const statusStyle =
+                STATUS_STYLES[
+                  item.status
+                ];
+
+              return (
+                <ThemedView
+                  key={item.id}
+                >
+                  {/* DISCUSSION ROW */}
+
+                  <ThemedView
+                    style={
+                      discussion.row
+                    }
+                  >
+                    {/* LEFT SIDE */}
+
                     <ThemedView
-                      style={[
-                        discussion.iconBubble,
-                        item.type === "Misinformation"
-                          ? discussion.iconBubbleMis
-                          : discussion.iconBubbleContrib,
-                      ]}
+                      style={
+                        discussion.contentContainer
+                      }
                     >
-                      <Ionicons
-                        name={
-                          item.type === "Misinformation"
-                            ? "warning-outline"
-                            : "chatbubble-outline"
+                      {/* TYPE ICON */}
+
+                      <ThemedView
+                        style={[
+                          discussion.iconBubble,
+
+                          item.type ===
+                          "Misinformation"
+                            ? discussion.iconBubbleMis
+                            : discussion.iconBubbleContrib,
+                        ]}
+                      >
+                        <Ionicons
+                          name={
+                            item.type ===
+                            "Misinformation"
+                              ? "warning-outline"
+                              : "chatbubble-outline"
+                          }
+                          size={icon(
+                            18
+                          )}
+                          color={
+                            item.type ===
+                            "Misinformation"
+                              ? "#C0392B"
+                              : "#35408E"
+                          }
+                        />
+                      </ThemedView>
+
+                      {/* TEXT */}
+
+                      <ThemedView
+                        style={
+                          discussion.textCol
                         }
-                        size={icon(18)}
-                        color={item.type === "Misinformation" ? "#C0392B" : "#35408E"}
-                      />
-                    </ThemedView>
+                      >
+                        {/* TITLE */}
 
-                    <ThemedView style={discussion.textCol}>
-                      <ThemedText style={discussion.itemTitle} numberOfLines={1}>
-                        {item.title}
-                      </ThemedText>
-
-                      <ThemedText style={discussion.itemDesc} numberOfLines={2}>
-                        {item.desc}
-                      </ThemedText>
-
-                      <ThemedView style={discussion.metaRow}>
-                        <ThemedView
-                          style={[
-                            discussion.statusPill,
-                            { backgroundColor: statusStyle.bg },
-                          ]}
+                        <ThemedText
+                          style={
+                            discussion.itemTitle
+                          }
+                          numberOfLines={
+                            1
+                          }
                         >
-                          <Ionicons
-                            name={statusStyle.icon}
-                            size={icon(11)}
-                            color={statusStyle.text}
-                          />
-                          <ThemedText
+                          {
+                            item.title
+                          }
+                        </ThemedText>
+
+                        {/* DESCRIPTION */}
+
+                        <ThemedText
+                          style={
+                            discussion.itemDesc
+                          }
+                          numberOfLines={
+                            2
+                          }
+                        >
+                          {
+                            item.desc
+                          }
+                        </ThemedText>
+
+                        {/* META */}
+
+                        <ThemedView
+                          style={
+                            discussion.metaRow
+                          }
+                        >
+                          {/* STATUS */}
+
+                          <ThemedView
                             style={[
-                              discussion.statusPillText,
-                              { color: statusStyle.text },
+                              discussion.statusPill,
+
+                              {
+                                backgroundColor:
+                                  statusStyle.bg,
+                              },
                             ]}
                           >
-                            {item.status}
-                          </ThemedText>
-                        </ThemedView>
+                            <Ionicons
+                              name={
+                                statusStyle.icon
+                              }
+                              size={icon(
+                                11
+                              )}
+                              color={
+                                statusStyle.text
+                              }
+                            />
 
-                        <ThemedView style={discussion.dateRow}>
-                          <Ionicons
-                            name="calendar-outline"
-                            size={icon(11)}
-                            color="#9BA8C0"
-                          />
-                          <ThemedText style={discussion.itemDate}>
-                            {item.date}
-                          </ThemedText>
+                            <ThemedText
+                              style={[
+                                discussion.statusPillText,
+
+                                {
+                                  color:
+                                    statusStyle.text,
+                                },
+                              ]}
+                            >
+                              {
+                                item.status
+                              }
+                            </ThemedText>
+                          </ThemedView>
+
+                          {/* DATE */}
+
+                          <ThemedView
+                            style={
+                              discussion.dateRow
+                            }
+                          >
+                            <Ionicons
+                              name="calendar-outline"
+                              size={icon(
+                                11
+                              )}
+                              color="#9BA8C0"
+                            />
+
+                            <ThemedText
+                              style={
+                                discussion.itemDate
+                              }
+                            >
+                              {
+                                item.date
+                              }
+                            </ThemedText>
+                          </ThemedView>
                         </ThemedView>
                       </ThemedView>
                     </ThemedView>
+
+                    {/* THUMBNAIL */}
+
+                    <Image
+                      source={require("@/assets/images/social-media.jpg")}
+                      style={
+                        discussion.thumbnail
+                      }
+                      resizeMode="cover"
+                    />
                   </ThemedView>
 
-                  {/* THUMBNAIL */}
-                  <Image
-                    source={require("@/assets/images/social-media.jpg")}
-                    style={discussion.thumbnail}
-                    resizeMode="cover"
-                  />
-                </ThemedView>
+                  {/* DIVIDER */}
 
-                {index < filteredDiscussions.length - 1 && (
-                  <ThemedView style={discussion.rowDivider} />
-                )}
-              </ThemedView>
-            );
-          })
+                  {index <
+                    filteredDiscussions.length -
+                      1 && (
+                    <ThemedView
+                      style={
+                        discussion.rowDivider
+                      }
+                    />
+                  )}
+                </ThemedView>
+              );
+            }
+          )
         )}
       </ThemedView>
     </ScrollView>

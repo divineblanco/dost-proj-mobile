@@ -72,7 +72,7 @@ export default function Rewards() {
 
           <EarnPointsCard/>
 
-          <BadgeCard/>
+          <BadgeCard returnTo="/drawer/tabs/rewards" />
 
           <Leaderboard/>
 

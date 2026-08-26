@@ -3,15 +3,26 @@ import { ThemedView } from "@/components/themed-view";
 import { questionOneStyles } from "@/styles/contribute/contribute-question-styles";
 import { icon, useResponsive } from "@/styles/responsive";
 import { MaterialIcons } from "@expo/vector-icons";
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import {
   Pressable,
   TextInput,
 } from "react-native";
 
-export function QuestionOne() {
-  const [selected, setSelected] = useState<number | null>(null);
-  const [otherText, setOtherText] = useState("");
+export type QuestionOneValue = {
+  selected: string | null;
+  otherText: string;
+};
+
+type QuestionOneProps = {
+  value: QuestionOneValue;
+  onChange: (value: QuestionOneValue) => void;
+};
+
+export function QuestionOne({
+  value,
+  onChange,
+}: QuestionOneProps) {
 
   const options = [
     {
@@ -59,46 +70,61 @@ export function QuestionOne() {
     [r]
   );
 
-  // Check if "Other" is selected
   const isOtherSelected =
-    selected === options.length - 1;
+    value.selected === "Other";
 
-  const handleSelect = (index: number) => {
-    setSelected(index);
+  const handleSelect = (label: string) => {
 
-    // Clear the text when switching away from Other
-    if (index !== options.length - 1) {
-      setOtherText("");
-    }
+    onChange({
+      selected: label,
+      otherText:
+        label === "Other"
+          ? value.otherText
+          : "",
+    });
+  };
+
+  const handleOtherText = (text: string) => {
+
+    onChange({
+      ...value,
+      otherText: text,
+    });
   };
 
   return (
     <ThemedView>
 
-      {/* =========================
-          OPTIONS
-      ========================= */}
+      {/* OPTIONS */}
 
       <ThemedView style={styles.grid}>
-        {options.map((item, index) => {
-          const isSelected = selected === index;
+
+        {options.map((item) => {
+
+          const isSelected =
+            value.selected === item.label;
 
           return (
             <Pressable
-              key={index}
+              key={item.label}
               style={[
                 styles.box,
-                isSelected && styles.boxSelected,
+                isSelected &&
+                  styles.boxSelected,
               ]}
-              onPress={() => handleSelect(index)}
+              onPress={() =>
+                handleSelect(item.label)
+              }
             >
+
               {/* ICON */}
 
               <ThemedView
                 style={[
                   styles.iconBubble,
                   {
-                    backgroundColor: item.bg,
+                    backgroundColor:
+                      item.bg,
                   },
                 ]}
               >
@@ -140,19 +166,21 @@ export function QuestionOne() {
                   />
                 )}
               </ThemedView>
+
             </Pressable>
           );
         })}
+
       </ThemedView>
 
-      {/* =========================
-          OTHER TEXT INPUT
-      ========================= */}
+      {/* OTHER INPUT */}
 
       {isOtherSelected && (
+
         <ThemedView
           style={styles.otherInputContainer}
         >
+
           <ThemedText
             style={styles.otherInputLabel}
           >
@@ -160,8 +188,8 @@ export function QuestionOne() {
           </ThemedText>
 
           <TextInput
-            value={otherText}
-            onChangeText={setOtherText}
+            value={value.otherText}
+            onChangeText={handleOtherText}
             placeholder="Tell us what you want to share..."
             placeholderTextColor="#9BA8C0"
             multiline
@@ -169,7 +197,9 @@ export function QuestionOne() {
             style={styles.otherInput}
             maxLength={100}
           />
+
         </ThemedView>
+
       )}
 
     </ThemedView>

@@ -1,14 +1,15 @@
 import { ThemedText } from '@/components/themed-text';
-import { notificationStyles as styles } from '@/styles/notifications-styles';
+import { notificationStyles } from '@/styles/notifications-styles';
+import { icon, useResponsive } from '@/styles/responsive';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ScrollView, TouchableOpacity, View } from 'react-native';
 
 type Tab = {
   key: string;
   label: string;
-  icon: keyof typeof Ionicons.glyphMap;
+  icons: keyof typeof Ionicons.glyphMap;
   color: string;
   activeColor: string;
   activeBg: string;
@@ -18,7 +19,7 @@ const TABS: Tab[] = [
   {
     key: 'all',
     label: 'All',
-    icon: 'apps-outline',
+    icons: 'apps-outline',
     color: '#9BA8C0',
     activeColor: '#EEF0FA',
     activeBg: '#35408E',
@@ -26,7 +27,7 @@ const TABS: Tab[] = [
   {
     key: 'alerts',
     label: 'Alerts',
-    icon: 'warning-outline',
+    icons: 'warning-outline',
     color: '#9BA8C0',
     activeColor: '#FFF0F0',
     activeBg: '#C62828',
@@ -34,7 +35,7 @@ const TABS: Tab[] = [
   {
     key: 'updates',
     label: 'Updates',
-    icon: 'refresh-outline',
+    icons: 'refresh-outline',
     color: '#9BA8C0',
     activeColor: '#E8F3FD',
     activeBg: '#3781C1',
@@ -42,7 +43,7 @@ const TABS: Tab[] = [
   {
     key: 'rewards',
     label: 'Rewards',
-    icon: 'trophy-outline',
+    icons: 'trophy-outline',
     color: '#9BA8C0',
     activeColor: '#FFF4E0',
     activeBg: '#FFB633',
@@ -54,7 +55,7 @@ const NOTIFICATIONS = [
   {
     id: 1,
     tab: 'alerts',
-    icon: 'warning-outline' as keyof typeof Ionicons.glyphMap,
+    icons: 'warning-outline' as keyof typeof Ionicons.glyphMap,
     iconColor: '#C62828',
     bg: "#FFDBDB",
     border: "#C62828",
@@ -66,7 +67,7 @@ const NOTIFICATIONS = [
   {
     id: 2,
     tab: 'updates',
-    icon: 'document-text-outline' as keyof typeof Ionicons.glyphMap,
+    icons: 'document-text-outline' as keyof typeof Ionicons.glyphMap,
     iconColor: '#3781C1',
     bg: "#c8e3fd",
     border: '#3781C1',
@@ -78,7 +79,7 @@ const NOTIFICATIONS = [
   {
     id: 3,
     tab: 'rewards',
-    icon: 'trophy-outline' as keyof typeof Ionicons.glyphMap,
+    icons: 'trophy-outline' as keyof typeof Ionicons.glyphMap,
     iconColor: '#B36B00',
     bg: '#fee9c0',
     border: '#B36B00',
@@ -90,7 +91,7 @@ const NOTIFICATIONS = [
   {
     id: 4,
     tab: 'updates',
-    icon: 'refresh-outline' as keyof typeof Ionicons.glyphMap,
+    icons: 'refresh-outline' as keyof typeof Ionicons.glyphMap,
     iconColor: '#3781C1',
     bg: "#c8e3fd",
     border: '#3781C1',
@@ -102,7 +103,7 @@ const NOTIFICATIONS = [
   {
     id: 5,
     tab: 'alerts',
-    icon: 'alert-circle-outline' as keyof typeof Ionicons.glyphMap,
+    icons: 'alert-circle-outline' as keyof typeof Ionicons.glyphMap,
     iconColor: '#C62828',
     bg: "#FFDBDB",
     border: "#C62828",  
@@ -123,6 +124,10 @@ export default function Notifications() {
 
   const unreadCount = NOTIFICATIONS.filter(n => n.unread).length;
 
+  const r = useResponsive();
+        
+  const styles = useMemo(() => notificationStyles(r), [r]);
+
   return (
     <View style={styles.pageContainer}>
 
@@ -141,8 +146,8 @@ export default function Notifications() {
               activeOpacity={0.8}
             >
               <Ionicons
-                name={tab.icon}
-                size={15}
+                name={tab.icons}
+                size={icon(15)}
                 color={isActive ? tab.activeColor : tab.color}
               />
               <ThemedText
@@ -211,7 +216,7 @@ export default function Notifications() {
 
                 {/* Icon */}
                 <View style={[styles.notifIcon, { backgroundColor: item.bg }]}>
-                  <Ionicons name={item.icon} size={20} color={item.iconColor} />
+                  <Ionicons name={item.icons} size={icon(20)} color={item.iconColor} />
                 </View>
 
                 {/* Text */}
@@ -225,7 +230,7 @@ export default function Notifications() {
                   <ThemedText style={styles.notifTime}>{item.time}</ThemedText>
                 </View>
 
-                <Ionicons name="chevron-forward" size={14} color="black" />
+                <Ionicons name="chevron-forward" size={icon(14)} color="black" />
               </TouchableOpacity>
             </View>
           ))

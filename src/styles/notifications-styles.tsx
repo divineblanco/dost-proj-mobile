@@ -1,7 +1,43 @@
 import { StyleSheet } from "react-native";
-import { font, radius, scale, spacing, verticalScale } from "./responsive";
+import { font, isAndroidTablet, radius, ResponsiveValues, scale, spacing, verticalScale } from "./responsive";
 
-export const notificationStyles = StyleSheet.create({
+export function notificationStyles(r: ResponsiveValues) {
+    const {
+      isCompactAndroid,
+      isFold,
+      isIPhone,
+      isLandscape,
+      isPortrait,
+      isLargePhone,
+      isNormalScreen,
+      isShortScreen,
+      isSmallPhone,
+      isExtraTallScreen,
+      isTablet,
+      isTallScreen,
+      isIPad,
+      isIPadMini,
+      isLargeIPad,
+  } = r;
+
+    const isTallFold = r.isFold && r.isTallScreen;
+    const isNormalFold = r.isFold && r.isNormalScreen;
+
+    const isAndroidTabletPortrait = r.isAndroidTablet && r.isPortrait;
+
+    const isAndroidTabletLandscape = r.isAndroidTablet && r.isLandscape;
+
+    const isIPadPortrait = r.isIPad && r.isPortrait;
+    const isIPadLandscape = r.isIPad && r.isLandscape;
+  
+    const isLargeIPadPortrait = r.isLargeIPad && r.isPortrait;
+    const isLargeIPadLandscape = r.isLargeIPad && r.isLandscape;
+  
+    const isIPadMiniPortrait = r.isIPadMini && r.isPortrait;
+    const isIPadMiniLandscape = r.isIPadMini && r.isLandscape;
+
+    return StyleSheet.create({
+      
   pageContainer: {
     flex: 1,
     backgroundColor: "white"
@@ -12,7 +48,13 @@ export const notificationStyles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: '#FFFFFF',
     paddingHorizontal: scale(20),
-    paddingVertical: verticalScale(10),
+    paddingVertical: 
+      isLargeIPad || isIPad || isIPadMini
+      || isAndroidTablet
+      ? verticalScale(15)
+      : isFold
+      ? verticalScale(20)
+      : verticalScale(10),
     gap: scale(6),
     borderBottomWidth: scale(1),
     borderBottomColor: '#F0F2F8',
@@ -24,13 +66,20 @@ export const notificationStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: scale(5),
-    paddingVertical: verticalScale(8),
+    paddingVertical: 
+      isLargeIPad || isIPad || isIPadMini
+      || isAndroidTablet
+      ? verticalScale(10)
+      : isFold
+      ? verticalScale(15)
+      : verticalScale(8),
     borderRadius: radius(8),
   },
 
   tabLabel: {
     fontSize: font(11),
     fontWeight: '500',
+    lineHeight: font(11)
   },
 
   tabLabelActive: {
@@ -58,18 +107,24 @@ export const notificationStyles = StyleSheet.create({
     color: "#3781C1",
     fontWeight: "600",
     fontSize: font(12),
+    lineHeight: font(12)
   },
 
   sectionTitle: {
     fontSize: font(16),
     fontWeight: '700',
     color: '#35408E',
+    lineHeight: font(16)
   },
 
   unreadBadge: {
     backgroundColor: '#EEF0FA',
     paddingHorizontal: scale(8),
-    paddingVertical: verticalScale(2),
+    paddingVertical: 
+      isLargeIPad || isIPad || isIPadMini
+      || isFold || isAndroidTablet
+      ? verticalScale(5)
+      : verticalScale(2),
     borderRadius: radius(20),
   },
 
@@ -77,6 +132,7 @@ export const notificationStyles = StyleSheet.create({
     fontSize: font(11),
     fontWeight: '600',
     color: '#35408E',
+    lineHeight: font(11)
   },
 
   sectionDivider: {
@@ -93,7 +149,10 @@ export const notificationStyles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: scale(16),
     paddingVertical: verticalScale(8),
-    paddingBottom: verticalScale(100),
+    paddingBottom: 
+      isFold || isCompactAndroid
+      ? verticalScale(150)
+      : verticalScale(100),
     gap: scale(10)
   },
 
@@ -119,19 +178,44 @@ export const notificationStyles = StyleSheet.create({
 
   unreadDot: {
     position: 'absolute',
-    left: scale(7),
-    top: '50%',
+    left: 
+      isFold || isAndroidTablet
+      ? scale(9)
+      : scale(7),
+    top: 
+      isFold
+      ? "40%"
+      : '50%',
     marginTop: verticalScale(-10),
-    width: scale(8),
-    height: verticalScale(8),
+    width: 
+      isLargeIPad || isIPad || isIPadMini
+      ? scale(5)
+      : isAndroidTablet
+      ? scale(6)
+      : isFold
+      ? scale(4)
+      : scale(8),
+    height: 
+      isFold
+      ? verticalScale(10)
+      : verticalScale(8),
     zIndex: 999,
     borderRadius: radius(4),
     backgroundColor: '#35408E',
   },
 
   notifIcon: {
-    width: scale(44),
-    height: verticalScale(44),
+    width: 
+      isLargeIPad || isIPad || isIPadMini
+      || isFold 
+      ? scale(30)
+      : isAndroidTablet
+      ? scale(35)
+      : scale(44),
+    height: 
+      isFold
+      ? verticalScale(60)
+      : verticalScale(44),
     borderRadius: radius(10),
     justifyContent: 'center',
     alignItems: 'center',
@@ -146,6 +230,7 @@ export const notificationStyles = StyleSheet.create({
     fontSize: font(13),
     fontWeight: '700',
     color: '#35408E',
+    lineHeight: font(13)
   },
 
   notifDesc: {
@@ -158,6 +243,7 @@ export const notificationStyles = StyleSheet.create({
     fontSize: font(11),
     color: '#61646a',
     marginTop: verticalScale(2),
+    lineHeight: font(11)
   },
 
   rowDivider: {
@@ -179,4 +265,4 @@ export const notificationStyles = StyleSheet.create({
     color: '#9BA8C0',
     fontWeight: '500',
   },
-});
+})};

@@ -29,7 +29,7 @@ const ACTIVITYLOG = [
     title: "Account Created",
     desc: "You created your account on March 1, 2023",
     date: "3 yrs",
-    route: "/drawer/tabs/profile",
+    route: "/drawer/tabs/profiles/profile",
   },
 ];
 

@@ -1,10 +1,10 @@
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { profileStyles as styles } from "@/styles/profile/profile-styles";
-import { icon } from "@/styles/responsive";
+import { profileStyles } from "@/styles/profile/profile-styles";
+import { icon, useResponsive } from "@/styles/responsive";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React from "react";
+import React, { useMemo } from "react";
 import { TouchableOpacity } from "react-native";
 
 const resources = [
@@ -29,6 +29,9 @@ const resources = [
 ];
 
 export default function ResourcesDownload() {
+  const r = useResponsive();
+        
+          const styles = useMemo(() => profileStyles(r), [r]);
   return (
     <ThemedView style={styles.drCard}>
       {/* Header */}

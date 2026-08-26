@@ -1,30 +1,21 @@
+import { BADGES } from "@/app/drawer/tabs/badges/badges-data";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { icon, useResponsive } from "@/styles/responsive";
 import { badgeCardStyles } from "@/styles/rewards/rewards-components-styles";
 import { SimpleLineIcons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import React, { useMemo } from "react";
 import { TouchableOpacity } from "react-native";
 
-const badges = [
-  {
-    id: 1,
-    title: "First Contribution",
-  },
-  {
-    id: 2,
-    title: "Resource Sharer",
-  },
-  {
-    id: 3,
-    title: "Knowledge Helper",
-  },
-];
+type BadgeCardProps = {
+  returnTo: string;
+};
 
-export default function BadgeCard() {
+export default function BadgeCard({ returnTo }: BadgeCardProps) {
   const r = useResponsive();
-    const styles = useMemo(() => badgeCardStyles(r), [r]);
-    
+  const styles = useMemo(() => badgeCardStyles(r), [r]);
+
   return (
     <ThemedView style={styles.badgeCard}>
       <ThemedView style={styles.sectionRow}>
@@ -32,7 +23,16 @@ export default function BadgeCard() {
           My Badges
         </ThemedText>
 
-        <TouchableOpacity>
+        <TouchableOpacity
+          onPress={() =>
+            router.push({
+              pathname: "/drawer/tabs/badges/view-badges",
+              params: {
+                returnTo,
+              },
+            })
+          }
+        >
           <ThemedText style={styles.view}>
             View All
           </ThemedText>
@@ -40,7 +40,7 @@ export default function BadgeCard() {
       </ThemedView>
 
       <ThemedView style={styles.badgesContainer}>
-        {badges.map((badge) => (
+        {BADGES.map((badge) => (
           <ThemedView
             key={badge.id}
             style={styles.badgeItem}
