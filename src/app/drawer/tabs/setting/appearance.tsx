@@ -1,8 +1,9 @@
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { settingsStyles as styles } from "@/styles/settings-styles";
+import { useResponsive } from "@/styles/responsive";
+import { settingsStyles } from "@/styles/settings/settings-styles";
 import Slider from "@react-native-community/slider";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   ScrollView
 } from "react-native";
@@ -10,6 +11,10 @@ import {
 export default function Appearance() {
   const [selectedMode, setSelectedMode] = useState("Light");
   const [fontSize, setFontSize] = useState(16);
+
+      const r = useResponsive();
+            
+      const styles = useMemo(() => settingsStyles(r), [r]);
 
   return (
     <ScrollView

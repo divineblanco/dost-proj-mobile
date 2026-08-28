@@ -1,14 +1,15 @@
 import EditSuccess from "@/components/modals/edit-success";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { icon, useResponsive } from "@/styles/responsive";
+import { editProfileStyles } from "@/styles/settings/edit-profile-styles";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useMemo, useState } from "react";
 import {
   ScrollView,
-  StyleSheet,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 
 export default function EditAddress() {
@@ -41,6 +42,10 @@ export default function EditAddress() {
     setShowSuccess(true);
   };
 
+  const r = useResponsive();
+        
+  const styles = useMemo(() => editProfileStyles(r), [r]);
+
   return (
     <ScrollView
       style={styles.pageContainer}
@@ -70,7 +75,7 @@ export default function EditAddress() {
           ]}>
             <Ionicons
               name="location-outline"
-              size={18}
+              size={icon(18)}
               color={
                 !hasContent ? "#9BA8C0"
                 : isValid   ? "#2E9E3A"
@@ -90,7 +95,7 @@ export default function EditAddress() {
             {hasContent && (
               <Ionicons
                 name={isValid ? "checkmark-circle" : "close-circle"}
-                size={18}
+                size={icon(18)}
                 color={isValid ? "#2E9E3A" : "#C62828"}
               />
             )}
@@ -109,7 +114,7 @@ export default function EditAddress() {
         {/* Reminder card */}
         <ThemedView style={styles.rulesCard}>
           <View style={styles.rulesHeader}>
-            <Ionicons name="information-circle-outline" size={15} color="#35408E" />
+            <Ionicons name="information-circle-outline" size={icon(15)} color="#35408E" />
             <ThemedText style={styles.rulesTitle}>Reminder</ThemedText>
           </View>
           <View style={styles.ruleRow}>
@@ -139,195 +144,3 @@ export default function EditAddress() {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  pageContainer: {
-    flex: 1,
-    backgroundColor: "#F8F9FD",
-  },
-
-  scrollContent: {
-    paddingBottom: 100,
-  },
-
-  inner: {
-    padding: 20,
-    gap: 14,
-  },
-
-  header: {
-    gap: 5,
-    backgroundColor: "transparent",
-  },
-
-  title: {
-    fontSize: 22,
-    fontWeight: "700",
-    color: "#1A1F5E",
-    lineHeight: 28,
-  },
-
-  subtitle: {
-    fontSize: 13,
-    color: "#6B7280",
-    lineHeight: 18,
-  },
-
-  sectionDivider: {
-    height: 3,
-    backgroundColor: "#35408E",
-    borderRadius: 2,
-    width: "100%",
-  },
-
-  card: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: "#E0E4F0",
-    padding: 16,
-    gap: 10,
-    elevation: 3,
-    shadowColor: "#1A1F5E",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.07,
-    shadowRadius: 8,
-  },
-
-  label: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#35408E",
-    letterSpacing: 0.2,
-  },
-
-  inputRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    borderWidth: 1.5,
-    borderRadius: 10,
-    borderColor: "#E0E4F0",
-    backgroundColor: "#F8F9FD",
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-  },
-
-  inputValid: {
-    borderColor: "#2E9E3A",
-    backgroundColor: "#EAFBE7",
-  },
-
-  inputError: {
-    borderColor: "#C62828",
-    backgroundColor: "#FFF0F0",
-  },
-
-  input: {
-    flex: 1,
-    fontSize: 13,
-    color: "#1A1F5E",
-    fontWeight: "500",
-    lineHeight: 20,
-    minHeight: 40,
-    paddingTop: 0,
-  },
-
-  inputMeta: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-
-  validationHint: {
-    fontSize: 11,
-    color: "#9BA8C0",
-    flex: 1,
-  },
-
-  validationHintError: {
-    color: "#C62828",
-  },
-
-  validationHintOk: {
-    color: "#2E9E3A",
-    fontWeight: "600",
-  },
-
-  charCount: {
-    fontSize: 11,
-    color: "#9BA8C0",
-  },
-
-  rulesCard: {
-    backgroundColor: "#EEF0FA",
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#D1D5E8",
-    padding: 14,
-    gap: 10,
-  },
-
-  rulesHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    marginBottom: 2,
-    backgroundColor: "transparent",
-  },
-
-  rulesTitle: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: "#35408E",
-  },
-
-  ruleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
-
-  ruleText: {
-    fontSize: 12,
-    color: "#6B7280",
-    flex: 1,
-  },
-
-  ruleTextValid: {
-    color: "#2E9E3A",
-    fontWeight: "600",
-  },
-
-  saveBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    backgroundColor: "#FFB633",
-    paddingVertical: 14,
-    borderRadius: 10,
-    marginTop: 4,
-    shadowColor: "#1A1F5E",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.18,
-    shadowRadius: 5,
-    elevation: 5,
-  },
-
-  saveBtnDisabled: {
-    backgroundColor: "#E0E4F0",
-    shadowOpacity: 0,
-    elevation: 0,
-  },
-
-  saveTxt: {
-    color: "white",
-    fontSize: 14,
-    fontWeight: "700",
-  },
-
-  saveTxtDisabled: {
-    color: "#9BA8C0",
-  },
-});

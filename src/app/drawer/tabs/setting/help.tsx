@@ -1,10 +1,11 @@
 import FaqDropdown from "@/components/dropdown/faq-dropdown";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { settingsStyles as styles } from "@/styles/settings-styles";
+import { icon, useResponsive } from "@/styles/responsive";
+import { settingsStyles } from "@/styles/settings/settings-styles";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React from "react";
+import React, { useMemo } from "react";
 import {
   ScrollView,
   TouchableOpacity
@@ -63,6 +64,10 @@ const FAQS = [
 
 export default function Help() {
 
+      const r = useResponsive();
+            
+      const styles = useMemo(() => settingsStyles(r), [r]);
+      
   return (
     <ScrollView
       style={styles.pageContainer}
@@ -77,7 +82,7 @@ export default function Help() {
             >
               <ThemedView style={styles.reportBannerLeft}>
                 <ThemedView style={styles.reportIconBubble}>
-                  <Ionicons name="warning" size={18} color="#C62828" />
+                  <Ionicons name="warning" size={icon(18)} color="#C62828" />
                 </ThemedView>
                 <ThemedView style={{ gap: 2, backgroundColor: "transparent" }}>
                   <ThemedText style={styles.reportTitle}>Report a Problem</ThemedText>
@@ -86,7 +91,7 @@ export default function Help() {
                   </ThemedText>
                 </ThemedView>
               </ThemedView>
-              <Ionicons name="chevron-forward" size={16} color="white" />
+              <Ionicons name="chevron-forward" size={icon(16)} color="white" />
             </TouchableOpacity>
         </ThemedView>
         
@@ -113,118 +118,3 @@ export default function Help() {
     </ScrollView>
   );
 }
-
-// const styles = StyleSheet.create({
-//   pageContainer: {
-//     flex: 1,
-//     backgroundColor: "white",
-//     padding: 5,
-//   },
-//   scrollContent: {
-//     paddingBottom: 95,
-//   },
-
-//   reportContainer: {
-//     padding: 20
-//   },
-
-//   reportBanner: {
-//     flexDirection: "row",
-//     alignItems: "center",
-//     justifyContent: "space-between",
-//     backgroundColor: "#c91010c6",
-//     borderRadius: 12,
-//     borderWidth: 1.5,
-//     borderColor: "#FECACA",
-//     padding: 14,
-//     shadowColor: "#c91010c6",
-//     shadowOffset: { width: 0, height: 2 },
-//     shadowOpacity: 0.08,
-//     shadowRadius: 6,
-//     elevation: 2,
-//   },
- 
-//   reportBannerLeft: {
-//     flexDirection: "row",
-//     alignItems: "center",
-//     gap: 12,
-//     backgroundColor: "transparent",
-//     flex: 1,
-//   },
- 
-//   reportIconBubble: {
-//     width: 40,
-//     height: 40,
-//     borderRadius: 10,
-//     backgroundColor: "#FFF0F0",
-//     justifyContent: "center",
-//     alignItems: "center",
-//   },
- 
-//   reportTitle: {
-//     fontSize: 14,
-//     fontWeight: "700",
-//     color: "white",
-//   },
- 
-//   reportSubtitle: {
-//     fontSize: 11,
-//     color: "white",
-//   },
-
-//   line: {
-//     backgroundColor: "#c7c7c7",
-//     padding: 0.5,
-//     width: "85%",
-//     alignSelf: "center",
-//     marginBottom: 15
-//   },
-
-//   row: {
-//     flexDirection: "row",
-//     paddingHorizontal: 20,
-//     paddingVertical: 20,
-//     gap: 15,
-//     alignItems: "center",
-//     justifyContent: "space-between"
-//   },
-
-//   boxBG: {
-//     backgroundColor: "white",
-//     borderRadius: 14,
-//     borderWidth: 1.5,
-//     borderColor: "#E0E4F0",
-//     padding: 5,
-//     elevation: 2,
-//     shadowColor: "#1A1F5E",
-//     shadowOffset: { width: 0, height: 2 },
-//     shadowOpacity: 0.07,
-//     shadowRadius: 8,
-//   },
-
-//   title: {
-//     fontSize: 15,
-//     fontWeight: "bold",
-//     paddingBlockStart: 10,
-//   },
-  
-//   questionContainer: {
-//     padding: 15,
-//     gap: 10
-//   },
-
-//   questionRow: {
-//     flexDirection: "row",
-//     alignItems: "center",
-//     gap: 15,
-//     flex: 1,
-//   },
-
-//   question: {
-//     flex: 1,
-//     fontSize: 15,
-//     fontWeight: "600",
-//     flexWrap: "wrap",
-//   },
-
-// });

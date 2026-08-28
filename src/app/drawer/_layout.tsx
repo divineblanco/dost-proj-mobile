@@ -1,6 +1,7 @@
 import CustomDrawer from "@/components/CustomDrawer";
 import { ProfileDropDown } from "@/components/dropdown/profile-dropdown";
 import { ThemedView } from "@/components/themed-view";
+import { font, icon, isAndroidTablet, isCompactAndroid, isFold, isIPad, isIPadMini, isLargeIPad, isNormalScreen, isTallScreen, radius, scale, verticalScale } from "@/styles/responsive";
 import { Ionicons } from "@expo/vector-icons";
 import { DrawerToggleButton } from "@react-navigation/drawer";
 import { Href, useGlobalSearchParams, usePathname, useRouter } from "expo-router";
@@ -102,12 +103,21 @@ export default function DrawerLayout() {
     router.back();
   };
 
+  const isNormalFold = isNormalScreen && isFold;
+  const isTallFold = isTallScreen && isFold;
+
 
   return (
     <Drawer
       screenOptions={{
         headerStyle: {
           backgroundColor: "#35408E",
+          height: 
+            isAndroidTablet
+            ? verticalScale(90)
+            : isFold
+            ? verticalScale(115)
+            : verticalScale(100)
         },
         headerTintColor: "#fff",
         headerTitleAlign: "center",
@@ -119,7 +129,7 @@ export default function DrawerLayout() {
               onPress={handleBack}
               style={{ marginLeft: 15 }}
             >
-              <Ionicons name="chevron-back" size={26} color="#fff" />
+              <Ionicons name="chevron-back" size={icon(26)} color="#fff" />
             </TouchableOpacity>
           ) : (
             <DrawerToggleButton tintColor="#fff" />
@@ -131,15 +141,29 @@ export default function DrawerLayout() {
             style={{
               marginRight: 15,
               backgroundColor: "transparent",
+              position: "relative"
             }}
           >
             <TouchableOpacity onPress={() => setShowMenu(!showMenu)}>
               <Image
                 source={require("@/assets/images/profile.jpg")}
                 style={{
-                  width: 30,
-                  height: 30,
-                  borderRadius: 15,
+                  width: 
+                    isLargeIPad || isIPad || isIPadMini
+                    || isFold
+                    ? scale(20)
+                    : isAndroidTablet 
+                    ? scale(23)
+                    : isCompactAndroid
+                    ? scale(26)
+                    : scale(30),
+                  height: 
+                    isNormalFold
+                    ? verticalScale(50)
+                    : isTallFold
+                    ? verticalScale(40)
+                    : verticalScale(30),
+                  borderRadius: radius(15),
                 }}
               />
             </TouchableOpacity>
@@ -158,6 +182,9 @@ export default function DrawerLayout() {
         name="tabs"
         options={{
           headerTitle: "AdvocAid PH",
+          headerTitleStyle: {
+            fontSize: font(18)
+          },
           headerShown: true,
         }}
       />

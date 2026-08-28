@@ -1,14 +1,15 @@
 import EditSuccess from "@/components/modals/edit-success";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { icon, useResponsive } from "@/styles/responsive";
+import { editProfileStyles } from "@/styles/settings/edit-profile-styles";
 import { Ionicons } from "@expo/vector-icons";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   ScrollView,
-  StyleSheet,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 
 export default function EditUsername() {
@@ -65,6 +66,10 @@ export default function EditUsername() {
     setShowSuccess(true);
   };
 
+  const r = useResponsive();
+        
+  const styles = useMemo(() => editProfileStyles(r), [r]);
+
   return (
     <ScrollView
       style={styles.pageContainer}
@@ -94,7 +99,7 @@ export default function EditUsername() {
 
           <View
             style={[
-              styles.inputRow,
+              styles.inputRow, styles.inputHeight,
               firstName.length === 0
               ? styles.inputDefault
               : Object.values(firstNameValidation).every(Boolean)
@@ -104,7 +109,7 @@ export default function EditUsername() {
           >
             <Ionicons
               name="person-outline"
-              size={20}
+              size={icon(20)}
               color="#35408E"
             />
 
@@ -135,7 +140,7 @@ export default function EditUsername() {
 
           <View
             style={[
-              styles.inputRow,
+              styles.inputRow, styles.inputHeight,
               lastName.length === 0
               ? styles.inputDefault
               : Object.values(lastNameValidation).every(Boolean)
@@ -145,7 +150,7 @@ export default function EditUsername() {
           >
             <Ionicons
               name="person-outline"
-              size={20}
+              size={icon(20)}
               color="#35408E"
             />
 
@@ -196,179 +201,3 @@ export default function EditUsername() {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  pageContainer: {
-    flex: 1,
-    backgroundColor: "white",
-  },
-
-  scrollContent: {
-    paddingBottom: 100,
-  },
-
-  inner: {
-    padding: 20,
-    gap: 14,
-  },
-
-  header: {
-    gap: 5,
-  },
-
-  title: {
-    fontSize: 22,
-    fontWeight: "700",
-    color: "#1A1F5E",
-    lineHeight: 25,
-  },
-
-  subtitle: {
-    fontSize: 13,
-    color: "#6B7280",
-  },
-
-  sectionDivider: {
-    height: 3,
-    backgroundColor: "#35408E",
-    borderRadius: 2,
-    width: "100%",
-  },
-
-  card: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: "#E0E4F0",
-    padding: 16,
-    gap: 10,
-    elevation: 3,
-    shadowColor: "#1A1F5E",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.07,
-    shadowRadius: 8,
-  },
-
-  label: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: "#35408E",
-  },
-
-  inputRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    borderWidth: 1.5,
-    borderRadius: 10,
-    borderColor: "#E0E4F0",
-    backgroundColor: "#F8F9FD",
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-  },
-
-  inputValid: {
-    borderColor: "#2E9E3A",
-    backgroundColor: "#EAFBE7",
-  },
-
-  inputDefault: {
-    borderColor: "#E0E4F0",
-    backgroundColor: "#F8F9FD",
-  },
-
-  inputError: {
-    borderColor: "#C62828",
-    backgroundColor: "#FFF0F0",
-  },
-
-  atSign: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: "#35408E",
-  },
-
-  input: {
-    flex: 1,
-    fontSize: 14,
-    color: "#1A1F5E",
-    fontWeight: "500",
-  },
-
-  inputMeta: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-
-  validationHint: {
-    fontSize: 11,
-    textAlign: "right"
-  },
-
-  validationHintError: {
-    color: "#C62828",
-  },
-
-  validationHintOk: {
-    color: "#2E9E3A",
-    fontWeight: "600",
-  },
-
-  charCount: {
-    fontSize: 11,
-    color: "#9BA8C0",
-  },
-
-  rulesCard: {
-    backgroundColor: "#EEF0FA",
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#D1D5E8",
-    padding: 14,
-    gap: 10,
-  },
-
-  ruleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
-
-  ruleText: {
-    fontSize: 12,
-    color: "#4B5563",
-  },
-
-  ruleTextValid: {
-    color: "#2E9E3A",
-    fontWeight: "600",
-  },
-
-  saveBtn: {
-    backgroundColor: "#FFB633",
-    paddingVertical: 14,
-    borderRadius: 10,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 8,
-    shadowColor: "#1A1F5E",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.18,
-    shadowRadius: 5,
-  },
-
-  saveBtnDisabled: {
-    backgroundColor: "#E0E4F0",
-  },
-
-  saveTxt: {
-    color: "white",
-    fontSize: 14,
-    fontWeight: "700",
-  },
-
-  saveTxtDisabled: {
-    color: "#9BA8C0",
-  },
-});

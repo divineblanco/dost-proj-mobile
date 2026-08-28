@@ -1,11 +1,12 @@
 import { ThemedText } from "@/components/themed-text";
+import { icon, useResponsive } from "@/styles/responsive";
+import { problemDropdownStyles } from "@/styles/settings/help-problem-styles";
 import { Ionicons } from "@expo/vector-icons";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
-    ScrollView,
-    StyleSheet,
-    TouchableOpacity,
-    View,
+  ScrollView,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 const PROBLEMS = [
@@ -30,8 +31,15 @@ export default function ProblemDropdown({
 }: Props) {
   const [expanded, setExpanded] = useState(false);
 
+  const r = useResponsive();
+  const styles = useMemo(
+    () => problemDropdownStyles(r),
+    [r]
+  );
+
   return (
-    <View>
+    <View style={styles.container}>
+      {/* Dropdown Button */}
       <TouchableOpacity
         style={styles.dropdown}
         activeOpacity={0.8}
@@ -42,100 +50,46 @@ export default function ProblemDropdown({
         </ThemedText>
 
         <Ionicons
-          name={
-            expanded
-              ? "chevron-up"
-              : "chevron-down"
-          }
-          size={18}
+          name={expanded ? "chevron-up" : "chevron-down"}
+          size={icon(18)}
           color="#35408E"
         />
       </TouchableOpacity>
 
+      {/* Dropdown Menu */}
       {expanded && (
         <View style={styles.menu}>
-            <ScrollView
+          <ScrollView
             nestedScrollEnabled
             showsVerticalScrollIndicator={true}
-            >
+            bounces={false}
+          >
             {PROBLEMS.map((problem) => (
-                <TouchableOpacity
+              <TouchableOpacity
                 key={problem}
                 style={styles.item}
+                activeOpacity={0.7}
                 onPress={() => {
-                    setSelectedProblem(problem);
-                    setExpanded(false);
+                  setSelectedProblem(problem);
+                  setExpanded(false);
                 }}
-                >
+              >
                 <ThemedText style={styles.itemText}>
-                    {problem}
+                  {problem}
                 </ThemedText>
 
                 {selectedProblem === problem && (
-                    <Ionicons
+                  <Ionicons
                     name="checkmark"
-                    size={18}
+                    size={icon(18)}
                     color="#35408E"
-                    />
+                  />
                 )}
-                </TouchableOpacity>
+              </TouchableOpacity>
             ))}
-            </ScrollView>
+          </ScrollView>
         </View>
-        )}
+      )}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  dropdown: {
-    backgroundColor: "#F0F3FA",
-    borderWidth: 1.5,
-    borderColor: "#E8EAF0",
-    borderRadius: 10,
-    padding: 12,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-
-  selectedText: {
-    fontSize: 14,
-    color: "#374151",
-  },
-
-  menu: {
-    marginTop: 50,
-    maxHeight: 240,
-    width: "100%",
-    borderWidth: 1,
-    borderColor: "#E8EAF0",
-    borderRadius: 10,
-    backgroundColor: "#FFF",
-    overflow: "hidden",
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    position: "absolute",
-    zIndex: 999,
-  },
-
-  item: {
-    paddingHorizontal: 15,
-    paddingVertical: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F1F3F5",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-
-  itemText: {
-    fontSize: 14,
-  },
-});

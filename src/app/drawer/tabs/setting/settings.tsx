@@ -1,13 +1,14 @@
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { settingsStyles as styles } from "@/styles/settings-styles";
+import { icon, useResponsive } from "@/styles/responsive";
+import { settingsStyles } from "@/styles/settings/settings-styles";
 import {
   Feather,
   Ionicons,
   Octicons,
 } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useMemo } from "react";
 import {
   ScrollView,
   TouchableOpacity
@@ -76,7 +77,7 @@ export default function Settings() {
         return (
           <Feather
             name={item.icon as keyof typeof Feather.glyphMap}
-            size={18}
+            size={icon(18)}
             color={color}
           />
         );
@@ -85,7 +86,7 @@ export default function Settings() {
         return (
           <Octicons
             name={item.icon as keyof typeof Octicons.glyphMap}
-            size={18}
+            size={icon(18)}
             color={color}
           />
         );
@@ -94,12 +95,16 @@ export default function Settings() {
         return (
           <Ionicons
             name={item.icon as keyof typeof Ionicons.glyphMap}
-            size={18}
+            size={icon(18)}
             color={color}
           />
         );
     }
   };
+
+      const r = useResponsive();
+            
+      const styles = useMemo(() => settingsStyles(r), [r]);
 
   return (
     <ScrollView
@@ -135,7 +140,7 @@ export default function Settings() {
             {!item.logout && (
               <Ionicons
                 name="chevron-forward"
-                size={18}
+                size={icon(18)}
                 color="#35408E"
                 style={styles.tabIcon}
               />
@@ -146,49 +151,3 @@ export default function Settings() {
     </ScrollView>
   );
 }
-
-// const styles = StyleSheet.create({
-//   pageContainer: {
-//     flex: 1,
-//     backgroundColor: "white",
-//     padding: 5,
-//   },
-
-//   scrollContent: {
-//     paddingBottom: 90,
-//   },
-
-//   container: {
-//     paddingVertical: 10
-//   },
-
-//   tabContainer: {
-//     flexDirection: "row",
-//     justifyContent: "space-between",
-//     alignItems: "center",
-//     padding: 20,
-//   },
-
-//   tab: {
-//     flexDirection: "row",
-//     alignItems: "center",
-//     gap: 10,
-//   },
-
-//   tabText: {
-//     fontSize: 15,
-//     fontWeight: "600",
-//     lineHeight: 30,
-//   },
-
-//   tabLogout: {
-//     fontSize: 15,
-//     fontWeight: "600",
-//     lineHeight: 30,
-//     color: "#E20000",
-//   },
-
-//   tabIcon: {
-//     paddingRight: 10
-//   }
-// });

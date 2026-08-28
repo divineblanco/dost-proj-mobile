@@ -1,8 +1,10 @@
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { useResponsive } from "@/styles/responsive";
+import { legalStyles } from "@/styles/settings/about-styles";
 import { Ionicons } from "@expo/vector-icons";
-import React from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import React, { useMemo } from "react";
+import { ScrollView, View } from "react-native";
 
 const sections = [
   {
@@ -53,6 +55,11 @@ const sections = [
 ];
 
 export default function Terms() {
+
+  const r = useResponsive();
+              
+  const styles = useMemo(() => legalStyles(r), [r]);
+
   return (
     <ScrollView
       style={styles.pageContainer}
@@ -109,155 +116,3 @@ export default function Terms() {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  pageContainer: {
-    flex: 1,
-    backgroundColor: "#F8F9FD",
-  },
-
-  scrollContent: {
-    paddingBottom: 100,
-    padding: 20,
-    gap: 12,
-  },
-
-  // Header
-  header: {
-    gap: 8,
-    backgroundColor: "transparent",
-  },
-
-  headerLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    backgroundColor: "transparent",
-  },
-
-  headerIcon: {
-    width: 38,
-    height: 38,
-    borderRadius: 10,
-    backgroundColor: "#EEF0FA",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  title: {
-    fontSize: 22,
-    fontWeight: "700",
-    color: "#35408E",
-    lineHeight: 30
-  },
-
-  datePill: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-    backgroundColor: "transparent",
-  },
-
-  dateText: {
-    fontSize: 12,
-    color: "#9BA8C0",
-    fontWeight: "500",
-  },
-
-  accentBar: {
-    height: 3,
-    width: "100%",
-    backgroundColor: "#35408E",
-    borderRadius: 2,
-  },
-
-  // Intro card
-  introCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: "#E0E4F0",
-    padding: 16,
-    shadowColor: "#1A1F5E",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 2,
-  },
-
-  introText: {
-    fontSize: 13,
-    color: "#4B5563",
-    lineHeight: 20,
-  },
-
-  // Sections
-  sectionsContainer: {
-    gap: 10,
-    backgroundColor: "transparent",
-  },
-
-  sectionCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#F0F2F8",
-    padding: 16,
-    gap: 10,
-    shadowColor: "#1A1F5E",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 1,
-  },
-
-  sectionHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    backgroundColor: "transparent",
-  },
-
-  sectionNumber: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-    backgroundColor: "#35408E",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  sectionNumberText: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: "#FFFFFF",
-  },
-
-  sectionHeading: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#1A1F5E",
-    flex: 1,
-  },
-
-  sectionBody: {
-    fontSize: 12,
-    color: "#4B5563",
-    lineHeight: 19,
-  },
-
-  subsection: {
-    backgroundColor: "#F8F9FD",
-    borderRadius: 8,
-    borderLeftWidth: 3,
-    borderLeftColor: "#D1D5E8",
-    padding: 10,
-    gap: 4,
-  },
-
-  subsectionLabel: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: "#35408E",
-  },
-});

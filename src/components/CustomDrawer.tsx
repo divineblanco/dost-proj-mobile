@@ -1,12 +1,19 @@
+import { drawerStyles } from "@/styles/navigation-styles";
+import { useResponsive } from "@/styles/responsive";
 import { Ionicons } from "@expo/vector-icons";
 import { DrawerContentComponentProps } from "@react-navigation/drawer";
 import { router, usePathname } from "expo-router";
-import { Image, StyleSheet, TouchableOpacity } from "react-native";
+import { useMemo } from "react";
+import { Image, TouchableOpacity } from "react-native";
 import { ThemedText } from "./themed-text";
 import { ThemedView } from "./themed-view";
 
 export default function CustomDrawer(props: DrawerContentComponentProps) {
   const pathname = usePathname();
+    const r = useResponsive();
+  
+    const styles = useMemo(
+        () => drawerStyles(r),[r]);
 
   return (
     <ThemedView style={styles.drawerContainer}>
@@ -15,7 +22,7 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
         <ThemedView style={styles.logoBG}>
           <Image
             source={require("@/assets/images/splash-icon.png")}
-            style={{ width: 50, height: 50, borderRadius: 15 }}
+            style={styles.logo}
           />
         </ThemedView>
 
@@ -29,7 +36,7 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
       {/* NAVIGATION */}
       <ThemedView style={styles.tabsContainer}>
         <Item
-          icon="home"
+          icons="home"
           label="Home"
           route="/drawer/tabs/home"
           pathname={pathname}
@@ -37,7 +44,7 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
         />
 
         <Item
-          icon="map"
+          icons="map"
           label="Map"
           route="/drawer/tabs/map"
           pathname={pathname}
@@ -45,7 +52,7 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
         />
 
         <Item
-          icon="trending-up"
+          icons="trending-up"
           label="Trends"
           route="/drawer/tabs/trend/trends"
           pathname={pathname}
@@ -53,7 +60,7 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
         />
 
         <Item
-          icon="document-text"
+          icons="document-text"
           label="Reports"
           route="/drawer/tabs/reports"
           pathname={pathname}
@@ -61,7 +68,7 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
         />
 
         <Item
-          icon="chatbubble"
+          icons="chatbubble"
           label="Contribute"
           route="/drawer/tabs/contributions/contribute"
           pathname={pathname}
@@ -69,7 +76,7 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
         />
 
         <Item
-          icon="book"
+          icons="book"
           label="Learn"
           route="/drawer/tabs/learn/resources"
           pathname={pathname}
@@ -77,7 +84,7 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
         />
 
         <Item
-          icon="star"
+          icons="star"
           label="Rewards"
           route="/drawer/tabs/rewards"
           pathname={pathname}
@@ -86,7 +93,7 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
 
         {/* LOG OUT (ALWAYS RED) */}
         <Item
-          icon="exit"
+          icons="exit"
           label="Log Out"
           route="/"
           pathname={pathname}
@@ -100,7 +107,7 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
         <TouchableOpacity onPress={() => router.push("/drawer/tabs/profiles/profile")}>
           <Image
             source={require("@/assets/images/profile.jpg")}
-            style={{ width: 50, height: 50, borderRadius: 999 }}
+            style={styles.profile}
           />
         </TouchableOpacity>
 
@@ -135,7 +142,7 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
 /* ================= ITEM ================= */
 
 type ItemProps = {
-  icon: string;
+  icons: string;
   label: string;
   route: string;
   pathname: string;
@@ -144,7 +151,7 @@ type ItemProps = {
 };
 
 function Item({
-  icon,
+  icons,
   label,
   route,
   pathname,
@@ -154,6 +161,11 @@ function Item({
   const isActive =
     pathname === route ||
     pathname.startsWith(route + "/");
+
+  const r = useResponsive();
+
+  const styles = useMemo(
+      () => drawerStyles(r),[r]);
 
   // Logout stays red
   if (danger) {
@@ -176,9 +188,9 @@ function Item({
   }
 
   const activeIcon =
-    isActive && !icon.endsWith("-outline")
-      ? icon
-      : `${icon}-outline`;
+    isActive && !icons.endsWith("-outline")
+      ? icons
+      : `${icons}-outline`;
 
   return (
     <TouchableOpacity
@@ -191,10 +203,10 @@ function Item({
       <Ionicons
         name={
           isActive
-            ? (icon as keyof typeof Ionicons.glyphMap)
-            : (`${icon}-outline` as keyof typeof Ionicons.glyphMap)
+            ? (icons as keyof typeof Ionicons.glyphMap)
+            : (`${icons}-outline` as keyof typeof Ionicons.glyphMap)
         }
-        size={25}
+        size={(25)}
         color={isActive ? "#35408E" : "white"}
       />
 
@@ -209,101 +221,3 @@ function Item({
     </TouchableOpacity>
   );
 }
-
-
-const styles = StyleSheet.create({
-  drawerContainer: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingVertical: 70,
-    backgroundColor: "#35408E",
-  },
-
-  headerContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    gap: 10,
-    backgroundColor: "transparent"
-  },
-
-  logoBG: {
-    width: 50,
-    height: 50,
-    borderRadius: 999,
-    backgroundColor: "white",
-  },
-
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "white",
-    paddingVertical: 20,
-  },
-
-  line: {
-    width: "100%",
-    alignSelf: "center",
-    borderWidth: 1,
-    borderColor: "white",
-    marginVertical: 20,
-  },
-
-  tabsContainer: {
-    gap: 5,
-    backgroundColor: "transparent"
-  },
-
-  drawerItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 25,
-    paddingHorizontal: 18,
-    paddingVertical: 12,
-    borderRadius: 12,
-  },
-
-  activeDrawerItem: {
-    backgroundColor: "white",
-    borderRadius: 15,
-  },
-
-  logoutItem: {
-    backgroundColor: "#c91010c6",
-    borderRadius: 15
-  },
-
-  label: {
-    fontSize: 18,
-    fontWeight: "bold",
-    lineHeight: 28,
-    color: "white"
-  },
-
-  activeLabel: {
-    color: "#35408E",
-  },
-
-  bottomContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 15,
-    marginTop: "auto",
-    backgroundColor: "transparent"
-  },
-
-  userInfo: {
-    flex: 1,
-    backgroundColor: "transparent"
-  },
-
-  username: {
-    color: "white",
-    fontWeight: "bold",
-    fontSize: 18,
-  },
-
-  userEmail: {
-    color: "white",
-    fontSize: 13,
-  },
-});

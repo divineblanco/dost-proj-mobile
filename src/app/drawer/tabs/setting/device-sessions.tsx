@@ -1,9 +1,10 @@
 import TerminateSession from "@/components/modals/terminate-session";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { settingsStyles as styles } from "@/styles/settings-styles";
+import { icon, useResponsive } from "@/styles/responsive";
+import { settingsStyles } from "@/styles/settings/settings-styles";
 import { Ionicons, Octicons } from "@expo/vector-icons";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   ScrollView,
   TouchableOpacity
@@ -11,6 +12,11 @@ import {
 
 export default function DeviceSessions() {
   const [showTerminateModal, setShowTerminateModal] = useState(false);
+
+      const r = useResponsive();
+            
+      const styles = useMemo(() => settingsStyles(r), [r]);
+
   return (
     <ScrollView
       style={styles.pageContainer}
@@ -33,7 +39,7 @@ export default function DeviceSessions() {
               </ThemedText>
               <ThemedView style={styles.deviceRow}>
                 <ThemedView style={styles.icon}>
-                  <Octicons name="device-mobile" size={20} color="#35408E"/>
+                  <Octicons name="device-mobile" size={icon(20)} color="#35408E"/>
                 </ThemedView>
                 <ThemedView style={styles.deviceInfo}>
                   <ThemedText style={styles.device}>Samsung Galaxy S26</ThemedText>
@@ -41,7 +47,7 @@ export default function DeviceSessions() {
                 </ThemedView>
               </ThemedView>
               <ThemedView style={styles.row2}>
-                <Ionicons name="hand-right-sharp" size={20} color="red"/>
+                <Ionicons name="hand-right-sharp" size={icon(20)} color="red"/>
                 <TouchableOpacity>
                   <ThemedText style={styles.terminateTxt}>Terminate All Other Sessions</ThemedText>
                 </TouchableOpacity>
@@ -56,7 +62,7 @@ export default function DeviceSessions() {
               <TouchableOpacity style={styles.row2}
                 onPress={() => setShowTerminateModal(true)}>
                 <ThemedView style={styles.icon}>
-                  <Octicons name="device-mobile" size={20} color="#35408E"/>
+                  <Octicons name="device-mobile" size={icon(20)} color="#35408E"/>
                 </ThemedView>
                 <ThemedView style={styles.deviceInfo}>
                   <ThemedText style={styles.device}>iPhone 17</ThemedText>
@@ -82,104 +88,3 @@ export default function DeviceSessions() {
     </ScrollView>
   );
 }
-
-// const styles = StyleSheet.create({
-//   pageContainer: {
-//     flex: 1,
-//     backgroundColor: "white",
-//     padding: 5,
-//   },
-//   scrollContent: {
-//     paddingBottom: 95,
-//   },
-
-//   headerContainer: {
-//     padding: 20,
-//   },
-
-//   headerTxt: {
-//     fontSize: 12, 
-//     fontWeight: "400",
-//     textAlign: "center"
-//   },
-
-//   line: {
-//     backgroundColor: "#c7c7c7",
-//     padding: 0.5,
-//     width: "85%",
-//     alignSelf: "center",
-//     marginBottom: 15
-//   },
-
-//   row: {
-//     flexDirection: "row",
-//     paddingHorizontal: 20,
-//     paddingVertical: 20,
-//     gap: 15,
-//     alignItems: "center"
-//   },
-
-//   row2: {
-//     flexDirection: "row",
-//     paddingHorizontal: 35,
-//     paddingVertical: 5,
-//     gap: 15,
-//     alignItems: "center"
-//   },
-
-//   boxBG: {
-//     backgroundColor: "white",
-//     borderRadius: 14,
-//     borderWidth: 1.5,
-//     borderColor: "#E0E4F0",
-//     padding: 15,
-//     elevation: 2,
-//     shadowColor: "#1A1F5E",
-//     shadowOffset: { width: 0, height: 2 },
-//     shadowOpacity: 0.07,
-//     shadowRadius: 8,
-//   },
-
-//   title: {
-//     fontSize: 15,
-//     fontWeight: "bold",
-//     paddingBlockStart: 10,
-//   },
-
-//   icon: {
-//     backgroundColor: "#353f8e2d",
-//     padding: 20,
-//     borderRadius: 999
-//   },
-
-//   deviceInfo: {
-//     flexDirection: "column",
-//     gap: 5
-//   },
-
-//   device: {
-//     fontSize: 15,
-//     fontWeight: "600",
-//   },
-
-//   location: {
-//     fontSize: 12,
-//     fontWeight: "400"
-//   },
-  
-//   deviceContainer: {
-//     padding: 15,
-//   },
-
-//   terminateTxt: {
-//     color: "red",
-//     fontSize: 12,
-//     fontWeight: "bold"
-//   },
-
-//   instruction: {
-//     fontSize: 12,
-//     fontWeight: "400",
-//     padding: 10
-//   }
-// });

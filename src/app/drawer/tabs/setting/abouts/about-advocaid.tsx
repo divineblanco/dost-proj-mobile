@@ -1,10 +1,17 @@
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { icon, useResponsive } from "@/styles/responsive";
+import { aboutStyles } from "@/styles/settings/about-styles";
 import { Ionicons } from "@expo/vector-icons";
-import React from "react";
-import { Image, ScrollView, StyleSheet, View } from "react-native";
+import React, { useMemo } from "react";
+import { Image, ScrollView, View } from "react-native";
 
 export default function AboutAdvocaid() {
+
+  const r = useResponsive();
+              
+        const styles = useMemo(() => aboutStyles(r), [r]);
+
   return (
     <ScrollView
       style={styles.pageContainer}
@@ -26,7 +33,7 @@ export default function AboutAdvocaid() {
         </ThemedText>
 
         <ThemedView style={styles.poweredByPill}>
-          <Ionicons name="school-outline" size={13} color="#FFFFFF" />
+          <Ionicons name="school-outline" size={icon(13)} color="#FFFFFF" />
           <ThemedText style={styles.poweredByTxt}>Powered by National University</ThemedText>
         </ThemedView>
       </ThemedView>
@@ -35,7 +42,7 @@ export default function AboutAdvocaid() {
       <ThemedView style={styles.sectionCard}>
         <ThemedView style={styles.sectionHeader}>
           <ThemedView style={styles.sectionIcon}>
-            <Ionicons name="information-circle-outline" size={16} color="#35408E" />
+            <Ionicons name="information-circle-outline" size={icon(16)} color="#35408E" />
           </ThemedView>
           <ThemedText style={styles.sectionTitle}>About the Project</ThemedText>
         </ThemedView>
@@ -57,7 +64,7 @@ export default function AboutAdvocaid() {
       <ThemedView style={styles.sectionCard}>
         <ThemedView style={styles.sectionHeader}>
           <ThemedView style={styles.sectionIcon}>
-            <Ionicons name="people-outline" size={16} color="#35408E" />
+            <Ionicons name="people-outline" size={icon(16)} color="#35408E" />
           </ThemedView>
           <ThemedText style={styles.sectionTitle}>Funded & Supported By</ThemedText>
         </ThemedView>
@@ -99,159 +106,159 @@ export default function AboutAdvocaid() {
   );
 }
 
-const styles = StyleSheet.create({
-  pageContainer: {
-    flex: 1,
-    backgroundColor: "#F8F9FD",
-  },
+// const styles = StyleSheet.create({
+//   pageContainer: {
+//     flex: 1,
+//     backgroundColor: "#F8F9FD",
+//   },
 
-  scrollContent: {
-    padding: 20,
-    paddingBottom: 100,
-    gap: 14,
-  },
+//   scrollContent: {
+//     padding: 20,
+//     paddingBottom: 100,
+//     gap: 14,
+//   },
 
-  // Hero card
-  heroCard: {
-    backgroundColor: "#35408E",
-    borderRadius: 16,
-    padding: 24,
-    alignItems: "center",
-    gap: 10,
-    shadowColor: "#35408E",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 8,
-  },
+//   // Hero card
+//   heroCard: {
+//     backgroundColor: "#35408E",
+//     borderRadius: 16,
+//     padding: 24,
+//     alignItems: "center",
+//     gap: 10,
+//     shadowColor: "#35408E",
+//     shadowOffset: { width: 0, height: 6 },
+//     shadowOpacity: 0.3,
+//     shadowRadius: 12,
+//     elevation: 8,
+//   },
 
-  logoWrapper: {
-    width: 90,
-    height: 90,
-    borderRadius: 999,
-    backgroundColor: "#FFFFFF",
-    overflow: "hidden",
-    borderWidth: 2,
-    borderColor: "rgba(255,255,255,0.4)",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 4,
-  },
+//   logoWrapper: {
+//     width: 90,
+//     height: 90,
+//     borderRadius: 999,
+//     backgroundColor: "#FFFFFF",
+//     overflow: "hidden",
+//     borderWidth: 2,
+//     borderColor: "rgba(255,255,255,0.4)",
+//     shadowColor: "#000",
+//     shadowOffset: { width: 0, height: 4 },
+//     shadowOpacity: 0.15,
+//     shadowRadius: 8,
+//     elevation: 4,
+//   },
 
-  logo: {
-    width: 90,
-    height: 90,
-    borderRadius: 20,
-  },
+//   logo: {
+//     width: 90,
+//     height: 90,
+//     borderRadius: 20,
+//   },
 
-  appTitle: {
-    fontSize: 22,
-    fontWeight: "700",
-    color: "#FFFFFF",
-    marginTop: 4,
-    lineHeight: 25
-  },
+//   appTitle: {
+//     fontSize: 22,
+//     fontWeight: "700",
+//     color: "#FFFFFF",
+//     marginTop: 4,
+//     lineHeight: 25
+//   },
 
-  appSubtitle: {
-    fontSize: 12,
-    color: "rgba(255,255,255,0.75)",
-    textAlign: "center",
-    lineHeight: 18,
-  },
+//   appSubtitle: {
+//     fontSize: 12,
+//     color: "rgba(255,255,255,0.75)",
+//     textAlign: "center",
+//     lineHeight: 18,
+//   },
 
-  poweredByPill: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    backgroundColor: "rgba(255,255,255,0.15)",
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: 20,
-    marginTop: 4,
-  },
+//   poweredByPill: {
+//     flexDirection: "row",
+//     alignItems: "center",
+//     gap: 6,
+//     backgroundColor: "rgba(255,255,255,0.15)",
+//     paddingHorizontal: 14,
+//     paddingVertical: 6,
+//     borderRadius: 20,
+//     marginTop: 4,
+//   },
 
-  poweredByTxt: {
-    fontSize: 12,
-    color: "#FFFFFF",
-    fontWeight: "600",
-  },
+//   poweredByTxt: {
+//     fontSize: 12,
+//     color: "#FFFFFF",
+//     fontWeight: "600",
+//   },
 
-  // Section cards
-  sectionCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: "#E0E4F0",
-    padding: 16,
-    gap: 12,
-    shadowColor: "#1A1F5E",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 2,
-  },
+//   // Section cards
+//   sectionCard: {
+//     backgroundColor: "#FFFFFF",
+//     borderRadius: 14,
+//     borderWidth: 1.5,
+//     borderColor: "#E0E4F0",
+//     padding: 16,
+//     gap: 12,
+//     shadowColor: "#1A1F5E",
+//     shadowOffset: { width: 0, height: 2 },
+//     shadowOpacity: 0.06,
+//     shadowRadius: 6,
+//     elevation: 2,
+//   },
 
-  sectionHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    backgroundColor: "transparent",
-  },
+//   sectionHeader: {
+//     flexDirection: "row",
+//     alignItems: "center",
+//     gap: 8,
+//     backgroundColor: "transparent",
+//   },
 
-  sectionIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    backgroundColor: "#EEF0FA",
-    justifyContent: "center",
-    alignItems: "center",
-  },
+//   sectionIcon: {
+//     width: 32,
+//     height: 32,
+//     borderRadius: 8,
+//     backgroundColor: "#EEF0FA",
+//     justifyContent: "center",
+//     alignItems: "center",
+//   },
 
-  sectionTitle: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: "#1A1F5E",
-  },
+//   sectionTitle: {
+//     fontSize: 15,
+//     fontWeight: "700",
+//     color: "#1A1F5E",
+//   },
 
-  sectionDivider: {
-    height: 1,
-    backgroundColor: "#F0F2F8",
-  },
+//   sectionDivider: {
+//     height: 1,
+//     backgroundColor: "#F0F2F8",
+//   },
 
-  bodyText: {
-    fontSize: 13,
-    color: "#4B5563",
-    lineHeight: 20,
-    textAlign: "justify",
-  },
+//   bodyText: {
+//     fontSize: 13,
+//     color: "#4B5563",
+//     lineHeight: 20,
+//     textAlign: "justify",
+//   },
 
-  bold: {
-    fontWeight: "700",
-    color: "#1A1F5E",
-  },
+//   bold: {
+//     fontWeight: "700",
+//     color: "#1A1F5E",
+//   },
 
-  // Partner logos
-  logosRow: {
-    flexDirection: "row",
-    justifyContent: "center",
-    gap: 16,
-    backgroundColor: "transparent",
-  },
+//   // Partner logos
+//   logosRow: {
+//     flexDirection: "row",
+//     justifyContent: "center",
+//     gap: 16,
+//     backgroundColor: "transparent",
+//   },
 
-  logoCard: {
-    backgroundColor: "#F8F9FD",
-    borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: "#E0E4F0",
-    padding: 12,
-    alignItems: "center",
-    justifyContent: "center",
-  },
+//   logoCard: {
+//     backgroundColor: "#F8F9FD",
+//     borderRadius: 12,
+//     borderWidth: 1.5,
+//     borderColor: "#E0E4F0",
+//     padding: 12,
+//     alignItems: "center",
+//     justifyContent: "center",
+//   },
 
-  partnerLogo: {
-    width: 120,
-    height: 140,
-  },
-});
+//   partnerLogo: {
+//     width: 120,
+//     height: 140,
+//   },
+// });

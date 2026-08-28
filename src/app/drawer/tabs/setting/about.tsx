@@ -1,9 +1,10 @@
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { settingsStyles as styles } from "@/styles/settings-styles";
+import { icon, useResponsive } from "@/styles/responsive";
+import { settingsStyles } from "@/styles/settings/settings-styles";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React from "react";
+import React, { useMemo } from "react";
 import {
   ScrollView,
   TouchableOpacity
@@ -27,6 +28,10 @@ const ABOUT = [
 export default function About() {
   const router = useRouter();
 
+    const r = useResponsive();
+          
+    const styles = useMemo(() => settingsStyles(r), [r]);
+
   return (
     <ScrollView
       style={styles.pageContainer}
@@ -46,7 +51,7 @@ export default function About() {
 
             <Ionicons
               name="chevron-forward"
-              size={18}
+              size={icon(18)}
               color="#35408E"
               style={styles.tabIcon}
             />
@@ -61,40 +66,3 @@ export default function About() {
     </ScrollView>
   );
 }
-
-// const styles = StyleSheet.create({
-//   pageContainer: {
-//     flex: 1,
-//     backgroundColor: "white",
-//     padding: 5,
-//   },
-
-//   scrollContent: {
-//     paddingBottom: 90,
-//   },
-
-//   container: {
-//     paddingVertical: 10,
-//   },
-
-//   tabContainer: {
-//     flexDirection: "row",
-//     justifyContent: "space-between",
-//     alignItems: "center",
-//     padding: 20,
-//   },
-
-//   tabText: {
-//     fontSize: 15,
-//     fontWeight: "600",
-//     lineHeight: 30,
-//   },
-
-//   tabIcon: {
-//     paddingRight: 10,
-//   },
-
-//   versionTxt: {
-//     color: "grey"
-//   } 
-// });
