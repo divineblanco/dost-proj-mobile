@@ -1,5 +1,5 @@
 import { Fonts, ThemeColor } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
+import { useTheme } from '@/lib/hooks/use-theme';
 import { font } from '@/styles/responsive';
 import { Platform, StyleSheet, Text, type TextProps } from 'react-native';
 
