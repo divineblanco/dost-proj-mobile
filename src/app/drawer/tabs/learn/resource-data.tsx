@@ -63,7 +63,7 @@ export const resourcesData: ResourceItem[] = [
     labelBg: "#F8F0FF",
     labelColor: "#6A1B9A",
     accentColor: "#9C27B0",
-    materialType: "Catalog" as MaterialType,
+    materialType: "Catalogue" as MaterialType,
   },
   {
     id: "awareness",

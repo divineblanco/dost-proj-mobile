@@ -93,7 +93,7 @@ export function resourcesPageStyles (r: ResponsiveValues) {
   headerTxt: {
     fontSize: font(12),
     fontWeight: '400',
-    lineHeight: font(13)
+    lineHeight: font(15)
   },
 
   search: {

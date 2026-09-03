@@ -1,12 +1,12 @@
 import { createAuthStyles } from '@/styles/auth-styles';
-import { useResponsive } from '@/styles/responsive';
+import { useResponsive, verticalScale } from '@/styles/responsive';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
-    Image,
-    Platform,
-    TextInput,
-    TouchableOpacity,
+  Image,
+  Platform,
+  TextInput,
+  TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -21,7 +21,6 @@ import { WebBadge } from '@/components/web-badge';
 //lib & hooks
 import { useAuth } from '@/lib/auth/AuthProvider';
 import useFormMutation from '@/lib/hooks/useFormMutation';
-import { VerifyResponse } from '@/lib/interface/auth/verify.interface';
 import { VerifyOTPFormFields } from '@/lib/types/auth.type';
 
 export default function OTP() {
@@ -38,6 +37,31 @@ export default function OTP() {
     '',
     '',
   ]);
+
+  const [resendTimer, setResendTimer] = useState(300);
+  const [canResend, setCanResend] = useState(false);
+
+  useEffect(() => {
+    if (resendTimer <= 0) {
+      setCanResend(true);
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setResendTimer((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [resendTimer]);
+
+  const minutes = Math.floor(resendTimer / 60);
+  const seconds = resendTimer % 60;
+
+  const formattedTimer = `${minutes}:${seconds
+    .toString()
+    .padStart(2, "0")}`;
+
+  const [otpError, setOtpError] = useState('');
 
   const inputRefs = useRef<Array<TextInput | null>>([]);
 
@@ -56,27 +80,54 @@ export default function OTP() {
       params: {}
   });
 
+  // const handleOtpChange = (
+  //   value: string,
+  //   index: number
+  // ) => {
+  //   const numericValue = value.replace(/\D/g, '');
+
+  //   if (!numericValue) {
+  //     const updatedOtp = [...otp];
+  //     updatedOtp[index] = '';
+  //     setOtp(updatedOtp);
+  //     return;
+  //   }
+
+  //   const updatedOtp = [...otp];
+  //   updatedOtp[index] = numericValue.charAt(0);
+  //   setOtp(updatedOtp);
+
+  //   if (
+  //     index < 5 &&
+  //     numericValue.length > 0
+  //   ) {
+  //     inputRefs.current[index + 1]?.focus();
+  //   }
+  // };
+
   const handleOtpChange = (
     value: string,
     index: number
   ) => {
-    const numericValue = value.replace(/\D/g, '');
-
-    if (!numericValue) {
-      const updatedOtp = [...otp];
-      updatedOtp[index] = '';
-      setOtp(updatedOtp);
-      return;
+    // Clear previous validation error
+    if (otpError) {
+      setOtpError('');
     }
 
+  const numericValue = value.replace(/\D/g, '');
+
+  if (!numericValue) {
     const updatedOtp = [...otp];
+    updatedOtp[index] = '';
+    setOtp(updatedOtp);
+    return;
+  }
+
+  const updatedOtp = [...otp];
     updatedOtp[index] = numericValue.charAt(0);
     setOtp(updatedOtp);
 
-    if (
-      index < 5 &&
-      numericValue.length > 0
-    ) {
+    if (index < 5 && numericValue.length > 0) {
       inputRefs.current[index + 1]?.focus();
     }
   };
@@ -95,70 +146,65 @@ export default function OTP() {
   };
 
   const handlePress = () => {
-    const code = otp.join('');
+  const code = otp.join('');
 
-    if (!email || code.length !== 6) {
-      return;
-    }
+  // Clear previous error
+  setOtpError('');
 
-    verifyOtpMutation.mutate(
-      {
-        email,
-        code: code,
+  if (!email || code.length !== 6) {
+    setOtpError('Please enter the complete 6-digit code.');
+    return;
+  }
+
+  verifyOtpMutation.mutate(
+    {
+      email,
+      code,
+    },
+    {
+      onSuccess: async (response: any) => {
+        const res = response.data;
+
+        const session = {
+          token: res.token,
+          data: {
+            user_id: res.user.user_id,
+            email: res.user.email,
+            Profile: {
+              first_name:
+                res.user.Profile.first_name,
+              last_name:
+                res.user.Profile.last_name,
+            },
+            Role: {
+              name: res.user.role.name,
+              permission:
+                res.user.role.permission,
+            },
+            Organization: {
+              name:
+                res.user.organization.name,
+            },
+          },
+        };
+
+        await setSession(session);
+
+        setModal2Visible(true);
       },
-      {
 
-        onSuccess: async (response: any) => {
-            const res = response.data;
+      onError: (error) => {
+        console.log(
+          'Error verifying OTP:',
+          error.response?.data || error.message
+        );
 
-            const session = {
-                token: res.token,
-                data: {
-                    user_id: res.user.user_id,
-                    email: res.user.email,
-                    Profile: {
-                        first_name:
-                            res.user.Profile.first_name,
-                        last_name:
-                            res.user.Profile.last_name,
-                    },
-                    Role: {
-                        name: res.user.role.name,
-                        permission:
-                            res.user.role.permission,
-                    },
-                    Organization: {
-                        name:
-                            res.user.organization.name,
-                    },
-                },
-            };
+        setOtpError('The verification code is incorrect.');
+      },
+    }
+  );
+};
 
-            await setSession(session);
-
-            setModal2Visible(true);
-        },
-        onError: (data) => {
-          console.log('Error verifying OTP:', data);
-        }
-        // onSuccess: async (
-        //   response: VerifyOtpResponse
-        // ) => {
-        //   const accessToken =
-        //     response.data.accessToken;
-
-        //   const user = response.data.user;
-
-        //   await setSession(
-        //     accessToken,
-        //     user
-        //   );
-
-        //   setModal2Visible(true);
-        // },
-      }
-    );
-  };
 
   const handleSuccessfulLogin = () => {
     setModal2Visible(false);
@@ -166,6 +212,21 @@ export default function OTP() {
     setTimeout(() => {
       router.replace('/drawer/tabs/home');
     }, 100);
+  };
+
+  const handleResend = async () => {
+    if (!canResend) {
+      return;
+    }
+
+    try {
+      // Your resend API/function here
+
+      setResendTimer(300);
+      setCanResend(false);
+    } catch (error) {
+      console.log("Resend error:", error);
+    }
   };
 
   const emailChange = () => {
@@ -280,7 +341,7 @@ export default function OTP() {
                   },
                 ]}
               >
-                10 minutes.
+                5 minutes.
               </ThemedText>{' '}
               <ThemedText
                 style={styles.changeLink}
@@ -298,36 +359,38 @@ export default function OTP() {
                 >
                   <TextInput
                     ref={(ref) => {
-                      inputRefs.current[index] =
-                        ref;
+                      inputRefs.current[index] = ref;
                     }}
                     style={styles.otpInput}
                     keyboardType="number-pad"
                     maxLength={1}
                     value={digit}
                     onChangeText={(value) =>
-                      handleOtpChange(
-                        value,
-                        index
-                      )
+                      handleOtpChange(value, index)
                     }
                     onKeyPress={({ nativeEvent }) =>
-                      handleKeyPress(
-                        nativeEvent.key,
-                        index
-                      )
+                      handleKeyPress(nativeEvent.key, index)
                     }
-                    editable={
-                      !verifyOtpMutation.isPending
-                    }
+                    editable={!verifyOtpMutation.isPending}
                   />
                 </ThemedView>
               ))}
             </ThemedView>
 
-            <ThemedView
-              style={styles.otpInfoRow}
-            >
+            {otpError && (
+              <ThemedText
+                style={{
+                  marginTop: verticalScale(1),
+                  color: '#E20000',
+                  textAlign: 'center',
+                }}
+              >
+                {otpError}
+              </ThemedText>
+            )}
+
+
+            <ThemedView style={styles.otpInfoRow}>
               <ThemedText style={styles.resend}>
                 EXPIRES IN:{' '}
                 <ThemedText
@@ -338,18 +401,29 @@ export default function OTP() {
                     },
                   ]}
                 >
-                  10:00
+                  {formattedTimer}
                 </ThemedText>
               </ThemedText>
 
-              <ThemedText
-                style={styles.resend}
-                onPress={() =>
-                  setModal1Visible(true)
-                }
+              <TouchableOpacity
+                disabled={!canResend}
+                onPress={() => {
+                  handleResend();
+                  setModal1Visible(true);
+                }}
+                activeOpacity={0.7}
               >
-                RESEND CODE
-              </ThemedText>
+                <ThemedText
+                  style={[
+                    styles.resend,
+                    {
+                      opacity: canResend ? 1 : 0.4,
+                    },
+                  ]}
+                >
+                  RESEND CODE
+                </ThemedText>
+              </TouchableOpacity>
             </ThemedView>
 
             <ThemedView

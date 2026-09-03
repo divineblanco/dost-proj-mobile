@@ -11,12 +11,12 @@ import {
   View
 } from "react-native";
 
-export type MaterialType = "Article" | "Infographic" | "Catalog";
+export type MaterialType = "Article" | "Infographic" | "Catalogue";
 
 const OPTIONS: { key: MaterialType; icons: keyof typeof Ionicons.glyphMap}[] = [
   { key: "Article",     icons: "document-text-outline" },
   { key: "Infographic", icons: "image-outline" },
-  { key: "Catalog",     icons: "list-outline" },
+  { key: "Catalogue",     icons: "list-outline" },
 ];
 
 type Props = {

@@ -500,7 +500,7 @@ export function viewTrendsStyles (r: ResponsiveValues) {
   postFooter: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "flex-end",
     backgroundColor: "transparent",
   },
 

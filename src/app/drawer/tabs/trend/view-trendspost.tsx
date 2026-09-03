@@ -28,41 +28,38 @@ type Post = {
   platform: Exclude<Platform, "All">;
   content: string;
   date: string;
-  likes: string;
-  comments: string;
-  shares: string;
 };
 
 const MOCK_POSTS: Post[] = [
   {
     id: 1, platform: "Facebook",
     content: "Let's break the stigma. Regular testing is the first step toward a healthier community. Know your status today. 💙 #HIVAwareness",
-    date: "May 20, 2026", likes: "1.2k", comments: "84", shares: "320",
+    date: "May 20, 2026"
   },
   {
     id: 2, platform: "X",
     content: "HIV cases are rising — but so is awareness. Education and testing remain our strongest tools. #HIVAwareness #EndStigma",
-    date: "May 19, 2026", likes: "872", comments: "41", shares: "215",
+    date: "May 19, 2026"
   },
   {
     id: 3, platform: "Reddit",
     content: "PSA: Free HIV testing is available at most public health centers nationwide. No appointment needed. Please share this with friends.",
-    date: "May 18, 2026", likes: "634", comments: "59", shares: "88",
+    date: "May 18, 2026"
   },
   {
     id: 4, platform: "TikTok",
     content: "Did you know? Early detection of HIV leads to better health outcomes. Get tested, get informed. 💪 #HIVAwareness #GetTested",
-    date: "May 17, 2026", likes: "4.7k", comments: "213", shares: "890",
+    date: "May 17, 2026"
   },
   {
     id: 5, platform: "Facebook",
     content: "The Department of Health reminds everyone: HIV is preventable. Condom use, PrEP, and regular testing save lives. #HIVAwareness",
-    date: "May 16, 2026", likes: "2.1k", comments: "157", shares: "540",
+    date: "May 16, 2026"
   },
   {
     id: 6, platform: "X",
     content: "1 in 4 people living with HIV don't know their status. Let's change that. Normalize testing. #HIVAwareness",
-    date: "May 15, 2026", likes: "511", comments: "29", shares: "143",
+    date: "May 15, 2026"
   },
 ];
 
@@ -172,21 +169,6 @@ export default function ViewTrendsPost() {
                   <ThemedView style={styles.dateRow}>
                     <FontAwesome6 name="calendar-alt" size={icon(12)} color="#9BA8C0" />
                     <ThemedText style={styles.postDate}>{post.date}</ThemedText>
-                  </ThemedView>
-
-                  <ThemedView style={styles.statsRow}>
-                    <ThemedView style={styles.stat}>
-                      <FontAwesome6 name="heart" size={icon(13)} color="#9BA8C0" />
-                      <ThemedText style={styles.statTxt}>{post.likes}</ThemedText>
-                    </ThemedView>
-                    <ThemedView style={styles.stat}>
-                      <FontAwesome6 name="comment" size={icon(13)} color="#9BA8C0" />
-                      <ThemedText style={styles.statTxt}>{post.comments}</ThemedText>
-                    </ThemedView>
-                    <ThemedView style={styles.stat}>
-                      <FontAwesome6 name="share" size={icon(13)} color="#9BA8C0" />
-                      <ThemedText style={styles.statTxt}>{post.shares}</ThemedText>
-                    </ThemedView>
                   </ThemedView>
                 </ThemedView>
               </ThemedView>
