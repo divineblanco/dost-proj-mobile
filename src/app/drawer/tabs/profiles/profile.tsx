@@ -4,6 +4,7 @@ import MyDiscussions from "@/components/cards/my-discussions";
 import { SurveyCard } from "@/components/cards/profile-survey";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { useAuth } from '@/lib/auth/AuthProvider';
 import { profileStyles } from "@/styles/profile/profile-styles";
 import { icon, useResponsive } from "@/styles/responsive";
 import { Feather, Ionicons } from "@expo/vector-icons";
@@ -20,6 +21,21 @@ export default function Profile() {
   const r = useResponsive();
         
   const styles = useMemo(() => profileStyles(r), [r]);
+
+  const { clearSession } = useAuth();
+
+const handleLogout = async () => {
+  console.log("[LOGOUT] Logging out...");
+
+  await clearSession();
+
+  console.log("[LOGOUT] Session cleared");
+  console.log("[LOGOUT] Navigating to login...");
+
+  router.replace("/auth/login");
+};
+
+
   
   return (
     <ScrollView
@@ -97,7 +113,7 @@ export default function Profile() {
           <MyDiscussions/>
           <SurveyCard/>
 
-          <TouchableOpacity style={styles.logoutBtn} onPress={() => router.replace("/")}>
+          <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
             <Ionicons name="exit-outline" size={icon(25)} color="white"/>
             <ThemedText style={styles.logoutTxt}>Log Out</ThemedText>
           </TouchableOpacity>

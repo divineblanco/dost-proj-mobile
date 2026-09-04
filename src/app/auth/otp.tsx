@@ -6,7 +6,7 @@ import {
   Image,
   Platform,
   TextInput,
-  TouchableOpacity,
+  TouchableOpacity
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -105,14 +105,8 @@ export default function OTP() {
   //   }
   // };
 
-  const handleOtpChange = (
-    value: string,
-    index: number
-  ) => {
-    // Clear previous validation error
-    if (otpError) {
-      setOtpError('');
-    }
+  const handleOtpChange = (value: string, index: number) => {
+  if (otpError) setOtpError('');
 
   const numericValue = value.replace(/\D/g, '');
 
@@ -124,13 +118,15 @@ export default function OTP() {
   }
 
   const updatedOtp = [...otp];
-    updatedOtp[index] = numericValue.charAt(0);
-    setOtp(updatedOtp);
+  updatedOtp[index] = numericValue.charAt(0);
+  setOtp(updatedOtp);
 
-    if (index < 5 && numericValue.length > 0) {
-      inputRefs.current[index + 1]?.focus();
-    }
-  };
+  if (index < 5 && numericValue.length > 0) {
+    inputRefs.current[index + 1]?.focus();
+  } else if (index === 5) {
+    inputRefs.current[index]?.blur(); // ← last digit entered, drop focus
+  }
+};
 
   const handleKeyPress = (
     key: string,
@@ -163,35 +159,47 @@ export default function OTP() {
     },
     {
       onSuccess: async (response: any) => {
-        const res = response.data;
+  console.log("[OTP] API response:", response);
 
-        const session = {
-          token: res.token,
-          data: {
-            user_id: res.user.user_id,
-            email: res.user.email,
-            Profile: {
-              first_name:
-                res.user.Profile.first_name,
-              last_name:
-                res.user.Profile.last_name,
-            },
-            Role: {
-              name: res.user.role.name,
-              permission:
-                res.user.role.permission,
-            },
-            Organization: {
-              name:
-                res.user.organization.name,
-            },
-          },
-        };
+  const res = response.data;
 
-        await setSession(session);
+  console.log("[OTP] Response data:", res);
+  console.log("[OTP] Token:", res.token);
+  console.log("[OTP] User:", res.user);
 
-        setModal2Visible(true);
+  const session = {
+    token: res.token,
+    data: {
+      user_id: res.user.user_id,
+      email: res.user.email,
+      Profile: {
+        first_name: res.user.Profile.first_name,
+        last_name: res.user.Profile.last_name,
       },
+      Role: {
+        name: res.user.role.name,
+        permission: res.user.role.rolePermissions.map(
+          (rp: any) => rp.Permission.name
+        ),
+      },
+      Organization: {
+        name: res.user.organization.name,
+      },
+    },
+  };
+
+  console.log("[OTP] Session before saving:", session);
+
+  await setSession(session);
+
+  console.log("[OTP] Session saved successfully");
+
+  setModal2Visible(true);
+
+  console.log("[OTP] Success modal opened");
+},
+
+
 
       onError: (error) => {
         console.log(
@@ -206,13 +214,19 @@ export default function OTP() {
 };
 
 
-  const handleSuccessfulLogin = () => {
-    setModal2Visible(false);
+const handleSuccessfulLogin = () => {
+  console.log("[OTP] Sign In button tapped");
 
-    setTimeout(() => {
-      router.replace('/drawer/tabs/home');
-    }, 100);
-  };
+  setModal2Visible(false);
+
+  setTimeout(() => {
+    console.log("[OTP] Navigating to home...");
+
+    router.replace("/drawer/tabs/home");
+  }, 100);
+};
+
+
 
   const handleResend = async () => {
     if (!canResend) {
