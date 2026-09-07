@@ -19,6 +19,7 @@ import {
 
 import {
   Stack,
+  useGlobalSearchParams,
   usePathname,
 } from "expo-router";
 
@@ -47,6 +48,7 @@ function RootNavigation() {
   } = useAuth();
 
   const pathname = usePathname();
+  const params = useGlobalSearchParams();
 
 
   /*
@@ -83,9 +85,36 @@ useEffect(() => {
       );
   }
 
+    const queryParams = new URLSearchParams();
+
+  Object.entries(params).forEach(
+    ([key, value]) => {
+      if (value !== undefined && value !== null) {
+        queryParams.set(
+          key,
+          Array.isArray(value)
+            ? value[0]
+            : String(value)
+        );
+      }
+    }
+  );
+
+  const queryString =
+    queryParams.toString();
+
+  if (queryString) {
+    routeToSave = `${routeToSave}?${queryString}`;
+  }
+
   console.log(
     "[ROUTE] Actual pathname:",
     pathname
+  );
+
+  console.log(
+    "[ROUTE] Route params:",
+    params
   );
 
   console.log(
@@ -112,6 +141,7 @@ useEffect(() => {
 
 }, [
   pathname,
+  params,
   isAuthenticated,
   isLoading,
 ]);

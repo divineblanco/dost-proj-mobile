@@ -328,10 +328,10 @@ export function profileDropdownStyles (r: ResponsiveValues) {
   return StyleSheet.create({ 
     dropdownMenu: {
       position: "absolute",
-      top: "100%",
-      right: 0,
+      // top: "100%",
+      // right: 0,
       backgroundColor: "white",
-      padding: scale(10),
+      padding: scale(5),
       borderRadius: radius(8),
       elevation: 5,
       width: 
@@ -339,7 +339,7 @@ export function profileDropdownStyles (r: ResponsiveValues) {
         || isIPad || isIPadMini
         ? scale(120)
         : scale(160),
-      zIndex: 2,
+      zIndex: 999,
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.25,
       shadowRadius: 3.84,
@@ -350,23 +350,40 @@ export function profileDropdownStyles (r: ResponsiveValues) {
         : isTallFold
         ? verticalScale(195)
         : verticalScale(200),
-      marginTop: 
-        isIPad || isIPadMini || isCompactAndroid
-        || isAndroidTablet || isLargeIPad
-        ? verticalScale(-10)
-        : verticalScale(0)
+      // marginTop: 
+      //   isIPad || isIPadMini || isCompactAndroid
+      //   || isAndroidTablet || isLargeIPad
+      //   ? verticalScale(-10)
+      //   : verticalScale(0)
     },
+
+    modalOverlay: {
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: "transparent",
+    },
+
+    dropdown: {
+      width: "100%",
+    },
+
     dropdownItem: {
       flexDirection: "row",
-      gap: scale(5),
+      alignItems: "center",
+
+      paddingHorizontal: scale(14),
+      paddingVertical: verticalScale(10),
+
+      gap: scale(10),
+
+      backgroundColor: "#FFFFFF",
     },
+
     dropdownLabel: {
-      fontSize: font(13),
-      lineHeight: font(13),
-      fontWeight: "600",
-      paddingVertical: verticalScale(2),
+      color: "#35408E",
+      fontSize: font(14),
+      lineHeight: font(14),
+      fontWeight: "600"
     },
-    dropdown: {
-      padding: scale(5),
-    },
+
+
 })};

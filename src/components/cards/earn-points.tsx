@@ -24,12 +24,6 @@ const earnPointsData = [
     label: "Upload Media",
     points: "+20 pts",
   },
-  {
-    id: 4,
-    icon: <Ionicons name="location-outline" size={icon(15)} color="#1A1F5E" />,
-    label: "Add Resource Location",
-    points: "+25 pts",
-  },
 ];
 
 export default function EarnPointsCard() {

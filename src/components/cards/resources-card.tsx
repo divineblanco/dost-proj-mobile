@@ -120,7 +120,7 @@ export function ResourcesCard({ data }: ResourcesCardProps) {
                       pathname:
                         "/drawer/tabs/learn/resources-details",
                       params: {
-                        id: item.id,
+                        id: String(item.id),
                       },
                     })
                   }

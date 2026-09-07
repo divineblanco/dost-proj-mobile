@@ -11,10 +11,15 @@ import { resourcesData } from "./resource-data";
 
 export default function ResourceDetails() {
   const router = useRouter();
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const resource = resourcesData.find(
-    (item) => item.id === id
-  );
+  const { id } = useLocalSearchParams<{ id?: string | string[] }>();
+
+const resourceId = Array.isArray(id) ? id[0] : id;
+
+ console.log("[RESOURCE DETAILS] id:", resourceId);
+
+const resource = resourcesData.find(
+  (item) => String(item.id) === String(resourceId)
+);
 
   if (!resource) {
     return (
