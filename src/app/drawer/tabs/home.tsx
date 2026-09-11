@@ -165,12 +165,17 @@ export default function Home() {
                 Misinformation Alerts
               </ThemedText>
               <ThemedText style={styles.viewTxt} 
-                onPress={()=> router.push({
-                  pathname: "/drawer/tabs/contributions/contribute",
-                  params: {
-                    tab: "Misinformation",
-                  },
-                })}
+                onPress={() => {
+                  console.log('View All - Misinformation');
+
+                  router.push({
+                    pathname: '/drawer/tabs/contributions/contribute',
+                    params: {
+                      tab: 'Misinformation',
+                            refresh: Date.now().toString(),
+                    },
+                  });
+                }}
                 >
                 View All
               </ThemedText>

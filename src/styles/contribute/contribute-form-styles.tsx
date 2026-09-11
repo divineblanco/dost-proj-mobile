@@ -166,7 +166,7 @@ export function sharedFormStyles (r: ResponsiveValues) {
   questionRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: scale(10),
+    gap: scale(8),
     backgroundColor: 'transparent',
   },
 
@@ -193,7 +193,7 @@ export function sharedFormStyles (r: ResponsiveValues) {
     fontSize: 
       isLargeIPadLandscape || isIPadLandscape || isIPadMiniLandscape || isLargeIPadPortrait || isIPadPortrait || isAndroidTabletPortrait || isAndroidTabletLandscape
       ? font(15)
-      : font(14),
+      : font(13.5),
     fontWeight: '700',
     color: colors.primaryDark,
     flex: 1,
@@ -292,6 +292,30 @@ export function sharedFormStyles (r: ResponsiveValues) {
   required: {
     color: "#E53935",
     fontWeight: "700",
+  },
+
+  linkInput: {
+    backgroundColor: '#F0F3FA',
+    borderRadius: radius(10),
+    borderWidth: 1.5,
+    borderColor: colors.border,
+    padding: scale(14),
+    // more writing room on taller screens instead of a flat height
+    // that wastes available space, less on short screens so the
+    // submit button doesn't get pushed off-screen
+    height: isShortScreen
+      ? verticalScale(50)
+      : isLargeIPadLandscape || isIPadLandscape || isIPadMiniLandscape 
+      || isAndroidTabletLandscape || isNormalFold || isTallFold 
+      ? verticalScale(80)
+      : isLargeIPadPortrait || isIPadPortrait || isAndroidTabletPortrait
+      ? verticalScale(75)
+      : isTallScreen || isExtraTallScreen 
+      ? verticalScale(60)
+      : verticalScale(65),
+    fontSize: font(13),
+    color: colors.textBody,
+    lineHeight: spacing(20),
   },
 })};
 

@@ -428,7 +428,7 @@ export function profileStyles (r: ResponsiveValues) {
       isFold || isLargeIPad || isIPad
       || isIPadMini || isAndroidTablet
       ? font(15)
-      : font(12)
+      : font(14)
   },
 
   dateRow: {
@@ -617,5 +617,34 @@ export function profileStyles (r: ResponsiveValues) {
   drRowDivider: {
     height: verticalScale(1),
     backgroundColor: "#F0F2F8",
+  },
+
+  declineRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginTop: verticalScale(6),
+    backgroundColor: "transparent",
+  },
+
+  statDateRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: verticalScale(6),
+    backgroundColor: "transparent",
+    gap: scale(6),
+  },
+
+  noDisc: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: verticalScale(20),
+    backgroundColor: "transparent",
+  },
+
+  discLoad: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: verticalScale(20),
+    backgroundColor: "transparent",
   },
 })};

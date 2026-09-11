@@ -13,7 +13,7 @@ import {
 
 export type StatusFilterValue =
   | "All"
-  | "Verified"
+  | "Approved"
   | "Pending"
   | "Declined";
 
@@ -28,8 +28,8 @@ const STATUS_OPTIONS: {
     color: "#6B7690",
   },
   {
-    label: "Verified",
-    value: "Verified",
+    label: "Approved",
+    value: "Approved",
     color: "#1F9254",
   },
   {

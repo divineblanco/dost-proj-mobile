@@ -576,3 +576,216 @@ export function trendsFilterStyles (r: ResponsiveValues) {
       : verticalScale(200),
   },
 })};
+
+/* ============================================================
+    LANGUAGE FILTER
+============================================================ */
+
+export function languageFilterStyles (r: ResponsiveValues) {
+    const {
+      isCompactAndroid,
+      isFold,
+      isIPhone,
+      isLandscape,
+      isPortrait,
+      isLargePhone,
+      isNormalScreen,
+      isShortScreen,
+      isSmallPhone,
+      isExtraTallScreen,
+      isTablet,
+      isTallScreen,
+      isIPad,
+      isIPadMini,
+      isLargeIPad,
+  } = r;
+
+    const isTallFold = r.isFold && r.isTallScreen;
+    const isNormalFold = r.isFold && r.isNormalScreen;
+
+    const isAndroidTabletPortrait = r.isAndroidTablet && r.isPortrait;
+
+    const isAndroidTabletLandscape = r.isAndroidTablet && r.isLandscape;
+
+    const isIPadPortrait = r.isIPad && r.isPortrait;
+    const isIPadLandscape = r.isIPad && r.isLandscape;
+  
+    const isLargeIPadPortrait = r.isLargeIPad && r.isPortrait;
+    const isLargeIPadLandscape = r.isLargeIPad && r.isLandscape;
+  
+    const isIPadMiniPortrait = r.isIPadMini && r.isPortrait;
+    const isIPadMiniLandscape = r.isIPadMini && r.isLandscape;
+
+  return StyleSheet.create({
+
+  iconBtn: {
+    width: 
+      isLargeIPad || isIPad || isIPadMini
+      || isAndroidTablet
+      ? scale(25)
+      : scale(38),
+    height: 
+      isFold
+      ? verticalScale(65)
+      : verticalScale(38),
+    borderRadius: radius(8),
+    borderWidth: scale(1.5),
+    borderColor: "#E0E4F0",
+    backgroundColor: "#FFFFFF",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: scale(5),
+    position: "relative",
+  },
+
+  iconBtnActive: {
+    borderColor: "#C5CAE9",
+    backgroundColor: "#EEF0FA",
+  },
+
+  activeDot: {
+    position: "absolute",
+    top: 4,
+    right: 4,
+    width: 
+      isLargeIPad
+      ? scale(6)
+      : scale(7),
+    height: 
+      isLargeIPad
+      ? scale(6)
+      : scale(7),
+    borderRadius: radius(4),
+    backgroundColor: "#35408E",
+    borderWidth: scale(1.5),
+    borderColor: "#FFFFFF",
+  },
+
+  modalOverlay: {
+    flex: 1,
+  },
+
+  // dropdown: {
+  //   position: "absolute",
+  //   top: "100%",
+  //   width: scale(150),
+  //   backgroundColor: "#FFFFFF",
+  //   borderRadius: radius(12),
+  //   borderWidth: scale(1.5),
+  //   borderColor: "#E0E4F0",
+  //   paddingVertical: verticalScale(4),
+  //   shadowColor: "#1A1F5E",
+  //   shadowOffset: { width: 0, height: 6 },
+  //   shadowOpacity: 0.12,
+  //   shadowRadius: 12,
+  //   elevation: 10,
+  //   maxHeight: verticalScale(180)
+  // },
+
+  dropdownHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: scale(6),
+    paddingHorizontal: scale(14),
+    paddingVertical: verticalScale(8),
+  },
+
+  dropdownTitle: {
+    fontSize: font(12),
+    lineHeight: font(15),
+    fontWeight: "700",
+    color: "#35408E",
+    letterSpacing: 0.2,
+  },
+
+  clearTxt: {
+    fontSize: font(11),
+    lineHeight: font(11),
+    fontWeight: "600",
+    color: "#C62828",
+    textDecorationLine: "underline",
+  },
+
+  divider: {
+    height: verticalScale(1),
+    backgroundColor: "#F0F2F8",
+    marginHorizontal: scale(10),
+    marginBottom: verticalScale(4),
+  },
+
+  item: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: verticalScale(10),
+    paddingHorizontal: scale(14),
+    marginHorizontal: scale(4),
+    borderRadius: radius(8),
+  },
+
+  itemActive: {
+    backgroundColor: "#EEF0FA",
+  },
+
+  itemText: {
+    fontSize: font(13),
+    lineHeight: font(15),
+    color: "#374151",
+    flex: 1,
+  },
+
+  itemTextActive: {
+    color: "#35408E",
+    fontWeight: "700",
+  },
+
+  dropdown: {
+  position: "absolute",
+  backgroundColor: "#FFFFFF",
+  borderRadius: radius(12),
+
+  paddingVertical: verticalScale(6),
+
+  elevation: 5,
+
+  shadowOffset: {
+    width: 0,
+    height: 2,
+  },
+
+  shadowOpacity: 0.15,
+  shadowRadius: 5,
+
+  maxHeight: 
+    isFold
+    ? verticalScale(250)
+    : verticalScale(180),
+},
+
+option: {
+  minHeight: 
+    isFold
+    ? verticalScale(70)
+    : verticalScale(35),
+
+  paddingHorizontal: scale(14),
+
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "space-between",
+},
+
+optionSelected: {
+  backgroundColor: "#F1F3FA",
+},
+
+optionText: {
+  fontSize: scale(11),
+  lineHeight: font(15)
+},
+
+optionTextSelected: {
+  color: "#35408E",
+  fontWeight: "600",
+},
+})};

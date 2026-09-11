@@ -282,7 +282,10 @@ export function viewTrendsStyles (r: ResponsiveValues) {
     borderRadius: radius(12),
     borderWidth: scale(1.5),
     borderColor: "#E0E4F0",
-    padding: scale(14),
+    padding: 
+      isFold
+      ? scale(8)
+      : scale(14),
     shadowColor: "#35408E",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.07,
@@ -393,7 +396,7 @@ export function viewTrendsStyles (r: ResponsiveValues) {
   },
 
   filterScroll: {
-    gap: scale(8),
+    gap: scale(4),
     paddingRight: scale(16),
   },
 
@@ -402,11 +405,14 @@ export function viewTrendsStyles (r: ResponsiveValues) {
     alignItems: "center",
     gap: scale(5),
     paddingHorizontal: scale(12),
-    paddingVertical: verticalScale(7),
+    paddingVertical: 
+      isFold
+      ? verticalScale(15)
+      : verticalScale(7),
     borderRadius: radius(20),
     borderWidth: scale(1.5),
     borderColor: "#E0E4F0",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFFFFi",
   },
 
   filterLabel: {
@@ -429,7 +435,7 @@ export function viewTrendsStyles (r: ResponsiveValues) {
   scrollContent: {
     paddingHorizontal: scale(16),
     paddingBottom: 
-      isCompactAndroid
+      isCompactAndroid || isFold
       ? verticalScale(150)
       : verticalScale(100),
     gap: scale(12),
@@ -539,5 +545,68 @@ export function viewTrendsStyles (r: ResponsiveValues) {
     color: "#9BA8C0",
     fontWeight: "500",
     lineHeight: font(11)
+  },
+
+  filterRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 
+      isFold
+      ? scale(7)
+      : scale(10),
+    paddingHorizontal: scale(15)
+  },
+
+  platformScrollView: {
+    flex: 1,
+  },
+
+  separator: {
+    width: scale(1),
+    height: verticalScale(24),
+    backgroundColor: "#E0E4F0",
+    marginHorizontal: scale(8),
+  },
+
+  langPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: scale(4),
+    backgroundColor: "#F0F2F8",
+    paddingHorizontal: scale(8),
+    paddingVertical: 
+      isFold
+      ? verticalScale(8)
+      : verticalScale(3),
+    borderRadius: radius(20),
+  },
+
+  langPillTxt: {
+    fontSize: font(11),
+    lineHeight: font(13),
+    color: "#9BA8C0",
+    fontWeight: "500",
+  },
+
+  emptyState: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: verticalScale(60),
+    gap: scale(10),
+  },
+
+  emptyTxt: {
+    fontSize: font(13),
+    lineHeight: font(13),
+    color: "#9BA8C0",
+    fontWeight: "500",
+  },
+
+  clearAllTxt: {
+    fontSize: font(12),
+    lineHeight: font(12),
+    color: "#35408E",
+    fontWeight: "600",
+    textDecorationLine: "underline",
   },
 })};

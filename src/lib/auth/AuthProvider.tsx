@@ -220,19 +220,19 @@
 // }
 
 import React, {
-    createContext,
-    ReactNode,
-    useCallback,
-    useContext,
-    useEffect,
-    useMemo,
-    useState,
+  createContext,
+  ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
 } from "react";
 
 import {
-    getStorageItem,
-    removeStorageItem,
-    setStorageItem,
+  getStorageItem,
+  removeStorageItem,
+  setStorageItem,
 } from "./storage.native";
 
 export interface AuthSession {

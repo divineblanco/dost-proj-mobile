@@ -216,7 +216,7 @@ import {
   MaterialTopTabBarProps,
 } from '@react-navigation/material-top-tabs';
 
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 
 import React, {
   useEffect,
@@ -481,8 +481,12 @@ function MyTabBar({
   state,
   descriptors,
   navigation,
-}: MaterialTopTabBarProps) {
-
+  onNavigationReady,
+}: MaterialTopTabBarProps & {
+  onNavigationReady: (
+    navigation: MaterialTopTabBarProps['navigation']
+  ) => void;
+}) {
   const r = useResponsive();
 
   const styles = useMemo(
@@ -490,34 +494,19 @@ function MyTabBar({
     [r]
   );
 
-
-  /*
-   * -------------------------------------------------------
-   * TAB PRESS
-   * -------------------------------------------------------
-   *
-   * This saves the INNER tab.
-   *
-   * It does NOT create an Expo Router route.
-   *
-   * The actual Expo Router route remains:
-   *
-   * /drawer/tabs/contributions/contribute
-   *
-   */
+  React.useEffect(() => {
+    onNavigationReady(navigation);
+  }, [navigation, onNavigationReady]);
 
   const handleTabPress = async (
     tabName: ContributeTab
   ) => {
-
     console.log(
       '[CONTRIBUTE] User selected tab:',
       tabName
     );
 
-
     try {
-
       await setStorageItem(
         CONTRIBUTE_TAB_KEY,
         tabName
@@ -527,93 +516,65 @@ function MyTabBar({
         '[CONTRIBUTE] Tab saved:',
         tabName
       );
-
     } catch (error) {
-
       console.log(
         '[CONTRIBUTE] Failed to save tab:',
         error
       );
-
     }
 
-
-    /*
-     * Navigate inside the Material Top Tab
-     * navigator.
-     */
-
-    navigation.navigate(
-      tabName
-    );
+    navigation.navigate(tabName);
   };
 
-
   return (
-    <View
-      style={styles.tabBar}
-    >
+    <View style={styles.tabBar}>
+      {state.routes.map((route, index) => {
+        const { options } =
+          descriptors[route.key];
 
-      {state.routes.map(
-        (route, index) => {
+        const isFocused =
+          state.index === index;
 
-          const {
-            options,
-          } = descriptors[route.key];
+        const label =
+          typeof options.tabBarLabel === 'string'
+            ? options.tabBarLabel
+            : typeof options.title === 'string'
+            ? options.title
+            : route.name;
 
-
-          const isFocused =
-            state.index === index;
-
-
-          const label =
-            typeof options.tabBarLabel === 'string'
-              ? options.tabBarLabel
-              : typeof options.title === 'string'
-                ? options.title
-                : route.name;
-
-
-          return (
-            <PlatformPressable
-              key={route.key}
-              onPress={() =>
-                handleTabPress(
-                  route.name as ContributeTab
-                )
-              }
+        return (
+          <PlatformPressable
+            key={route.key}
+            onPress={() =>
+              handleTabPress(
+                route.name as ContributeTab
+              )
+            }
+            style={[
+              styles.tabItem,
+              isFocused &&
+                styles.tabItemActive,
+            ]}
+          >
+            <Animated.Text
               style={[
-                styles.tabItem,
-                isFocused &&
-                  styles.tabItemActive,
+                styles.tabLabel,
+                isFocused
+                  ? styles.tabLabelActive
+                  : styles.tabLabelInactive,
               ]}
             >
+              {label}
+            </Animated.Text>
 
-              <Animated.Text
-                style={[
-                  styles.tabLabel,
-                  isFocused
-                    ? styles.tabLabelActive
-                    : styles.tabLabelInactive,
-                ]}
-              >
-                {label}
-              </Animated.Text>
-
-
-              {isFocused && (
-                <View
-                  style={
-                    styles.tabIndicator
-                  }
-                />
-              )}
-
-            </PlatformPressable>
-          );
-        }
-      )}
-
+            {isFocused && (
+              <View
+                style={styles.tabIndicator}
+              />
+            )}
+          </PlatformPressable>
+        );
+      })}
     </View>
   );
 }
@@ -623,16 +584,13 @@ function MyTabBar({
    MATERIAL TOP TAB NAVIGATOR
 ========================================================= */
 
-const Tab =
-  createMaterialTopTabNavigator();
-
+const Tab = createMaterialTopTabNavigator();
 
 /* =========================================================
    MAIN CONTRIBUTE SCREEN
 ========================================================= */
 
 export default function Contribute() {
-
   const r = useResponsive();
 
   const styles = useMemo(
@@ -640,147 +598,212 @@ export default function Contribute() {
     [r]
   );
 
+  const {
+    tab,
+    refresh,
+  } = useLocalSearchParams<{
+    tab?: string;
+    refresh?: string;
+  }>();
+
+  const [savedTab, setSavedTab] =
+    useState<ContributeTab>(
+      'Contributions'
+    );
+
+  const [isTabLoaded, setIsTabLoaded] =
+    useState(false);
+
+  const tabNavigationRef =
+    React.useRef<
+      MaterialTopTabBarProps['navigation'] | null
+    >(null);
 
   /*
-   * -------------------------------------------------------
-   * SAVED TAB
-   * -------------------------------------------------------
+   * ----------------------------------------------------------
+   * SAVE TAB NAVIGATION REFERENCE
+   * ----------------------------------------------------------
+   */
+  const handleNavigationReady =
+    React.useCallback(
+      (
+        navigation: MaterialTopTabBarProps['navigation']
+      ) => {
+        console.log(
+          '[CONTRIBUTE] Tab navigation ready'
+        );
+
+        tabNavigationRef.current =
+          navigation;
+      },
+      []
+    );
+
+  /*
+   * ----------------------------------------------------------
+   * LOAD PERSISTENT TAB
+   * ----------------------------------------------------------
    *
-   * Default is Contributions.
+   * If Home sends:
+   *
+   * tab=Misinformation
+   *
+   * that request takes priority over the saved tab.
+   *
+   * Otherwise, restore the previously saved tab.
    */
-
-  const [
-    savedTab,
-    setSavedTab,
-  ] = useState<ContributeTab>(
-    'Contributions'
-  );
-
-
-  /*
-   * -------------------------------------------------------
-   * STORAGE LOADING
-   * -------------------------------------------------------
-   */
-
-  const [
-    isTabLoaded,
-    setIsTabLoaded,
-  ] = useState(false);
-
-
-  /* =======================================================
-     LOAD PREVIOUS TAB
-  ======================================================= */
-
   useEffect(() => {
-
     let mounted = true;
 
+    const loadSavedTab = async () => {
+      try {
+        console.log(
+          '[CONTRIBUTE] Loading saved tab...'
+        );
 
-    const loadSavedTab =
-      async () => {
-
-        try {
-
+        /*
+         * HOME VIEW ALL REQUEST
+         *
+         * Do NOT change persistent storage here.
+         * This is only an explicit navigation request.
+         */
+        if (tab === 'Misinformation') {
           console.log(
-            '[CONTRIBUTE] Loading saved tab...'
+            '[CONTRIBUTE] Home requested Misinformation'
           );
 
-
-          const storedTab =
-            await getStorageItem(
-              CONTRIBUTE_TAB_KEY
-            );
-
-
-          console.log(
-            '[CONTRIBUTE] Stored tab:',
-            storedTab
-          );
-
-
-          if (!mounted) {
-            return;
-          }
-
-
-          /*
-           * Validate the stored tab.
-           */
-
-          if (
-            storedTab ===
-            'Misinformation'
-          ) {
-
-            console.log(
-              '[CONTRIBUTE] Restoring Misinformation'
-            );
-
+          if (mounted) {
             setSavedTab(
               'Misinformation'
             );
-
-          } else {
-
-            console.log(
-              '[CONTRIBUTE] Restoring Contributions'
-            );
-
-            setSavedTab(
-              'Contributions'
-            );
-
           }
 
-        } catch (error) {
-
-          console.log(
-            '[CONTRIBUTE] Error loading saved tab:',
-            error
-          );
-
-
-          if (mounted) {
-
-            setSavedTab(
-              'Contributions'
-            );
-
-          }
-
-        } finally {
-
-          if (mounted) {
-
-            setIsTabLoaded(
-              true
-            );
-
-          }
-
+          return;
         }
 
-      };
+        /*
+         * NORMAL CONTRIBUTE NAVIGATION
+         *
+         * Restore the persistent tab.
+         */
+        const storedTab =
+          await getStorageItem(
+            CONTRIBUTE_TAB_KEY
+          );
 
+        console.log(
+          '[CONTRIBUTE] Stored tab:',
+          storedTab
+        );
+
+        if (!mounted) {
+          return;
+        }
+
+        if (
+          storedTab === 'Misinformation'
+        ) {
+          console.log(
+            '[CONTRIBUTE] Restoring Misinformation'
+          );
+
+          setSavedTab(
+            'Misinformation'
+          );
+        } else {
+          console.log(
+            '[CONTRIBUTE] Restoring Contributions'
+          );
+
+          setSavedTab(
+            'Contributions'
+          );
+        }
+      } catch (error) {
+        console.log(
+          '[CONTRIBUTE] Error loading saved tab:',
+          error
+        );
+
+        if (mounted) {
+          setSavedTab(
+            'Contributions'
+          );
+        }
+      } finally {
+        if (mounted) {
+          setIsTabLoaded(true);
+        }
+      }
+    };
 
     loadSavedTab();
-
 
     return () => {
       mounted = false;
     };
+  }, [tab]);
 
-  }, []);
+  /*
+   * ----------------------------------------------------------
+   * EXPLICIT HOME NAVIGATION
+   * ----------------------------------------------------------
+   *
+   * This is what fixes the problem.
+   *
+   * Even if the Contribute page is already mounted and the
+   * user previously switched to Contributions, clicking
+   * Home -> View All will explicitly navigate to
+   * Misinformation again.
+   */
+  useEffect(() => {
+    if (
+      !isTabLoaded ||
+      tab !== 'Misinformation'
+    ) {
+      return;
+    }
 
+    console.log(
+      '[CONTRIBUTE] Explicit Misinformation request'
+    );
 
-  /* =======================================================
-     WAIT FOR STORAGE
-  ======================================================= */
+    const timer = setTimeout(() => {
+      const navigation =
+        tabNavigationRef.current;
 
+      if (!navigation) {
+        console.log(
+          '[CONTRIBUTE] Tab navigation not ready'
+        );
+
+        return;
+      }
+
+      console.log(
+        '[CONTRIBUTE] Navigating to Misinformation'
+      );
+
+      navigation.navigate(
+        'Misinformation'
+      );
+    }, 100);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [
+    tab,
+    refresh,
+    isTabLoaded,
+  ]);
+
+  /*
+   * ----------------------------------------------------------
+   * WAIT FOR PERSISTENT TAB TO LOAD
+   * ----------------------------------------------------------
+   */
   if (!isTabLoaded) {
-
     return (
       <View
         style={{
@@ -790,33 +813,28 @@ export default function Contribute() {
         }}
       />
     );
-
   }
 
-
-  /* =======================================================
-     RENDER TAB NAVIGATOR
-  ======================================================= */
-
+  /*
+   * ----------------------------------------------------------
+   * MATERIAL TOP TAB NAVIGATOR
+   * ----------------------------------------------------------
+   */
   return (
     <View
-      style={
-        styles.pageContainerPlain
-      }
+      style={styles.pageContainerPlain}
     >
-
       <Tab.Navigator
-        initialRouteName={
-          savedTab
-        }
-
+        initialRouteName={savedTab}
         tabBar={(props) => (
           <MyTabBar
             {...props}
+            onNavigationReady={
+              handleNavigationReady
+            }
           />
         )}
       >
-
         <Tab.Screen
           name="Contributions"
           component={
@@ -830,9 +848,7 @@ export default function Contribute() {
             MisinformationScreen
           }
         />
-
       </Tab.Navigator>
-
     </View>
   );
 }
