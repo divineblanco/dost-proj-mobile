@@ -1,4 +1,7 @@
-// src/lib/services/geomApi.ts
+import {
+  API_KEY_VALUE,
+  API_URL,
+} from "@/lib/services/api";
 
 export type GeomItem = {
   id: string | number;
@@ -28,15 +31,29 @@ type WrappedApiResponse<T> = {
   };
 };
 
-const API_URL = "http://localhost:4000/maintenance/geospatial";
+/**
+ * Base geospatial API URL.
+ *
+ * API_URL automatically handles:
+ *
+ * iOS:
+ * http://localhost:4000
+ *
+ * Android Emulator:
+ * http://10.0.2.2:4000
+ *
+ * Then we add:
+ *
+ * /maintenance/geospatial
+ */
+const GEOM_API_URL =
+  `${API_URL}/maintenance/geospatial`;
 
 /**
  * Generic API request.
  *
- * IMPORTANT:
- * Your Express responseWrapperMiddleware wraps the controller response.
- *
- * Actual response:
+ * Your Express responseWrapperMiddleware
+ * returns:
  *
  * {
  *   data: {
@@ -53,23 +70,42 @@ const API_URL = "http://localhost:4000/maintenance/geospatial";
 async function apiRequest<T>(
   endpoint: string,
 ): Promise<T> {
-  const url = `${API_URL}${endpoint}`;
+  const url =
+    `${GEOM_API_URL}${endpoint}`;
 
-  console.log("Geom API request:", url);
+  console.log(
+    "[GEOM API] Request:",
+    url,
+  );
 
   try {
-    const response = await fetch(url);
+    const response =
+      await fetch(url, {
+        method: "GET",
 
-    const responseText = await response.text();
+        headers: {
+          Accept:
+            "application/json",
+
+          "Content-Type":
+            "application/json",
+
+          "X-API-Key":
+            API_KEY_VALUE,
+        },
+      });
+
+    const responseText =
+      await response.text();
 
     console.log(
-      "Geom API status:",
+      "[GEOM API] Status:",
       response.status,
     );
 
     if (!response.ok) {
       console.error(
-        "Geom API error:",
+        "[GEOM API] Error:",
         responseText,
       );
 
@@ -78,10 +114,14 @@ async function apiRequest<T>(
       );
     }
 
-    let json: WrappedApiResponse<T>;
+    let json:
+      WrappedApiResponse<T>;
 
     try {
-      json = JSON.parse(responseText);
+      json =
+        JSON.parse(
+          responseText,
+        );
     } catch {
       throw new Error(
         `Invalid JSON response from API: ${responseText}`,
@@ -89,17 +129,18 @@ async function apiRequest<T>(
     }
 
     console.log(
-      "Geom API response:",
+      "[GEOM API] Response:",
       JSON.stringify(json),
     );
 
     /**
-     * The responseWrapperMiddleware creates:
+     * responseWrapperMiddleware creates:
      *
      * json.data.success
      * json.data.data
      */
-    const controllerResponse = json.data;
+    const controllerResponse =
+      json.data;
 
     if (!controllerResponse) {
       throw new Error(
@@ -107,7 +148,9 @@ async function apiRequest<T>(
       );
     }
 
-    if (!controllerResponse.success) {
+    if (
+      !controllerResponse.success
+    ) {
       throw new Error(
         "API returned success: false",
       );
@@ -116,7 +159,7 @@ async function apiRequest<T>(
     return controllerResponse.data;
   } catch (error) {
     console.error(
-      "Geom API request failed:",
+      "[GEOM API] Request failed:",
       error,
     );
 

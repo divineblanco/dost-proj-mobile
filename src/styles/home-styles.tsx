@@ -852,6 +852,7 @@ export function misinformationCardStyles (r: ResponsiveValues) {
       ? "100%" 
       : undefined,
     alignSelf: isTablet ? "center" : "stretch",
+    marginBottom: verticalScale(10)
   },
 
   redLine: {

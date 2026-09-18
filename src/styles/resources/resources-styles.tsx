@@ -257,7 +257,13 @@ export function resourceDetailsStyles (r: ResponsiveValues) {
     paddingTop: 
       isFold
       ? verticalScale(50)
-      : verticalScale(15),
+      : verticalScale(10),
+    paddingBottom: 
+      isCompactAndroid
+      ? verticalScale(135)
+      : isFold
+      ? verticalScale(150)
+      : verticalScale(150),
   },
 
   pillContainer: {
@@ -310,13 +316,13 @@ export function resourceDetailsStyles (r: ResponsiveValues) {
   },
 
   description: {
-    fontSize: font(15),
+    fontSize: font(13),
     color: colors.textMuted,
-    lineHeight: font(22),
+    lineHeight: font(20),
   },
 
   divider: {
-    height: verticalScale(1),
+    height: verticalScale(2),
     backgroundColor: colors.borderLight,
     marginVertical: verticalScale(20),
   },
@@ -374,4 +380,79 @@ export function resourceDetailsStyles (r: ResponsiveValues) {
     color: colors.primary,
     lineHeight: font(15)
   },
+
+  previewContainer: {
+  width: "100%",
+  alignItems: "center",
+  marginTop: verticalScale(8),
+},
+
+previewImage: {
+  backgroundColor: "#F5F5F5",
+  borderRadius: radius(8),
+},
+
+pageController: {
+  width: "100%",
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "space-between",
+  backgroundColor: "#35408E",
+  borderBottomLeftRadius: radius(8),
+  borderBottomRightRadius: radius(8),
+  paddingHorizontal: scale(10),
+  paddingVertical: verticalScale(8),
+},
+
+pageButton: {
+  flexDirection: "row",
+  alignItems: "center",
+  gap: scale(4),
+  paddingHorizontal: scale(8),
+  paddingVertical: verticalScale(6),
+},
+
+pageButtonDisabled: {
+  opacity: 0.5,
+},
+
+pageButtonText: {
+  color: "white",
+  fontSize: font(13),
+  lineHeight: font(13),
+  fontWeight: "600",
+},
+
+pageButtonTextDisabled: {
+  color: "#BDBDBD",
+},
+
+pageIndicator: {
+  color: "white",
+  fontSize: font(13),
+  lineHeight: font(13),
+  fontWeight: "600",
+},
+
+emptyPreview: {
+  paddingVertical: verticalScale(30),
+  alignItems: "center",
+},
+
+emptyPreviewText: {
+  marginTop: verticalScale(10),
+  textAlign: "center",
+  color: "#777",
+},
+
+contentWrapper: {
+  width: "100%",
+},
+
+noContentText: {
+  color: "#777",
+  fontSize: font(16),
+  lineHeight: font(16)
+},
+
 })};

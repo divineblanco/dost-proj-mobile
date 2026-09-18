@@ -684,7 +684,7 @@ type CreateContributionPayload = {
   content: string;
   type: string;
 
-  classification: "PENDING";
+  classification: "FACTUAL";
   classification_method: "MANUAL";
   status: "PENDING";
 
@@ -1134,7 +1134,7 @@ export default function AddContribute() {
     type: selectedType,
 
     classification:
-      "PENDING",
+      "FACTUAL",
 
     classification_method:
       "MANUAL",
@@ -1157,10 +1157,11 @@ export default function AddContribute() {
     user_id:
       user.user_id,
 
-    source_url:
-      sourceUrl.trim()
-        ? sourceUrl.trim()
-        : null,
+    ...(sourceUrl.trim()
+      ? {
+          source_url: sourceUrl.trim(),
+        }
+      : {}),
   };
 
 

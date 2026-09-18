@@ -284,7 +284,7 @@ export function contributionsCardStyles(r: ResponsiveValues) {
       ? font(13)
       : isLargeIPadLandscape || isIPadLandscape || isAndroidTabletLandscape
       ? font(15)
-      : font(11)
+      : font(14)
   },
 
   divider: {
@@ -310,6 +310,26 @@ export function contributionsCardStyles(r: ResponsiveValues) {
       : spacing(18),
     color: colors.primary,
     textAlign: 'justify',
+  },
+
+  sourceLink: {
+    fontSize: font(12),
+    lineHeight: font(12),
+    color: colors.primary, // or a dedicated link color if you have one
+    textDecorationLine: 'underline',
+  },
+
+  sourceLinkRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: scale(4),
+    marginTop: verticalScale(6),
+    alignSelf: 'flex-start',
+  },
+
+  metaItemShrink: {
+    flexShrink: 1,
+    minWidth: 0, // needed on web/RN-web so flexShrink actually applies to text; harmless on native
   },
 })};
 
@@ -522,7 +542,7 @@ export function misinformationPostStyles(r: ResponsiveValues) {
     gap: scale(8),
     backgroundColor: 'transparent',
     paddingHorizontal: scale(14),
-    paddingTop: 
+    paddingVertical: 
       isNormalFold || isTallFold || isIPadLandscape || isIPadMiniLandscape || isAndroidTabletLandscape
       ? verticalScale(20)
       : isLargeIPadPortrait || isIPadPortrait || isAndroidTabletPortrait
@@ -560,12 +580,12 @@ export function misinformationPostStyles(r: ResponsiveValues) {
       : 1,
     backgroundColor: colors.borderLight,
     marginHorizontal: scale(14),
-    marginTop: 
-      isNormalFold || isTallFold || isLargeIPadLandscape || isIPadLandscape || isIPadMiniLandscape 
-      ? verticalScale(20)
-      : isLargeIPadPortrait || isIPadPortrait
-      ? verticalScale(15)
-      : verticalScale(12),
+    // marginTop: 
+    //   isNormalFold || isTallFold || isLargeIPadLandscape || isIPadLandscape || isIPadMiniLandscape 
+    //   ? verticalScale(20)
+    //   : isLargeIPadPortrait || isIPadPortrait
+    //   ? verticalScale(15)
+    //   : verticalScale(12),
   },
 
   titleText: {
@@ -607,16 +627,16 @@ export function misinformationPostStyles(r: ResponsiveValues) {
       : spacing(18),
     color: colors.primary,
     paddingHorizontal: scale(14),
-    paddingBottom: 
-      isLargeIPadLandscape || isIPadLandscape || isIPadMiniLandscape || isAndroidTabletLandscape
-      ? verticalScale(30)
-      : isNormalFold || isTallFold || isLargeIPadPortrait || isIPadPortrait || isAndroidTabletPortrait
-      ? verticalScale(20)
-      : verticalScale(14),
+    // paddingBottom: 
+    //   isLargeIPadLandscape || isIPadLandscape || isIPadMiniLandscape || isAndroidTabletLandscape
+    //   ? verticalScale(30)
+    //   : isNormalFold || isTallFold || isLargeIPadPortrait || isIPadPortrait || isAndroidTabletPortrait
+    //   ? verticalScale(20)
+    //   : verticalScale(14),
   },
 
   titlePostWrap: {
-    gap: scale(4),
+    paddingVertical: verticalScale(10),
     backgroundColor: 'transparent',
   },
 })};
@@ -1043,5 +1063,68 @@ export function sharedFilterStyles(r: ResponsiveValues) {
       isTallScreen || isExtraTallScreen
         ? verticalScale(260)
         : verticalScale(200),
+  },
+
+  filterCalendarRangeContainer: {
+    backgroundColor: colors.white,
+    borderRadius: radius(12),
+    paddingVertical: isCompactAndroid ? scale(2) : scale(10),
+    paddingHorizontal: isCompactAndroid ? scale(4) : scale(8),
+    marginTop:
+      isLargeIPadLandscape
+      ? verticalScale(145)
+      : isIPadMiniPortrait || isIPadMiniLandscape
+      ? verticalScale(75)
+      : isIPadPortrait
+      ? verticalScale(80)
+      : isIPadLandscape || isLargeIPadPortrait
+      ? verticalScale(85)
+      : isCompactAndroid
+      ? verticalScale(80)
+      : verticalScale(60),
+    width: 'auto',
+    position: 'absolute',
+    zIndex: 999,
+    elevation: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4.5,
+    // safety net: caps total height on compact Android so it can
+    // never run off-screen — content scrolls instead of clipping
+    maxHeight: isCompactAndroid ? verticalScale(500) : "auto",
+  },
+
+  filterCalendarRangeHeader: {
+    textAlign: 'center',
+    color: colors.primary,
+    paddingBottom: isCompactAndroid ? verticalScale(2) : verticalScale(6),
+    marginBottom: isCompactAndroid ? verticalScale(2) : verticalScale(4),
+    borderBottomWidth: 1,
+    borderBottomColor: '#EEEEEE',
+  },
+
+  filterCalendarRangeFooter: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: isCompactAndroid ? verticalScale(0) : verticalScale(5),
+    paddingHorizontal: scale(4),
+  },
+
+  filterCalendarRangeSummary: {
+    color: colors.primary,
+    flexShrink: 1,
+  },
+
+  filterCalendarRangeCloseButton: {
+    paddingVertical: verticalScale(6),
+    paddingHorizontal: scale(18),
+    borderRadius: radius(20),
+    backgroundColor: colors.primary,
+  },
+
+  filterCalendarRangeCloseText: {
+    color: colors.white,
   },
 })};

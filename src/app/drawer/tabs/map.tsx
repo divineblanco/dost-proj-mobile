@@ -1,146 +1,369 @@
 import MapDropdown from "@/components/dropdown/map-region-dropdown";
 import MapFilterDrawer from "@/components/filters/mapfilter-drawer";
-import { provinceCoordinates } from "@/components/province-coordinates";
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
+import { ThemedText } from "@/components/themed-text";
+import { ThemedView } from "@/components/themed-view";
+import { API_KEY_VALUE, API_URL } from "@/lib/services/api";
 import { mapStyles } from "@/styles/map-styles";
-import { font, useResponsive } from "@/styles/responsive";
-import { Ionicons } from '@expo/vector-icons';
-import { Camera, CameraRef, Map as MalibreMap } from "@maplibre/maplibre-react-native";
-import * as Device from 'expo-device';
-import React, { useMemo, useRef, useState } from 'react';
-import { Animated, Linking, Platform, ScrollView, TouchableOpacity } from 'react-native';
+import { font, icon, scale, useResponsive, verticalScale } from "@/styles/responsive";
+import { Ionicons } from "@expo/vector-icons";
+import type { FilterSpecification } from "@maplibre/maplibre-react-native";
+import {
+  Camera,
+  CameraRef,
+  GeoJSONSource,
+  Layer,
+  Map as MapLibreMap,
+} from "@maplibre/maplibre-react-native";
+import type {
+  Feature,
+  FeatureCollection,
+  GeoJsonProperties,
+  Geometry,
+} from "geojson";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  ActivityIndicator,
+  Animated,
+  Linking,
+  ScrollView,
+  TouchableOpacity,
+  View
+} from "react-native";
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
+// const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "";
+const MAP_STYLE_URL = process.env.EXPO_PUBLIC_AWS_MAP_STYLE_URL ?? "";
+
+type GeoFeature = Feature<Geometry, GeoJsonProperties>;
+type GeoCollection = FeatureCollection<Geometry, GeoJsonProperties>;
+type Province = { code: string; name: string; bounds?: any };
+type Region = { region_code: string; region_name: string; bounds?: any; provinces?: Province[] };
+type GeoData = {
+  regions: GeoCollection;
+  provinces: GeoCollection;
+  municipalities: GeoCollection;
+  barangays: GeoCollection;
+};
+
+const EMPTY: GeoCollection = { type: "FeatureCollection", features: [] };
+
+function coords(g: Geometry | null): number[][] {
+  if (!g) return [];
+  switch (g.type) {
+    case "Point": return [g.coordinates];
+    case "MultiPoint": return g.coordinates;
+    case "LineString": return g.coordinates;
+    case "MultiLineString": return g.coordinates.flat();
+    case "Polygon": return g.coordinates.flat();
+    case "MultiPolygon": return g.coordinates.flat(2);
+    case "GeometryCollection": return g.geometries.flatMap(coords);
+    default: return [];
   }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
-  return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
+}
+
+function center(g: Geometry | null): [number, number] | null {
+  const c = coords(g).filter(x => Number.isFinite(+x[0]) && Number.isFinite(+x[1]));
+  if (!c.length) return null;
+  const lng = c.map(x => +x[0]), lat = c.map(x => +x[1]);
+  return [(Math.min(...lng) + Math.max(...lng)) / 2, (Math.min(...lat) + Math.max(...lat)) / 2];
+}
+
+function bounds(g: Geometry | null): [number, number, number, number] | null {
+  const c = coords(g).filter(x => Number.isFinite(+x[0]) && Number.isFinite(+x[1]));
+  if (!c.length) return null;
+  const lng = c.map(x => +x[0]), lat = c.map(x => +x[1]);
+  return [Math.min(...lng), Math.min(...lat), Math.max(...lng), Math.max(...lat)];
+}
+
+function nameOf(f: GeoFeature): string {
+  const p = f.properties ?? {};
+  return String(
+    p.name ??
+    p.province_name ??
+    p.municipality_name ??
+    p.mun_name ??
+    p.barangay_name ??
+    p.region_name ??
+    p.NAME_1 ??
+    p.NAME_2 ??
+    p.NAME_3 ??
+    p.NAME ??
+    ""
   );
 }
 
+function collection(v: any): GeoCollection {
+  return v?.type === "FeatureCollection" && Array.isArray(v.features) ? v : EMPTY;
+}
+
+function normalize(v: any): GeoData {
+  const d = v?.data ?? v;
+  return {
+    regions: collection(d?.regions),
+    provinces: collection(d?.provinces),
+    municipalities: collection(d?.municipalities),
+    barangays: collection(d?.barangays),
+  };
+}
+
+function labelCollection(data: GeoCollection): GeoCollection {
+  return {
+    type: "FeatureCollection",
+    features: data.features.flatMap(f => {
+      if (!f.geometry) return [];
+      const c = center(f.geometry);
+      const n = nameOf(f);
+      if (!c || !n) return [];
+      return [{
+        type: "Feature",
+        properties: { label: n },
+        geometry: { type: "Point", coordinates: c },
+      } as GeoFeature];
+    }),
+  };
+}
+
 export default function Map() {
+  console.log("[MAP] MAP_STYLE_URL:", MAP_STYLE_URL);
+console.log("[MAP] API_URL:", API_URL);
 
-  const r = useResponsive();
-  const styles = useMemo(() => mapStyles(r), [r]);
+  const responsive = useResponsive();
+  const styles = useMemo(() => mapStyles(responsive), [responsive]);
+  const cameraRef = useRef<CameraRef>(null);
 
+  const [geoData, setGeoData] = useState<GeoData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedRegion, setSelectedRegion] = useState("Choose a Province");
+  const [selectedProvinceCode, setSelectedProvinceCode] = useState<string | null>(null);
+  const [selectedMunicipalityCode, setSelectedMunicipalityCode] = useState<string | null>(null);
+  const [selectedProvinceInfo, setSelectedProvinceInfo] = useState({ name: "Choose a Province", lat: 0, lng: 0 });
 
-const [selectedProvinceInfo, setSelectedProvinceInfo] = useState({
-  name: "Choose a Province",
-  lat: 0.0,
-  lng: 0.0,
-});
-  
   const [filters, setFilters] = useState({
     heatmap: false,
-    testingCenters: false,
-    supportGroups: false,
-    events: false,
     treatment: false,
   });
 
   const [open, setOpen] = useState(false);
-
   const slideAnim = useRef(new Animated.Value(500)).current;
 
-  const toggleDrawer = () => {
-    const toValue = open ? 500 : 0;
-
+  const toggleDrawer = useCallback(() => {
     Animated.timing(slideAnim, {
-      toValue,
+      toValue: open ? 500 : 0,
       duration: 250,
       useNativeDriver: true,
     }).start();
+    setOpen(v => !v);
+  }, [open, slideAnim]);
 
-    setOpen(!open);
+  const regionLabels = useMemo(() => labelCollection(geoData?.regions ?? EMPTY), [geoData]);
+  const provinceLabels = useMemo(() => labelCollection(geoData?.provinces ?? EMPTY), [geoData]);
+  const municipalityLabels = useMemo(() => labelCollection(geoData?.municipalities ?? EMPTY), [geoData]);
+  const barangayLabels = useMemo(() => labelCollection(geoData?.barangays ?? EMPTY), [geoData]);
+
+  const provinceFilter = useMemo<FilterSpecification>(
+    () => selectedProvinceCode
+      ? ["==", ["get", "code"], selectedProvinceCode]
+      : ["==", ["get", "code"], "__none__"],
+    [selectedProvinceCode]
+  );
+
+  const municipalityFilter = useMemo<FilterSpecification>(
+    () => selectedMunicipalityCode
+      ? ["==", ["get", "code"], selectedMunicipalityCode]
+      : ["==", ["get", "code"], "__none__"],
+    [selectedMunicipalityCode]
+  );
+
+useEffect(() => {
+  let mounted = true;
+
+  async function load() {
+    try {
+      setLoading(true);
+      setError(null);
+
+      console.log("[MOBILE MAP] Loading geospatial data...");
+
+      const headers = {
+        "Content-Type": "application/json",
+        "x-api-key": API_KEY_VALUE,
+      };
+
+      const [geometryResponse, hierarchyResponse] = await Promise.all([
+        fetch(`${API_URL}/maintenance/geospatial/geom`, {
+          method: "GET",
+          headers,
+        }),
+
+        fetch(`${API_URL}/maintenance/geospatial/hierarchy`, {
+          method: "GET",
+          headers,
+        }),
+      ]);
+
+      if (!geometryResponse.ok) {
+        throw new Error(
+          `Geometry request failed: ${geometryResponse.status} ${geometryResponse.statusText}`
+        );
+      }
+
+      if (!hierarchyResponse.ok) {
+        throw new Error(
+          `Hierarchy request failed: ${hierarchyResponse.status} ${hierarchyResponse.statusText}`
+        );
+      }
+
+      const geometryJson = await geometryResponse.json();
+      const hierarchyJson = await hierarchyResponse.json();
+
+      console.log(
+        "[MOBILE MAP] Geometry response:",
+        JSON.stringify(geometryJson, null, 2)
+      );
+
+      console.log(
+        "[MOBILE MAP] Hierarchy response:",
+        JSON.stringify(hierarchyJson, null, 2)
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      const normalized = normalize(geometryJson);
+
+      console.log(
+        "[MOBILE MAP] Regions:",
+        normalized.regions.features.length
+      );
+
+      console.log(
+        "[MOBILE MAP] Provinces:",
+        normalized.provinces.features.length
+      );
+
+      console.log(
+        "[MOBILE MAP] Municipalities:",
+        normalized.municipalities.features.length
+      );
+
+      console.log(
+        "[MOBILE MAP] Barangays:",
+        normalized.barangays.features.length
+      );
+
+      setGeoData(normalized);
+    } catch (e) {
+      console.error("[MOBILE MAP] MAP ERROR:", e);
+
+      if (mounted) {
+        setError(
+          e instanceof Error
+            ? e.message
+            : "Failed to load map data."
+        );
+      }
+    } finally {
+      if (mounted) {
+        setLoading(false);
+      }
+    }
+  }
+
+  load();
+
+  return () => {
+    mounted = false;
   };
+}, []);
 
-  const [showMapResource, setShowMapResource] =
-    useState(false);
 
-  const [showSubmitResource, setShowSubmitResource] =
-    useState(false);
 
-  const [region, setRegion] = useState({
-    latitude: 14.5995,
-    longitude: 120.9842,
-    latitudeDelta: 0.15,
-    longitudeDelta: 0.15,
-  });
+  const findProvince = useCallback((n: string) => {
+    const s = n.trim().toLowerCase();
+    return geoData?.provinces.features.find(f => nameOf(f).trim().toLowerCase() === s) ?? null;
+  }, [geoData]);
 
-const resources = [
-  {
-    id: 1,
-    title: "Manila Health Center",
-    description: "Free HIV testing",
-    latitude: 14.5995,
-    longitude: 120.9842,
-  },
-  {
-    id: 2,
-    title: "Love Yourself Manila",
-    description: "HIV Screening",
-    latitude: 14.6043,
-    longitude: 120.9828,
-  },
-];
+  const flyToProvince = useCallback((n: string) => {
+    const f = findProvince(n);
+    if (!f?.geometry) return;
+    const c = center(f.geometry);
+    const b = bounds(f.geometry);
+    if (!c || !b) return;
 
-const flyToProvince = (province: string) => {
-  const location = provinceCoordinates[province];
+    const code = f.properties?.code != null ? String(f.properties.code) : null;
+    setSelectedRegion(n);
+    setSelectedProvinceCode(code);
+    setSelectedMunicipalityCode(null);
+    setSelectedProvinceInfo({ name: n, lat: c[1], lng: c[0] });
+    cameraRef.current?.fitBounds(b);
+  }, [findProvince]);
 
-  if (!location || !cameraRef.current) return;
+  const handleProvincePress = useCallback((event: any) => {
+    const f = event?.nativeEvent?.features?.[0] as GeoFeature | undefined;
+    if (!f?.geometry) return;
 
-  // Update the information card
-  setSelectedProvinceInfo({
-    name: province,
-    lat: location.lat,
-    lng: location.lng,
-  });
+    const c = center(f.geometry);
+    const b = bounds(f.geometry);
+    if (!c || !b) return;
 
-  cameraRef.current.setStop({
-    center: [location.lng, location.lat],
-    zoom: location.zoom,
-    easing: "fly",
-    duration: 1500,
-  });
-};
+    const n = nameOf(f) || "Unknown Province";
+    const code = f.properties?.code != null ? String(f.properties.code) : null;
 
-const cameraRef = useRef<CameraRef>(null);
+    setSelectedRegion(n);
+    setSelectedProvinceCode(code);
+    setSelectedMunicipalityCode(null);
+    setSelectedProvinceInfo({ name: n, lat: c[1], lng: c[0] });
+    cameraRef.current?.fitBounds(b);
+  }, []);
+
+  const handleMunicipalityPress = useCallback((event: any) => {
+    const f = event?.nativeEvent?.features?.[0] as GeoFeature | undefined;
+    if (!f?.geometry) return;
+
+    const b = bounds(f.geometry);
+    if (!b) return;
+
+    const code = f.properties?.code != null ? String(f.properties.code) : null;
+    setSelectedMunicipalityCode(code);
+    cameraRef.current?.fitBounds(b);
+  }, []);
+
+  if (loading) {
+    return (
+      <ThemedView style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#35408E" />
+        <ThemedText style={{ marginTop: verticalScale(10) }}>Loading map...</ThemedText>
+      </ThemedView>
+    );
+  }
+
+  if (error) {
+    return (
+      <ThemedView style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: scale(30) }}>
+        <Ionicons name="alert-circle-outline" size={icon(48)} color="#D32F2F" />
+        <ThemedText style={{ marginTop: verticalScale(12) }}>Failed to load map</ThemedText>
+        <ThemedText style={{ marginTop: verticalScale(8), color: "#777", textAlign: "center" }}>{error}</ThemedText>
+      </ThemedView>
+    );
+  }
 
   return (
     <ScrollView style={styles.pageContainer} contentContainerStyle={styles.scrollContent}>
       <ThemedView>
         <ThemedView style={styles.mapContainer}>
-          
 
           <ThemedView style={styles.topControls}>
             <MapDropdown
-                selectedRegion={selectedRegion}
-                setSelectedRegion={setSelectedRegion}
-                onProvinceSelect={flyToProvince}
+              selectedRegion={selectedRegion}
+              setSelectedRegion={setSelectedRegion}
+              onProvinceSelect={flyToProvince}
             />
-          
-
-            {/* FILTER BUTTON */}
             <TouchableOpacity style={styles.filterBtn} onPress={toggleDrawer}>
-              <Ionicons name="filter" size={22} color="white" />
+              <Ionicons name="filter" size={icon(22)} color="white" />
             </TouchableOpacity>
           </ThemedView>
 
-
-          {/* DRAWER COMPONENT */}
           <MapFilterDrawer
             visible={open}
             filters={filters}
@@ -149,354 +372,211 @@ const cameraRef = useRef<CameraRef>(null);
             onClose={toggleDrawer}
           />
 
-
           <ThemedView style={styles.legendBox}>
             <ThemedView style={styles.boxBG}>
               <ThemedView style={styles.legendContainer}>
-                  <ThemedView style={styles.legend}>
-                    <ThemedView style={[styles.legendColor, {backgroundColor: "red"}]}/>
-                    <ThemedText style={styles.legendLabel}>High</ThemedText>
+                {[
+                  ["red", "High"],
+                  ["#FFB633", "Medium"],
+                  ["#3BB329", "Low"],
+                ].map(([color, label]) => (
+                  <ThemedView style={styles.legend} key={label}>
+                    <ThemedView style={[styles.legendColor, { backgroundColor: color }]} />
+                    <ThemedText style={styles.legendLabel}>{label}</ThemedText>
                   </ThemedView>
-                  <ThemedView style={styles.legend}>
-                    <ThemedView style={[styles.legendColor, {backgroundColor: "#FFB633"}]}/>
-                    <ThemedText style={styles.legendLabel}>Medium</ThemedText>
-                  </ThemedView>
-                  <ThemedView style={styles.legend}>
-                    <ThemedView style={[styles.legendColor, {backgroundColor: "#3BB329"}]}/>
-                    <ThemedText style={styles.legendLabel}>Low</ThemedText>
-                  </ThemedView>
-            </ThemedView>
+                ))}
+              </ThemedView>
             </ThemedView>
           </ThemedView>
-          
 
           <ThemedView style={styles.contentContainer}>
             <ThemedView style={styles.contentBG}>
               <ThemedText style={{ alignSelf: "flex-end", lineHeight: font(12) }}>
-                {`${Math.abs(selectedProvinceInfo.lat).toFixed(4)}° ${
-                  selectedProvinceInfo.lat >= 0 ? "N" : "S"
-                }, ${Math.abs(selectedProvinceInfo.lng).toFixed(4)}° ${
-                  selectedProvinceInfo.lng >= 0 ? "E" : "W"
-                }`}
+                {selectedProvinceInfo.name === "Choose a Province"
+                  ? "--"
+                  : `${Math.abs(selectedProvinceInfo.lat).toFixed(4)}° ${selectedProvinceInfo.lat >= 0 ? "N" : "S"}, ${Math.abs(selectedProvinceInfo.lng).toFixed(4)}° ${selectedProvinceInfo.lng >= 0 ? "E" : "W"}`}
               </ThemedText>
-              <ThemedText style={styles.contentProvince}>
-                {selectedProvinceInfo.name}
-              </ThemedText>
-                
-              <ThemedView style={{flexDirection: "row", justifyContent: "space-between", backgroundColor: "transparent",}}>
-                <ThemedText style={styles.otherContent}>
-                Mentions: <ThemedText style={styles.moreContent}>1,458</ThemedText>
-                </ThemedText>
-                <ThemedText style={styles.otherContent}>
-                Stigma Index: <ThemedText style={styles.moreContent}>14.2</ThemedText>
-                </ThemedText>
+              <ThemedText style={styles.contentProvince}>{selectedProvinceInfo.name}</ThemedText>
+              <ThemedView style={{ flexDirection: "row", justifyContent: "space-between", backgroundColor: "transparent" }}>
+                <ThemedText style={styles.otherContent}>Mentions: <ThemedText style={styles.moreContent}>1,458</ThemedText></ThemedText>
+                <ThemedText style={styles.otherContent}>Stigma Index: <ThemedText style={styles.moreContent}>14.2</ThemedText></ThemedText>
               </ThemedView>
-              
-              <ThemedText style={styles.otherContent}>
-                  Sentiment: <ThemedText style={styles.moreContent}>0.2% Neutral</ThemedText>
-              </ThemedText>
-              
-              <ThemedText style={styles.otherContent}>
-                Top Trending Topic: <ThemedText style={styles.moreContent}>#HIVAwareness</ThemedText>
-              </ThemedText>
+              <ThemedText style={styles.otherContent}>Sentiment: <ThemedText style={styles.moreContent}>0.2% Neutral</ThemedText></ThemedText>
+              <ThemedText style={styles.otherContent}>Top Trending Topic: <ThemedText style={styles.moreContent}>#HIVAwareness</ThemedText></ThemedText>
             </ThemedView>
-
           </ThemedView>
 
-          <MalibreMap
-          mapStyle={"https://maps.geo.ap-southeast-1.amazonaws.com/v2/styles/Standard/descriptor?key=v1.public.eyJqdGkiOiI1MTMwZWQ2NC1hN2ZlLTQzOTUtYWFhYy1mMTRmYjI0OTU3MmYifYep8xGWaQn8Hppl0oFB5xES3YDu_00GDUjeiVicmuUiLS6Jp6uKNgHMPckJszq9HFA-7HlkE6s6s2CuFLWINA-ENLetulRojWqQCE4nnoH8vk8MJrJP6iuEJOf1Mxoz7ug2-Djwp9Es8yOVe8Hf1jIX7bXrpEEkXEBekrHg0A_04GSV0A6i_vo1-TjnV9zvO4yOhuLp1iJwqjxV_ogrFiahsYDwfmIa3VVo0To3y_kdLMNalgOMvJRD3ipywt4YkhMDaqbMTXFAS74mZmkAcLO39AU10CHq9WBPOWGQLK1fqDN0OaU-0i8u4sO6ceInCxzryrsu73KvURdHqAFU1W0.MzRjYzZmZGUtZmY3NC00NDZiLWJiMTktNTc4YjUxYTFlOGZi"}>
-            <Camera
-              ref={cameraRef}
-              initialViewState={{
-                center: [121.744, 12.9],
-                zoom: 5.5,
-              }}
-            />
-          </MalibreMap>
+          <MapLibreMap style={{ flex: 1 }} mapStyle={MAP_STYLE_URL}>
 
-          
-          
+            <Camera ref={cameraRef} initialViewState={{ center: [121.774, 12.9], zoom: 5.5 }} />
+
+            {/* REGIONS */}
+            <GeoJSONSource id="regions" data={geoData?.regions ?? EMPTY}>
+              <Layer id="regions-fill" type="fill" source="regions" paint={{ "fill-color": "#3b82f6", "fill-opacity": 0.01 }} />
+              <Layer id="regions-line" type="line" source="regions" paint={{ "line-color": "#1e293b", "line-width": 1, "line-opacity": 0.9 }} />
+            </GeoJSONSource>
+
+            {/* PROVINCES */}
+            <GeoJSONSource id="provinces" data={geoData?.provinces ?? EMPTY} onPress={handleProvincePress}>
+              <Layer id="provinces-fill" type="fill" source="provinces" paint={{ "fill-color": "#e5e7eb", "fill-opacity": 0.15 }} />
+              <Layer id="provinces-line" type="line" source="provinces" paint={{ "line-color": "#334155", "line-width": 1.2, "line-opacity": 0.95 }} />
+              <Layer id="province-highlight" type="fill" source="provinces" filter={provinceFilter} paint={{ "fill-color": "#35408E", "fill-opacity": 0.35 }} />
+            </GeoJSONSource>
+
+            {/* MUNICIPALITIES */}
+            <GeoJSONSource id="municipalities" data={geoData?.municipalities ?? EMPTY} onPress={handleMunicipalityPress}>
+              <Layer id="municipalities-fill" type="fill" source="municipalities" minzoom={4.5} paint={{ "fill-color": "#000000", "fill-opacity": 0 }} />
+              <Layer id="municipalities-glow" type="line" source="municipalities" minzoom={4.5} paint={{ "line-color": "#64748b", "line-width": 1, "line-opacity": 0.25 }} />
+              <Layer id="municipalities-base" type="line" source="municipalities" minzoom={4.5} paint={{ "line-color": "#475569", "line-width": 1, "line-opacity": 0.8 }} />
+              <Layer id="municipality-highlight" type="line" source="municipalities" minzoom={4.5} filter={municipalityFilter} paint={{ "line-color": "#F59E0B", "line-width": 3, "line-opacity": 1 }} />
+            </GeoJSONSource>
+
+            {/* BARANGAYS */}
+            <GeoJSONSource id="barangays" data={geoData?.barangays ?? EMPTY}>
+              <Layer id="barangays-fill" type="fill" source="barangays" minzoom={9} paint={{ "fill-color": "#94A3B8", "fill-opacity": 0.05 }} />
+              <Layer id="barangays-line" type="line" source="barangays" minzoom={8} paint={{ "line-color": "#94A3B8", "line-width": 0.5, "line-opacity": 0.65 }} />
+            </GeoJSONSource>
+
+            {/* REGION LABELS */}
+            <GeoJSONSource id="region-labels" data={regionLabels}>
+              <Layer
+                id="region-label-layer"
+                type="symbol"
+                source="region-labels"
+                minzoom={4}
+                layout={{
+                  "text-field": ["get", "label"],
+                  "text-size": 11,
+                  "text-anchor": "center",
+                  "text-allow-overlap": false,
+                  "text-ignore-placement": false,
+                }}
+                paint={{ "text-color": "#1e293b", "text-halo-color": "#fff", "text-halo-width": 2 }}
+              />
+            </GeoJSONSource>
+
+            {/* PROVINCE LABELS */}
+            <GeoJSONSource id="province-labels" data={provinceLabels}>
+              <Layer
+                id="province-label-layer"
+                type="symbol"
+                source="province-labels"
+                minzoom={4.5}
+                layout={{
+                  "text-field": ["get", "label"],
+                  "text-size": 9,
+                  "text-anchor": "center",
+                  "text-allow-overlap": false,
+                  "text-ignore-placement": false,
+                }}
+                paint={{ "text-color": "#35408E", "text-halo-color": "#fff", "text-halo-width": 2 }}
+              />
+            </GeoJSONSource>
+
+            {/* MUNICIPALITY LABELS */}
+            <GeoJSONSource id="municipality-labels" data={municipalityLabels}>
+              <Layer
+                id="municipality-label-layer"
+                type="symbol"
+                source="municipality-labels"
+                minzoom={5}
+                layout={{
+                  "text-field": ["get", "label"],
+                  "text-size": 8,
+                  "text-anchor": "center",
+                  "text-allow-overlap": false,
+                  "text-ignore-placement": false,
+                }}
+                paint={{ "text-color": "#1e293b", "text-halo-color": "#fff", "text-halo-width": 2 }}
+              />
+            </GeoJSONSource>
+
+            {/* BARANGAY LABELS */}
+            <GeoJSONSource id="barangay-labels" data={barangayLabels}>
+              <Layer
+                id="barangay-label-layer"
+                type="symbol"
+                source="barangay-labels"
+                minzoom={9}
+                layout={{
+                  "text-field": ["get", "label"],
+                  "text-size": 7,
+                  "text-anchor": "center",
+                  "text-allow-overlap": false,
+                  "text-ignore-placement": false,
+                }}
+                paint={{ "text-color": "#475569", "text-halo-color": "#fff", "text-halo-width": 1 }}
+              />
+            </GeoJSONSource>
+
+          </MapLibreMap>
         </ThemedView>
 
         <ThemedView style={styles.resourcesContainer}>
-          <ThemedText style={styles.resourcesTitle}>
-            Nearby Resources
-          </ThemedText>
-
-          <ThemedView style={styles.resourcesBG}>
-            <ThemedView style={styles.resources}>
-                <ThemedText style={styles.resourcePlace}>Manila Health Center</ThemedText>
-                <ThemedView style={styles.resourceLabelBG}>
-                  <ThemedText style={styles.resourceLabel}>Testing</ThemedText>
-                </ThemedView>
+          {/* Section header */}
+          <ThemedView style={styles.sectionHeader}>
+            <ThemedView style={styles.sectionIconBubble}>
+              <Ionicons name="medkit-outline" size={icon(16)} color="#35408E" />
             </ThemedView>
-
-            <ThemedText style={styles.resourceDesc}>Free HIV testing and counseling services</ThemedText>
-
-            <ThemedView style={styles.directionContainer}>
-              <ThemedView style={styles.directionLocation}>
-                <Ionicons name="location-outline" size={15} color="#777777"/>
-                <ThemedText style={styles.locationText}>2.3 km away</ThemedText>
-              </ThemedView>
-              <TouchableOpacity
-                onPress={() => Linking.openURL("https://www.google.com")}
-              >
-                <ThemedText style={styles.directionLink}>
-                  Directions
-                </ThemedText>
-              </TouchableOpacity>
-            </ThemedView>
+            <ThemedText style={styles.resourcesTitle}>Treatment Hubs</ThemedText>
           </ThemedView>
 
-          {/* <TouchableOpacity style={styles.resourcesBG} onPress={() => setShowMapResource(true)} >
-            <ThemedText style={styles.buttonText}>
-              + Add New Resource
-            </ThemedText>
-          </TouchableOpacity>
+          {/* Card */}
+          <ThemedView style={styles.resourcesBG}>
+            {/* Accent bar */}
+            <View style={styles.accentBar} />
 
-          <MapResource
-            visible={showMapResource}
-            onClose={() => setShowMapResource(false)}
-            onSubmit={() => setShowSubmitResource(true)}
-          />
+            <ThemedView style={styles.cardInner}>
+              {/* Hub name */}
+              <ThemedView style={styles.resources}>
+                <ThemedText style={styles.resourcePlace}>Ospital ng Biñan (ONB HIV Treatment Hub)</ThemedText>
+              </ThemedView>
 
-          <SubmitResource
-            visible={showSubmitResource}
-            onClose={() => setShowSubmitResource(false)}
-          /> */}
+              <View style={styles.rowDivider} />
 
+              {/* Address */}
+              <ThemedView style={styles.locationPhone}>
+                <ThemedView style={styles.infoIconBubble}>
+                  <Ionicons name="location-outline" size={icon(14)} color="#35408E" />
+                </ThemedView>
+                <ThemedText style={styles.locPhoneText}>Canlalay Bridge, Biñan, Laguna</ThemedText>
+              </ThemedView>
 
+              {/* Phone */}
+              <ThemedView style={styles.locationPhone}>
+                <ThemedView style={styles.infoIconBubble}>
+                  <Ionicons name="call-outline" size={icon(14)} color="#35408E" />
+                </ThemedView>
+                <ThemedText style={styles.locPhoneText}>(049) 511-4119</ThemedText>
+              </ThemedView>
+
+              <View style={styles.rowDivider} />
+
+              {/* Action buttons */}
+              <ThemedView style={styles.directionContainer}>
+                <ThemedView style={styles.linkContainer}>
+                  <TouchableOpacity
+                    style={styles.buttonBG}
+                    onPress={() => Linking.openURL("mailto:onb@example.gov.ph")}
+                    activeOpacity={0.75}
+                  >
+                    <Ionicons name="mail-outline" size={icon(14)} color="#35408E" />
+                    <ThemedText style={styles.buttonLabel}>Email</ThemedText>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.buttonBG}
+                    onPress={() => Linking.openURL("https://www.google.com/maps/search/?api=1&query=14.5995,120.9842")}
+                    activeOpacity={0.75}
+                  >
+                    <Ionicons name="globe-outline" size={icon(14)} color="#35408E" />
+                    <ThemedText style={styles.buttonLabel}>Webiste/Social Media</ThemedText>
+                  </TouchableOpacity>
+                </ThemedView>
+              </ThemedView>
+            </ThemedView>
+          </ThemedView>
         </ThemedView>
       </ThemedView>
     </ScrollView>
   );
 }
-
-// const styles = StyleSheet.create({
-//   pageContainer: {
-//     flex: 1,
-//     backgroundColor: "white",
-//     padding: 5
-//   },
-//   scrollContent: {
-//     paddingBottom: 90,
-//   },
-//   headerContainer:{
-//     flexDirection: 'row', 
-//     justifyContent: "space-between",
-//     padding: 10,
-//     position: "relative"
-//   },
-//   summaryContainer: {
-//     padding: 5,
-//   },
-//   mapContainer: {
-//     height: 750,
-//     borderBottomWidth: 2,
-//     borderBottomColor: "#35408E",
-//     overflow: "hidden",
-//     position: "relative",
-//   },
-//   mapDropdown: {
-//     position: "absolute",
-//     width: "95%",
-//     top: 10,
-//     left: 10,
-//     right: 60,
-//     backgroundColor: "transparent",
-//     zIndex: 999,
-//   },
-//   boxBG:{
-//     backgroundColor: "white", 
-//     width: "100%", 
-//     padding: 15, 
-//     borderRadius: 12,
-//     marginBottom: 10,
-//     borderColor: "#E0E4F0",
-//     borderWidth: 1,
-//     shadowColor: "#000",
-//     shadowOffset: {
-//       width: 0,
-//       height: 4,
-//     },
-//     shadowOpacity: 0.15,
-//     shadowRadius: 5,
-//     elevation: 2
-//   },
-//   legendBox: {
-//     position: "absolute",
-//     top: 75,
-//     left: 10,
-//     right: 10,
-//     backgroundColor: "transparent",
-//     zIndex: 20,
-//   },
-//   legendContainer: {
-//     justifyContent: "space-around",
-//     backgroundColor: "transparent",
-//     flexDirection: "row",
-//   },
-//   legend: {
-//     flexDirection: "row", 
-//     gap: 10, 
-//     justifyContent: "flex-start", 
-//     alignItems:"center", 
-//     backgroundColor: "transparent"
-//   },
-//   legendLabel: {
-//     fontSize: 14, 
-//     fontWeight: "medium"
-//   },
-//   highColor: {
-//     backgroundColor: "red", 
-//     padding: 10, 
-//     marginRight: 5,
-//     borderRadius: 5
-//   },
-//   mediumColor: {
-//     backgroundColor: "#FFB633", 
-//     padding: 10, 
-//     marginRight: 5,
-//     borderRadius: 5
-//   },
-//   lowColor: {
-//     backgroundColor: "#3BB329", 
-//     padding: 10, 
-//     marginRight: 5,
-//     borderRadius: 5
-//   },
-//   filterBtn: {
-//     position: "absolute",
-//     top: 10,
-//     right: 10,
-//     backgroundColor: "#35408E",
-//     padding: 12,
-//     borderRadius: 30,
-//     zIndex: 999,
-//   },
-//   contentContainer: {
-//     position: "absolute",
-//     bottom: 10,
-//     left: 10,
-//     right: 10,
-//     backgroundColor: "transparent",
-//     zIndex: 20,
-//   },
-//   contentBG:{
-//     backgroundColor: "white", 
-//     width: "100%", 
-//     padding: 15, 
-//     borderRadius: 12,
-//     marginBottom: 10,
-//     marginTop: "auto", 
-//     borderColor: "#E0E4F0",
-//     borderWidth: 1,
-//         shadowColor: "#000",
-//     shadowOffset: {
-//       width: 0,
-//       height: 4,
-//     },
-//     shadowOpacity: 0.10,
-//     shadowRadius: 5,
-//     elevation: 2
-    
-//   },
-//   contentProvince: {
-//     fontSize: 26, 
-//     fontWeight: "bold", 
-//     paddingVertical: 10,
-//     paddingTop: 20,
-//   },
-//   otherContent: {
-//     fontSize: 16, 
-//     fontWeight: "400", 
-//     paddingVertical: 3
-//   },
-//   moreContent: {
-//     fontSize: 16, 
-//     fontWeight: "bold"
-//   },
-//   resourcesContainer: {
-//     paddingVertical: 20,
-//     paddingHorizontal: 10
-//   },
-//    resourcesBG:{
-//     backgroundColor: "white", 
-//     width: "100%", 
-//     padding: 15, 
-//     borderRadius: 12,
-//     marginBottom: 10,
-//     elevation: 2,
-//     borderWidth: 1,
-//     borderColor: "#E4E8F0",
-//     shadowColor: "#000",
-//     shadowOffset: {
-//       width: 0,
-//       height: 2,
-//     },
-//     shadowOpacity: 0.12,
-//     shadowRadius: 3,
-//   },
-//   resourcesTitle: {
-//     paddingVertical: 10,
-//     fontSize: 20,
-//     fontWeight: "bold"
-//   },
-//   resources: {
-//     flexDirection: "row",
-//     justifyContent: "space-between",
-//     gap: 5,
-//     backgroundColor: "transparent",
-//     marginTop: 10,
-//   },
-//   resourcePlace: {
-//     fontSize: 22,
-//     fontWeight: "bold",
-//     paddingVertical: 5,
-//   },
-//   resourceLabelBG: {
-//     backgroundColor: "pink", 
-//     width: "auto", 
-//     paddingHorizontal: 10,
-//     borderRadius: 12,
-//     borderWidth: 1,
-//     borderColor: "#E20000",
-//     justifyContent: "center"
-//   },
-//   resourceLabel: {
-//     fontSize: 12,
-//     fontWeight: "400",
-//     color: "#E20000"
-//   },
-//   resourceDesc: {
-//     fontSize: 14,
-//     fontWeight: "500"
-//   },
-//   directionContainer: {
-//     flexDirection: "row", 
-//     justifyContent: "space-between",
-//     backgroundColor: "transparent",
-//     paddingVertical: 5
-//   },
-//   directionLocation: {
-//     flexDirection: "row", 
-//     gap: 5,
-//     backgroundColor: "transparent",
-//   },
-//   locationText: {
-//     color: "#777777",
-//     fontSize: 11
-//   },
-//   directionLink: {
-//     fontSize: 11,
-//     fontWeight: "700",
-//     color: "#3781C1"
-//   },
-//   // buttonText: {
-//   //   fontSize: 20, 
-//   //   fontWeight: "bold", 
-//   //   textAlign: "center", 
-//   //   padding: 10
-//   // }
-
-// });

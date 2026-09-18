@@ -243,112 +243,255 @@ export function mapStyles(r: ResponsiveValues) {
         lineHeight: font(16), 
         fontWeight: "bold"
     },
+    // resourcesContainer: {
+    //     paddingVertical: verticalScale(20),
+    //     paddingHorizontal: scale(10)
+    // },
+    // resourcesBG:{
+    //     backgroundColor: "white", 
+    //     width: "100%", 
+    //     padding: scale(15), 
+    //     borderRadius: radius(12),
+    //     marginBottom: verticalScale(10),
+    //     elevation: 2,
+    //     borderWidth: 1,
+    //     borderColor: "#E4E8F0",
+    //     shadowColor: "#000",
+    //     shadowOffset: {
+    //     width: 0,
+    //     height: 2,
+    //     },
+    //     shadowOpacity: 0.12,
+    //     shadowRadius: 3,
+    // },
+    // resourcesTitle: {
+    //     paddingVertical: verticalScale(10),
+    //     fontSize: font(20),
+    //     lineHeight: font(20),
+    //     fontWeight: "bold"
+    // },
+    // resources: {
+    //     flexDirection: "row",
+    //     // justifyContent: "space-between",
+    //     // gap: scale(5),
+    //     // backgroundColor: "transparent",
+    //     paddingVertical: verticalScale(5),
+    // },
+    // resourcePlace: {
+    //     fontSize: 
+    //         isFold
+    //         ? font(18)
+    //         : font(22),
+    //     lineHeight: font(25),
+    //     fontWeight: "bold",
+    //     paddingVertical: verticalScale(5),
+    // },
+    // resourceLabelBG: {
+    //     backgroundColor: "pink", 
+    //     width: "auto", 
+    //     paddingHorizontal: 
+    //         isFold
+    //         ? scale(8)
+    //         : scale(10),
+    //     borderRadius: radius(12),
+    //     borderWidth: 1,
+    //     borderColor: "#E20000",
+    //     justifyContent: "center"
+    // },
+    // resourceLabel: {
+    //     fontSize:   
+    //         isFold
+    //         ? font(8)
+    //         : font(12),
+    //     lineHeight: font(12),
+    //     fontWeight: "400",
+    //     color: "#E20000"
+    // },
+    // resourceDesc: {
+    //     fontSize: 
+    //         isFold
+    //         ? font(13)
+    //         : font(14),
+    //     lineHeight: font(14),
+    //     fontWeight: "500"
+    // },
+    // directionContainer: {
+    //     flexDirection: "row", 
+    //     justifyContent: "space-between",
+    //     backgroundColor: "transparent",
+    //     paddingVertical: verticalScale(5),
+    //     alignItems: "center"
+    // },
+    // directionLocation: {
+    //     flexDirection: "row", 
+    //     gap: scale(5),
+    //     backgroundColor: "transparent",
+    //     alignItems: "center"
+    // },
+    // locationText: {
+    //     color: "#777777",
+    //     fontSize: 
+    //         isFold
+    //         ? font(10)
+    //         : font(11),
+    //     lineHeight: font(11)
+    // },
+    // // directionLink: {
+    // //     fontSize: 
+    // //         isFold
+    // //         ? font(10)
+    // //         : font(11),
+    // //     lineHeight: font(11),
+    // //     fontWeight: "700",
+    // //     color: "#3781C1"
+    // // },
+    // buttonBG: {
+    //     backgroundColor: "#d7d3d3",
+    //     padding: scale(5),
+    //     borderRadius: radius(5)
+    // },
+    // linkContainer: {
+    //     flexDirection: "row",
+    //     alignItems: "center",
+    //     gap: scale(5)
+    // }
+    // // buttonText: {
+    // //   fontSize: 20, 
+    // //   fontWeight: "bold", 
+    // //   textAlign: "center", 
+    // //   padding: 10
+    // // }
+
     resourcesContainer: {
         paddingVertical: verticalScale(20),
-        paddingHorizontal: scale(10)
+        paddingHorizontal: scale(12),
+        gap: scale(10),
     },
-    resourcesBG:{
-        backgroundColor: "white", 
-        width: "100%", 
-        padding: scale(15), 
-        borderRadius: radius(12),
+    
+    resourcesBG: {
+        backgroundColor: "#FFFFFF",
+        width: "100%",
+        borderRadius: radius(14),
+        borderWidth: scale(1.5),
+        borderColor: "#E0E4F0",
+        overflow: "hidden",           // clips the accent bar to the card's radius
         marginBottom: verticalScale(10),
-        elevation: 2,
-        borderWidth: 1,
-        borderColor: "#E4E8F0",
-        shadowColor: "#000",
-        shadowOffset: {
-        width: 0,
-        height: 2,
-        },
-        shadowOpacity: 0.12,
-        shadowRadius: 3,
+        elevation: 3,
+        shadowColor: "#1A1F5E",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.07,
+        shadowRadius: 8,
     },
+    
     resourcesTitle: {
-        paddingVertical: verticalScale(10),
         fontSize: font(20),
         lineHeight: font(20),
-        fontWeight: "bold"
+        fontWeight: "700",
     },
+    
     resources: {
         flexDirection: "row",
-        justifyContent: "space-between",
-        gap: scale(5),
+        paddingVertical: verticalScale(4),
         backgroundColor: "transparent",
-        marginTop: verticalScale(10),
     },
+    
     resourcePlace: {
-        fontSize: 
-            isFold
-            ? font(18)
-            : font(22),
-        lineHeight: font(22),
-        fontWeight: "bold",
-        paddingVertical: verticalScale(5),
-    },
-    resourceLabelBG: {
-        backgroundColor: "pink", 
-        width: "auto", 
-        paddingHorizontal: 
-            isFold
-            ? scale(8)
-            : scale(10),
-        borderRadius: radius(12),
-        borderWidth: 1,
-        borderColor: "#E20000",
-        justifyContent: "center"
-    },
-    resourceLabel: {
-        fontSize:   
-            isFold
-            ? font(8)
-            : font(12),
-        lineHeight: font(12),
-        fontWeight: "400",
-        color: "#E20000"
-    },
-    resourceDesc: {
-        fontSize: 
-            isFold
-            ? font(13)
-            : font(14),
-        lineHeight: font(14),
-        fontWeight: "500"
-    },
-    directionContainer: {
-        flexDirection: "row", 
-        justifyContent: "space-between",
-        backgroundColor: "transparent",
-        paddingVertical: verticalScale(5)
-    },
-    directionLocation: {
-        flexDirection: "row", 
-        gap: scale(5),
-        backgroundColor: "transparent",
-    },
-    locationText: {
-        color: "#777777",
-        fontSize: 
-            isFold
-            ? font(10)
-            : font(11),
-        lineHeight: font(11)
-    },
-    directionLink: {
-        fontSize: 
-            isFold
-            ? font(10)
-            : font(11),
-        lineHeight: font(11),
+        fontSize: font(15),
+        lineHeight: font(20),
         fontWeight: "700",
-        color: "#3781C1"
     },
-    // buttonText: {
-    //   fontSize: 20, 
-    //   fontWeight: "bold", 
-    //   textAlign: "center", 
-    //   padding: 10
-    // }
+    
+    directionContainer: {
+        flexDirection: "row",
+        justifyContent: "flex-start",
+        backgroundColor: "transparent",
+        alignItems: "center",
+    },
+    
+    locationPhone: {
+        flexDirection: "row",
+        gap: scale(8),
+        backgroundColor: "transparent",
+        alignItems: "center",
+    },
+    
+    locPhoneText: {
+        color: "#6B7280",
+        fontSize: 
+            isFold
+            ? font(11)
+            : font(12),
+        lineHeight: font(17),
+        flex: 1,
+    },
+    
+    buttonBG: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: scale(5),
+        backgroundColor: "#F8F9FD",
+        paddingVertical: verticalScale(7),
+        paddingHorizontal: scale(12),
+        borderRadius: radius(8),
+        borderWidth: scale(1.5),
+        borderColor: "#D1D5E8",
+    },
+    
+    linkContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: scale(8),
+    },
+    
+    // ── New keys (additive only) ──
+    sectionHeader: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: scale(8),
+        backgroundColor: "transparent",
+    },
+    
+    sectionIconBubble: {
+        width: scale(32),
+        height: verticalScale(32),
+        borderRadius: radius(8),
+        backgroundColor: "#EEF0FA",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    
+    accentBar: {
+        height: verticalScale(4),
+        backgroundColor: "#35408E",
+        width: "100%",
+    },
+    
+    cardInner: {
+        padding: scale(14),
+        gap: scale(10),
+        backgroundColor: "transparent",
+    },
+    
+    infoIconBubble: {
+        width: scale(26),
+        height: verticalScale(26),
+        borderRadius: radius(6),
+        backgroundColor: "#EEF0FA",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    
+    rowDivider: {
+        height: verticalScale(1),
+        backgroundColor: "#F0F2F8",
+    },
+    
+    buttonLabel: {
+        fontSize: font(12),
+        lineHeight: font(12),
+        fontWeight: "600",
+        color: "#35408E",
+    },
 
 })};
 
