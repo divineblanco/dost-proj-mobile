@@ -67,7 +67,10 @@ export default function Register() {
 
   const isOrganization =
     selectedRole !== null &&
-    ROLE_OPTIONS[selectedRole].label === 'Organization';
+    ['Researcher', 'NGO', 'Institution'].includes(
+      ROLE_OPTIONS[selectedRole].label
+    );
+
 
   // ============================================================
   // RESET FORM

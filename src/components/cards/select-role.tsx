@@ -18,7 +18,7 @@ export const ROLE_OPTIONS: RoleOption[] = [
   { label: "Government",     icon: "building-columns", color: "#20BF55", bg: "#EDFAF3" },
   { label: "Researcher",     icon: "magnifying-glass", color: "#E53935", bg: "#FFF0F0" },
   { label: "NGO",            icon: "building-ngo",     color: "#1C5E3F", bg: "#E8F5EE" },
-  { label: "Organization",   icon: "people-group",     color: "#35408E", bg: "#EEF0FA" },
+  { label: "Institution",   icon: "people-group",     color: "#35408E", bg: "#EEF0FA" },
 ];
 
 type Props = {

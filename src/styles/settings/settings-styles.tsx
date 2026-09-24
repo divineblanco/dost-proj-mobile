@@ -207,7 +207,7 @@ export function settingsStyles (r: ResponsiveValues) {
     fontSize: font(12), 
     fontWeight: "400",
     textAlign: "center",
-    lineHeight: font(12)
+    lineHeight: font(15)
   },
 
   row: {
@@ -264,7 +264,8 @@ export function settingsStyles (r: ResponsiveValues) {
     fontSize: font(15),
     fontWeight: "bold",
     paddingBlockStart: scale(10),
-    lineHeight: font(15)
+    lineHeight: font(15),
+    marginBottom: verticalScale(5)
   },
 
   icon: {
@@ -303,7 +304,7 @@ export function settingsStyles (r: ResponsiveValues) {
 
   instruction: {
     fontSize: font(12),
-    lineHeight: font(12),
+    lineHeight: font(14),
     fontWeight: "400",
     padding: scale(10)
   },
@@ -501,5 +502,155 @@ export function settingsStyles (r: ResponsiveValues) {
   versionTxt: {
     color: "grey",
     lineHeight: font(13),
-  } 
+  } ,
+
+    rowDivider: {
+    height: verticalScale(1),
+    backgroundColor: "#F0F2F8",
+    marginVertical: verticalScale(5)
+  },
+})};
+
+export function deviceSessionsStyles (r: ResponsiveValues) {
+    const {
+      isCompactAndroid,
+      isFold,
+      isIPhone,
+      isLandscape,
+      isPortrait,
+      isLargePhone,
+      isNormalScreen,
+      isShortScreen,
+      isSmallPhone,
+      isExtraTallScreen,
+      isTablet,
+      isTallScreen,
+      isIPad,
+      isIPadMini,
+      isLargeIPad,
+  } = r;
+
+    const isTallFold = r.isFold && r.isTallScreen;
+    const isNormalFold = r.isFold && r.isNormalScreen;
+
+    const isAndroidTabletPortrait = r.isAndroidTablet && r.isPortrait;
+
+    const isAndroidTabletLandscape = r.isAndroidTablet && r.isLandscape;
+
+    const isIPadPortrait = r.isIPad && r.isPortrait;
+    const isIPadLandscape = r.isIPad && r.isLandscape;
+  
+    const isLargeIPadPortrait = r.isLargeIPad && r.isPortrait;
+    const isLargeIPadLandscape = r.isLargeIPad && r.isLandscape;
+  
+    const isIPadMiniPortrait = r.isIPadMini && r.isPortrait;
+    const isIPadMiniLandscape = r.isIPadMini && r.isLandscape;
+
+    return StyleSheet.create({
+      
+  sessionRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: scale(12),
+    paddingVertical: verticalScale(14),
+  },
+
+  nameRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    flexWrap: "wrap",
+    gap: scale(6),
+  },
+
+  currentBadge: {
+    paddingHorizontal: scale(7),
+    paddingVertical: verticalScale(3),
+    borderRadius: radius(10),
+    backgroundColor: "#E6F6EC",
+  },
+
+  currentBadgeTxt: {
+    fontSize: font(9),
+    lineHeight: font(10),
+    fontWeight: "700",
+    color: "#1F9254",
+  },
+
+  typeLabel: {
+    fontWeight: "600",
+    color: "#35408E",
+    marginTop: verticalScale(3),
+  },
+
+  terminateAllBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: scale(8),
+    width: "100%",
+    marginTop: verticalScale(6),
+    paddingVertical: verticalScale(10),
+    paddingHorizontal: scale(14),
+    borderRadius: radius(8),
+    backgroundColor: "#C62828",
+    alignSelf: "flex-start",
+    elevation: 6,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 3.84,
+  },
+
+  terminateAllTxt: {
+    fontSize: font(13),
+    lineHeight: font(13),
+    fontWeight: "700",
+    color: "#FECACA",
+  },
+
+  stateBox: {
+    alignItems: "center",
+    gap: scale(8),
+    paddingVertical: verticalScale(24),
+  },
+
+  retryBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: scale(6),
+    paddingVertical: verticalScale(8),
+    paddingHorizontal: scale(16),
+    borderRadius: radius(8),
+    borderWidth: scale(1.5),
+    borderColor: "#D1D5E8",
+    backgroundColor: "#F8F9FD",
+    marginTop: verticalScale(4),
+  },
+
+  retryTxt: {
+    fontSize: font(13),
+    lineHeight: font(13),
+    fontWeight: "600",
+    color: "#35408E",
+  },
+
+  emptyState: {
+    alignItems: "center",
+    paddingVertical: verticalScale(20),
+    gap: scale(6),
+  },
+
+  divider: {
+    width: scale(2),
+    alignSelf: "stretch",
+    backgroundColor: "#F0F2F8",
+  },
+
+  row: {
+    flexDirection: "row", 
+    gap: scale(10)
+  }
 })};

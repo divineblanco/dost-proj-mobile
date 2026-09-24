@@ -170,16 +170,16 @@ import { Ionicons } from "@expo/vector-icons";
 import React, { useMemo, useRef, useState } from "react";
 import { Modal, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
 
-export type MaterialType = "Article" | "Infographic" | "Catalogue" | "Video" | "Document" | "Webinar" | "Podcast" | "External Link";
+export type MaterialType = "Article" | "Infographic" | "Catalogue" | "External Link";
 
 const OPTIONS: { key: MaterialType; icons: keyof typeof Ionicons.glyphMap }[] = [
   { key: "Article", icons: "document-text-outline" },
   { key: "Infographic", icons: "image-outline" },
   { key: "Catalogue", icons: "list-outline" },
-  { key: "Video", icons: "videocam-outline" },
-  { key: "Document", icons: "document-outline" },
-  { key: "Webinar", icons: "desktop-outline" },
-  { key: "Podcast", icons: "mic-outline" },
+  // { key: "Video", icons: "videocam-outline" },
+  // { key: "Document", icons: "document-outline" },
+  // { key: "Webinar", icons: "desktop-outline" },
+  // { key: "Podcast", icons: "mic-outline" },
   { key: "External Link", icons: "open-outline" },
 ];
 

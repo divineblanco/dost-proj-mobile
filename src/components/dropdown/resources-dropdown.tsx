@@ -198,7 +198,7 @@ const resources: Resources[] = [
   { label: "Guidelines", icon: "book-open" },
   { label: "Mental Health", icon: "heart" },
   { label: "Infographics", icon: "image" },
-  { label: "Videos", icon: "video" },
+  // { label: "Videos", icon: "video" },
   { label: "Research", icon: "search" },
 ];
 

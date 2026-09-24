@@ -1,13 +1,13 @@
 import {
-    EducationResource,
+  EducationResource,
 } from "./educational-resources";
 
 import {
-    ResourceItem,
+  ResourceItem,
 } from "@/components/cards/resources-card";
 
 import {
-    MaterialType,
+  MaterialType,
 } from "@/components/dropdown/material-dropdown";
 
 
@@ -83,14 +83,6 @@ const CATEGORY_STYLES: Record<
     labelColor: "#F57F17",
     accentColor: "#D4A000",
   },
-
-  videos: {
-    label: "Videos",
-    icon: "video-outline",
-    labelBg: "#EEF7F0",
-    labelColor: "#2E7D32",
-    accentColor: "#43A047",
-  },
 };
 
 
@@ -152,24 +144,12 @@ function mapMaterialType(
 
     case "ARTICLE":
       return "Article";
-
-    case "VIDEO":
-      return "Video";
-
-    case "DOCUMENT":
-      return "Document";
-
+      
     case "CATALOGUE":
       return "Catalogue";
 
     case "INFOGRAPHIC":
       return "Infographic";
-
-    case "WEBINAR":
-      return "Webinar";
-
-    case "PODCAST":
-      return "Podcast";
 
     case "EXTERNAL_LINK":
       return "External Link";

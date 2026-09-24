@@ -704,7 +704,6 @@ import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import useFormQuery from "@/lib/hooks/useFormQuery";
-import { API_KEY_VALUE } from "@/lib/services/api";
 import { viewDiscussionStyles } from "@/styles/profile/profile-components-styles";
 import { profileStyles } from "@/styles/profile/profile-styles";
 import { icon, scale, useResponsive } from "@/styles/responsive";
@@ -812,24 +811,25 @@ export default function MyDiscussions() {
 
   const { data: result, isLoading: loading } =
     useFormQuery<
-      ContributionsResponse,
-      { user_id: string }
+      ContributionsResponse
     >({
       key: ["my-discussions", currentUserId],
-      url: "maintenance/contribution",
-      enabled:
-        !authLoading &&
-        !!token &&
-        !!currentUserId,
+      url: `maintenance/contribution`,
       headers: {
-        Accept: "application/json",
         Authorization: `Bearer ${token}`,
-        "X-API-Key": API_KEY_VALUE,
+        "x-api-key": "testing",
+        "x-api-version": "2026-02-26"
       },
       params: {
-        user_id: currentUserId,
-      },
+        limit: 10,
+        orderBy: "created_at",
+        sortBy: "desc",
+        startCursor: "",
+        endCursor: "",
+        // user_id: "cmthzhxx00001riv3e19xpig0"
+      }
     });
+    console.log("RESULT: ", result)
 
   const discussions = useMemo<Discussion[]>(() => {
     const edges = Array.isArray(result?.data?.edges)

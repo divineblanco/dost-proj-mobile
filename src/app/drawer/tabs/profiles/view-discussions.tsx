@@ -495,7 +495,6 @@ import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import useFormQuery from "@/lib/hooks/useFormQuery";
-import { API_KEY_VALUE } from "@/lib/services/api";
 import { viewDiscussionStyles } from "@/styles/profile/profile-components-styles";
 import { profileStyles } from "@/styles/profile/profile-styles";
 import { icon, scale, useResponsive } from "@/styles/responsive";
@@ -604,24 +603,29 @@ export default function ViewDiscussions() {
 
   const [dropdownVisible, setDropdownVisible] = useState(false);
 
-  const currentUserId = String(user?.user_id ?? "").trim();
+  const currentUserId = String();
+
 
   const { data: result, isLoading: loading } = useFormQuery<
-    ContributionsResponse,
-    { user_id: string }
+    ContributionsResponse
   >({
     key: ["my-contributions", currentUserId],
-    url: "maintenance/contribution",
-    enabled: !authLoading && !!token && !!currentUserId,
+    url: "/maintenance/contribution",
     headers: {
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
-      "X-API-Key": API_KEY_VALUE,
-    },
+        Authorization: `Bearer ${token}`,
+        "x-api-key": "testing",
+        "x-api-version": "2026-02-26"
+      },
     params: {
-      user_id: currentUserId,
+      limit: 20,
+        orderBy: "created_at",
+        sortBy: "desc",
+        startCursor: "",
+        endCursor: "",
     },
   });
+
+  console.log("RESULT: ", result)
 
   const discussions = useMemo<Discussion[]>(() => {
     const edges = Array.isArray(result?.data?.edges)
@@ -920,17 +924,22 @@ export default function ViewDiscussions() {
 
                       {item.status === "Declined" &&
                       item.review_reason ? (
-                        <ThemedText
-                          style={[
-                            discussion.itemDesc,
-                            {
-                              color: "#C0392B",
-                              marginTop: 4,
-                            },
-                          ]}
-                        >
-                          {item.review_reason}
-                        </ThemedText>
+                        <ThemedView style={styles.declineRow}>
+                           <Ionicons
+                            name="information-circle-outline"
+                            size={icon(13)}
+                            color="#C0392B"
+                          />
+                          <ThemedText
+                            style={[
+                              styles.itemDesc,
+                              { marginLeft: scale(4), color: "#C0392B" },
+                            ]}
+                            numberOfLines={2}
+                          >
+                            {item.review_reason}
+                          </ThemedText>
+                        </ThemedView>
                       ) : null}
                     </ThemedView>
                   </ThemedView>

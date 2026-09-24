@@ -2,7 +2,7 @@ import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { icon, useResponsive } from "@/styles/responsive";
 import { earnPointsStyles } from "@/styles/rewards/rewards-components-styles";
-import { Feather, Ionicons } from "@expo/vector-icons";
+import { Feather, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import React, { useMemo } from "react";
 
 const earnPointsData = [
@@ -20,8 +20,8 @@ const earnPointsData = [
   },
   {
     id: 3,
-    icon: <Feather name="camera" size={icon(15)} color="#1A1F5E" />,
-    label: "Upload Media",
+    icon: <MaterialIcons name="attach-file" size={icon(15)} color="#1A1F5E" />,
+    label: "Attach Image / Link",
     points: "+20 pts",
   },
 ];
