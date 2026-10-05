@@ -151,14 +151,14 @@ export function editProfileStyles(r: ResponsiveValues) {
         ? font(18)
         : font(16),
       minHeight: verticalScale(40),
-      paddingTop: 
+      paddingVertical: 
         isCompactAndroid
         ? verticalScale(14)
         : isFold 
         ? verticalScale(10)
         : isAndroidTablet
         ? verticalScale(5)
-        : verticalScale(0),
+        : verticalScale(15),
     },
 
     inputDefault: {

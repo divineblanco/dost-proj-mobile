@@ -1,122 +1,30 @@
-// import { ThemedText } from "@/components/themed-text";
-// import { ThemedView } from "@/components/themed-view";
-// import { icon, useResponsive } from "@/styles/responsive";
-// import { settingsStyles } from "@/styles/settings/settings-styles";
-// import { Ionicons } from "@expo/vector-icons";
-// import { router } from "expo-router";
-// import React, { useMemo } from "react";
-// import {
-//   ScrollView,
-//   TouchableOpacity
-// } from "react-native";
-
-// const ACTIVITYLOG = [
-//   {
-//     icon: "person-outline",
-//     title: "Name",
-//     desc: "You changed your name to name.",
-//     date: "1 yr",
-//     route: "/drawer/tabs/setting/profile-settings",
-//   },
-//   {
-//     icon: "mail-outline",
-//     title: "Email",
-//     desc: "You changed your email address to new@email.com.",
-//     date: "2 yrs",
-//     route: "/drawer/tabs/setting/profile-settings",
-//   },
-//   {
-//     icon: "information-circle-outline",
-//     title: "Account Created",
-//     desc: "You created your account on March 1, 2023",
-//     date: "3 yrs",
-//     route: "/drawer/tabs/profiles/profile",
-//   },
-// ];
-
-// export default function ActivityLog() {
-
-//       const r = useResponsive();
-            
-//       const styles = useMemo(() => settingsStyles(r), [r]);
-      
-//   return (
-//     <ScrollView
-//       style={styles.pageContainer}
-//       contentContainerStyle={styles.scrollContent}
-//     >
-//       <ThemedView>
-//         <ThemedView style={styles.headerContainer}>
-//           <ThemedText style={styles.headerTxt}>
-//             Review changes you’ve made to your account since you created it.
-//           </ThemedText>
-//         </ThemedView>
-
-//         <ThemedView style={styles.dividerLine}></ThemedView>
-
-//         {ACTIVITYLOG.map((item, index) => (
-//           <React.Fragment key={index}>
-//             <ThemedView style={styles.row}>
-//               <Ionicons
-//                 name={item.icon as keyof typeof Ionicons.glyphMap}
-//                 size={icon(20)}
-//                 color="#35408E"
-//               />
-
-//               <ThemedView style={styles.column}>
-//                 <ThemedText style={styles.title}>
-//                   {item.title}
-//                 </ThemedText>
-
-//                 <ThemedText style={styles.desc}>
-//                   {item.desc}
-//                 </ThemedText>
-
-//                 <ThemedText style={styles.date}>
-//                   {item.date}
-//                 </ThemedText>
-//               </ThemedView>
-
-//               <TouchableOpacity onPress={() => router.push(item.route as any)}>
-//                 <Ionicons
-//                   name="chevron-forward"
-//                   size={icon(20)}
-//                   color="#35408E"
-//                 />
-//               </TouchableOpacity>
-//             </ThemedView>
-
-            
-//           </React.Fragment>
-//         ))}
-        
-
-//       </ThemedView>
-//     </ScrollView>
-//   );
-//}
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import useFormQuery from "@/lib/hooks/useFormQuery";
 import { ActivityLogsInterfaceResult } from "@/lib/interface/activitiy-logs/activity-log.interface";
-import { icon, useResponsive } from "@/styles/responsive";
+import { icon, useResponsive, verticalScale } from "@/styles/responsive";
 import { settingsStyles } from "@/styles/settings/settings-styles";
 import { Ionicons } from "@expo/vector-icons";
-import React, { useMemo } from "react";
-import { ActivityIndicator, ScrollView, View } from "react-native";
+import React, { useMemo, useState } from "react";
+import { ActivityIndicator, Pressable, ScrollView, View } from "react-native";
+
+const PAGE_SIZE = 20;
 
 export default function ActivityLog() {
   const r = useResponsive();
   const styles = useMemo(() => settingsStyles(r), [r]);
-  const { user, token, isLoading: authLoading } = useAuth();
+  const { user, token, isLoading: authLoading, isAuthenticated } = useAuth();
 
   const currentUserId = user?.user_id ?? "";
-  const canLoadLogs = !authLoading && Boolean(currentUserId) && Boolean(token);
+  const canLoadLogs =
+    !authLoading && isAuthenticated && Boolean(currentUserId) && Boolean(token);
 
-  const { data, isLoading, isFetching, isError, error, refetch } =
+  const [page, setPage] = useState(1);
+
+  const { data, isLoading, isFetching, isError, error } =
     useFormQuery<ActivityLogsInterfaceResult>({
-      key: ["activity-logs", currentUserId],
+      key: ["activity-logs", currentUserId, token],
       url: `/maintenance/activity-logs/${currentUserId}`,
       enabled: canLoadLogs,
       headers: {
@@ -125,7 +33,7 @@ export default function ActivityLog() {
         Authorization: `Bearer ${token ?? ""}`,
       },
       params: {
-        limit: 20,
+        limit: 1000,
         orderBy: "created_at",
         sortBy: "desc",
         startCursor: "",
@@ -133,134 +41,575 @@ export default function ActivityLog() {
       },
     });
 
-  console.log("[ACTIVITY] USER ID:", currentUserId);
-  console.log("[ACTIVITY] TOKEN:", Boolean(token));
-  console.log("[ACTIVITY] AUTH LOADING:", authLoading);
-  console.log("[ACTIVITY] CAN LOAD:", canLoadLogs);
-  console.log("[ACTIVITY] RESPONSE:", JSON.stringify(data, null, 2));
+  if (isError) console.log("[ACTIVITY] ERROR:", error);
 
-  if (isError) {
-    console.log("[ACTIVITY] ERROR:", error);
-  }
+  const allLogs = data?.data?.edges ?? [];
+  const totalLogs = allLogs.length;
 
-  const logs = data?.data?.edges ?? [];
+  const totalPages = Math.ceil(totalLogs / PAGE_SIZE);
+  const startIndex = (page - 1) * PAGE_SIZE;
+  const endIndex = startIndex + PAGE_SIZE;
+  const logs = allLogs.slice(startIndex, endIndex);
+
+  const hasNextPage = page < totalPages;
+  const hasPrevPage = page > 1;
+
+  const handleNextPage = () => {
+    if (!hasNextPage || isFetching) return;
+    setPage((prev) => prev + 1);
+  };
+
+  const handlePrevPage = () => {
+    if (!hasPrevPage || isFetching) return;
+    setPage((prev) => prev - 1);
+  };
 
   const getIcon = (type: string): keyof typeof Ionicons.glyphMap => {
     const value = type?.toLowerCase().replace(/[_-]/g, " ") ?? "";
-    if (value.includes("login") || value.includes("sign in") || value.includes("signin")) return "log-in-outline";
-    if (value.includes("logout") || value.includes("sign out") || value.includes("signout")) return "log-out-outline";
+
+    if (value.includes("login") || value.includes("sign in") || value.includes("signin"))
+      return "log-in-outline";
+
+    if (value.includes("logout") || value.includes("sign out") || value.includes("signout"))
+      return "log-out-outline";
+
     if (value.includes("name") || value.includes("profile")) return "person-outline";
     if (value.includes("email") || value.includes("mail")) return "mail-outline";
     if (value.includes("password")) return "lock-closed-outline";
     if (value.includes("organization")) return "business-outline";
     if (value.includes("address") || value.includes("location")) return "location-outline";
+
     return "information-circle-outline";
   };
 
   const formatDate = (value: string) => {
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return "";
-    return date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
   };
 
   const formatTime = (value: string) => {
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return "";
-    return date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", second: "2-digit" });
+
+    return date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      second: "2-digit",
+    });
   };
 
   const formatRelative = (value: string) => {
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return "";
+
     const minutes = Math.floor((Date.now() - date.getTime()) / 60000);
     const hours = Math.floor(minutes / 60);
     const days = Math.floor(hours / 24);
     const months = Math.floor(days / 30);
     const years = Math.floor(days / 365);
+
     if (years) return `${years} ${years === 1 ? "yr" : "yrs"}`;
     if (months) return `${months} ${months === 1 ? "mo" : "mos"}`;
     if (days) return `${days} ${days === 1 ? "day" : "days"}`;
     if (hours) return `${hours} ${hours === 1 ? "hr" : "hrs"}`;
     if (minutes) return `${minutes} ${minutes === 1 ? "min" : "mins"}`;
+
     return "Just now";
   };
 
-  const messageStyle = {
-    paddingVertical: r.spacing(24),
-    alignItems: "center" as const,
-  };
+  const renderMessage = (message: string, loading = false) => (
+    <View style={{ paddingVertical: r.spacing(24), alignItems: "center" }}>
+      {loading && <ActivityIndicator size="small" color="#35408E" />}
+      <ThemedText style={styles.desc}>{message}</ThemedText>
+    </View>
+  );
 
   return (
-    <ScrollView style={styles.pageContainer} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+    <ScrollView
+      style={styles.pageContainer}
+      contentContainerStyle={styles.scrollContent}
+      showsVerticalScrollIndicator={false}
+    >
       <ThemedView>
         <ThemedView style={styles.headerContainer}>
           <ThemedText style={styles.headerTxt}>
-            Track, review, and audit all recent actions and changes made within your account.
+            Track, review, and audit all recent actions and changes made within
+            your account.
           </ThemedText>
         </ThemedView>
 
         <ThemedView style={styles.dividerLine} />
 
-        {authLoading && (
-          <View style={messageStyle}>
-            <ActivityIndicator size="small" color="#35408E" />
-          </View>
-        )}
+        {authLoading && renderMessage("Loading your account...", true)}
 
-        {!authLoading && !currentUserId && (
-          <View style={messageStyle}>
-            <ThemedText style={styles.desc}>Unable to identify the logged-in user.</ThemedText>
-          </View>
-        )}
+        {!authLoading &&
+          !isAuthenticated &&
+          renderMessage("You are not signed in.")}
 
-        {!authLoading && currentUserId && !token && (
-          <View style={messageStyle}>
-            <ThemedText style={styles.desc}>Authentication token is missing.</ThemedText>
-          </View>
-        )}
+        {!authLoading &&
+          isAuthenticated &&
+          !currentUserId &&
+          renderMessage("Loading your user information...", true)}
 
-        {canLoadLogs && isLoading && (
-          <View style={messageStyle}>
-            <ActivityIndicator size="small" color="#35408E" />
-          </View>
-        )}
+        {canLoadLogs &&
+          isLoading &&
+          renderMessage("Loading activity logs...", true)}
 
-        {canLoadLogs && !isLoading && isError && (
-          <View style={messageStyle}>
-            <ThemedText style={styles.desc}>Failed to load activity logs.</ThemedText>
-          </View>
-        )}
+        {canLoadLogs &&
+          !isLoading &&
+          isError &&
+          renderMessage("Failed to load activity logs.")}
 
-        {canLoadLogs && !isLoading && !isError && logs.length === 0 && (
-          <View style={messageStyle}>
-            <ThemedText style={styles.desc}>No activity logs available.</ThemedText>
+        {canLoadLogs &&
+          !isLoading &&
+          !isError &&
+          totalLogs === 0 &&
+          renderMessage("No activity logs available.")}
+
+        {canLoadLogs &&
+          !isError &&
+          logs.map((edge, index) => {
+            const item = edge.node;
+            if (!item) return null;
+
+            return (
+              <ThemedView
+                key={item.activity_logs_id || `${edge.cursor}-${index}`}
+                style={styles.row}
+              >
+                <Ionicons
+                  name={getIcon(item.type)}
+                  size={icon(20)}
+                  color="#35408E"
+                />
+
+                <ThemedView style={styles.column}>
+                  <ThemedText style={styles.title}>
+                    {item.type}
+                  </ThemedText>
+
+                  <ThemedText style={styles.desc}>
+                    {item.decription}
+                  </ThemedText>
+
+                  <ThemedText style={styles.date}>
+                    {formatRelative(item.created_at)} •{" "}
+                    {formatDate(item.created_at)} •{" "}
+                    {formatTime(item.created_at)}
+                  </ThemedText>
+                </ThemedView>
+              </ThemedView>
+            );
+          })}
+
+        {canLoadLogs && !isError && totalLogs > 0 && (
+          <View
+            style={styles.paginationContainer}
+          >
+            <Pressable
+              onPress={handlePrevPage}
+              disabled={!hasPrevPage || isFetching}
+              style={[ styles.arrows, {
+                backgroundColor:
+                  !hasPrevPage || isFetching ? "#E5E7EB" : "#35408E",
+              }]}
+            >
+              <Ionicons
+                name="chevron-back"
+                size={icon(18)}
+                color={!hasPrevPage || isFetching ? "#9CA3AF" : "#FFFFFF"}
+              />
+            </Pressable>
+
+            <ThemedText style={{ fontWeight: "600" }}>
+              {page} of {totalPages}
+            </ThemedText>
+
+            <Pressable
+              onPress={handleNextPage}
+              disabled={!hasNextPage || isFetching}
+              style={[ styles.arrows, {
+                backgroundColor:
+                  !hasNextPage || isFetching ? "#E5E7EB" : "#35408E",
+              }]}
+            >
+
+              <Ionicons
+                name="chevron-forward"
+                size={icon(18)}
+                color={!hasNextPage || isFetching ? "#9CA3AF" : "#FFFFFF"}
+              />
+            </Pressable>
           </View>
         )}
 
         {canLoadLogs && isFetching && !isLoading && (
-          <View style={{ alignItems: "center", paddingVertical: 8 }}>
+          <View style={{ alignItems: "center", paddingBottom: verticalScale(12) }}>
             <ActivityIndicator size="small" color="#35408E" />
           </View>
         )}
-
-        {canLoadLogs && !isError && logs.map((edge, index) => {
-          const item = edge.node;
-          if (!item) return null;
-
-          return (
-            <ThemedView key={item.activity_logs_id ?? `${edge.cursor}-${index}`} style={styles.row}>
-              <Ionicons name={getIcon(item.type)} size={icon(20)} color="#35408E" />
-              <ThemedView style={styles.column}>
-                <ThemedText style={styles.title}>{item.type}</ThemedText>
-                <ThemedText style={styles.desc}>{item.decription}</ThemedText>
-                <ThemedText style={styles.date}>
-                  {formatRelative(item.created_at)} • {formatDate(item.created_at)} • {formatTime(item.created_at)}
-                </ThemedText>
-              </ThemedView>
-            </ThemedView>
-          );
-        })}
       </ThemedView>
     </ScrollView>
   );
 }
+
+
+// import { ThemedText } from "@/components/themed-text";
+// import { ThemedView } from "@/components/themed-view";
+// import { useAuth } from "@/lib/auth/AuthProvider";
+// import useFormQuery from "@/lib/hooks/useFormQuery";
+// import { ActivityLogsInterfaceResult } from "@/lib/interface/activitiy-logs/activity-log.interface";
+// import { icon, useResponsive } from "@/styles/responsive";
+// import { settingsStyles } from "@/styles/settings/settings-styles";
+// import { Ionicons } from "@expo/vector-icons";
+// import React, { useMemo, useState } from "react";
+// import { ActivityIndicator, Pressable, ScrollView, View } from "react-native";
+
+// const PAGE_SIZE = 20;
+
+// export default function ActivityLog() {
+//   const r = useResponsive();
+//   const styles = useMemo(() => settingsStyles(r), [r]);
+//   const { user, token, isLoading: authLoading, isAuthenticated } = useAuth();
+
+//   const currentUserId = user?.user_id ?? "";
+//   const canLoadLogs =
+//     !authLoading && isAuthenticated && Boolean(currentUserId) && Boolean(token);
+
+//   const [endCursor, setEndCursor] = useState("");
+//   const [startCursor, setStartCursor] = useState("");
+//   const [currentPage, setCurrentPage] = useState(1);
+
+//   const { data, isLoading, isFetching, isError, error } =
+//     useFormQuery<ActivityLogsInterfaceResult>({
+//       key: [
+//         "activity-logs",
+//         currentUserId,
+//         endCursor,
+//         startCursor,
+//         PAGE_SIZE,
+//       ],
+//       url: `/maintenance/activity-logs/${currentUserId}`,
+//       enabled: canLoadLogs,
+//       headers: {
+//         "x-api-key": "testing",
+//         "x-api-version": "2026-02-26",
+//         Authorization: `Bearer ${token ?? ""}`,
+//       },
+//       params: {
+//         orderBy: "created_at",
+//         sortBy: "desc",
+//         limit: PAGE_SIZE,
+//         after: endCursor || undefined,
+//         before: startCursor || undefined,
+//       },
+//     });
+
+//   if (isError) {
+//     console.log("[ACTIVITY] ERROR:", error);
+//   }
+
+//   const logs = data?.data?.edges ?? [];
+//   const pageInfo = data?.data?.pageInfo;
+//   const totalCount = data?.data?.totalCount ?? 0;
+//   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+
+//   const handleNextPage = () => {
+//     if (!pageInfo?.hasNextPage || !pageInfo.endCursor || isFetching) return;
+
+//     setStartCursor("");
+//     setEndCursor(pageInfo.endCursor);
+//     setCurrentPage((prev) => prev + 1);
+//   };
+
+//   const handlePrevPage = () => {
+//     if (!pageInfo?.hasPrevPage || !pageInfo.startCursor || isFetching) return;
+
+//     setEndCursor("");
+//     setStartCursor(pageInfo.startCursor);
+//     setCurrentPage((prev) => Math.max(1, prev - 1));
+//   };
+
+//   const getIcon = (type: string): keyof typeof Ionicons.glyphMap => {
+//     const value = type?.toLowerCase().replace(/[_-]/g, " ") ?? "";
+
+//     if (
+//       value.includes("login") ||
+//       value.includes("sign in") ||
+//       value.includes("signin")
+//     ) {
+//       return "log-in-outline";
+//     }
+
+//     if (
+//       value.includes("logout") ||
+//       value.includes("sign out") ||
+//       value.includes("signout")
+//     ) {
+//       return "log-out-outline";
+//     }
+
+//     if (value.includes("name") || value.includes("profile")) {
+//       return "person-outline";
+//     }
+
+//     if (value.includes("email") || value.includes("mail")) {
+//       return "mail-outline";
+//     }
+
+//     if (value.includes("password")) {
+//       return "lock-closed-outline";
+//     }
+
+//     if (value.includes("organization")) {
+//       return "business-outline";
+//     }
+
+//     if (value.includes("address") || value.includes("location")) {
+//       return "location-outline";
+//     }
+
+//     return "information-circle-outline";
+//   };
+
+//   const formatDate = (value: string | undefined) => {
+//     if (!value) return "";
+
+//     const date = new Date(value);
+//     if (Number.isNaN(date.getTime())) return "";
+
+//     return date.toLocaleDateString("en-US", {
+//       year: "numeric",
+//       month: "long",
+//       day: "numeric",
+//     });
+//   };
+
+//   const formatTime = (value: string | undefined) => {
+//     if (!value) return "";
+
+//     const date = new Date(value);
+//     if (Number.isNaN(date.getTime())) return "";
+
+//     return date.toLocaleTimeString("en-US", {
+//       hour: "numeric",
+//       minute: "2-digit",
+//       second: "2-digit",
+//     });
+//   };
+
+//   const formatRelative = (value: string | undefined) => {
+//     if (!value) return "";
+
+//     const date = new Date(value);
+//     if (Number.isNaN(date.getTime())) return "";
+
+//     const minutes = Math.floor((Date.now() - date.getTime()) / 60000);
+//     const hours = Math.floor(minutes / 60);
+//     const days = Math.floor(hours / 24);
+//     const months = Math.floor(days / 30);
+//     const years = Math.floor(days / 365);
+
+//     if (years) return `${years} ${years === 1 ? "yr" : "yrs"}`;
+//     if (months) return `${months} ${months === 1 ? "mo" : "mos"}`;
+//     if (days) return `${days} ${days === 1 ? "day" : "days"}`;
+//     if (hours) return `${hours} ${hours === 1 ? "hr" : "hrs"}`;
+//     if (minutes) return `${minutes} ${minutes === 1 ? "min" : "mins"}`;
+
+//     return "Just now";
+//   };
+
+//   const renderMessage = (message: string, loading = false) => (
+//     <View style={{ paddingVertical: r.spacing(24), alignItems: "center" }}>
+//       {loading && <ActivityIndicator size="small" color="#35408E" />}
+//       <ThemedText style={styles.desc}>{message}</ThemedText>
+//     </View>
+//   );
+
+//   return (
+//     <ScrollView
+//       style={styles.pageContainer}
+//       contentContainerStyle={styles.scrollContent}
+//       showsVerticalScrollIndicator={false}
+//     >
+//       <ThemedView>
+//         <ThemedView style={styles.headerContainer}>
+//           <ThemedText style={styles.headerTxt}>
+//             Track, review, and audit all recent actions and changes made within
+//             your account.
+//           </ThemedText>
+//         </ThemedView>
+
+//         <ThemedView style={styles.dividerLine} />
+
+//         {authLoading && renderMessage("Loading your account...", true)}
+
+//         {!authLoading &&
+//           !isAuthenticated &&
+//           renderMessage("You are not signed in.")}
+
+//         {!authLoading &&
+//           isAuthenticated &&
+//           !currentUserId &&
+//           renderMessage("Loading your user information...", true)}
+
+//         {canLoadLogs &&
+//           isLoading &&
+//           renderMessage("Loading activity logs...", true)}
+
+//         {canLoadLogs &&
+//           !isLoading &&
+//           isError &&
+//           renderMessage("Failed to load activity logs.")}
+
+//         {canLoadLogs &&
+//           !isLoading &&
+//           !isError &&
+//           logs.length === 0 &&
+//           renderMessage("No activity logs available.")}
+
+//         {canLoadLogs &&
+//           !isError &&
+//           logs.map((edge, index) => {
+//             const item = edge.node;
+//             if (!item) return null;
+
+//             return (
+//               <ThemedView
+//                 key={item.activity_logs_id || `${edge.cursor}-${index}`}
+//                 style={styles.row}
+//               >
+//                 <Ionicons
+//                   name={getIcon(item.type)}
+//                   size={icon(20)}
+//                   color="#35408E"
+//                 />
+
+//                 <ThemedView style={styles.column}>
+//                   <ThemedText style={styles.title}>
+//                     {item.type}
+//                   </ThemedText>
+
+//                   <ThemedText style={styles.desc}>
+//                     {item.decription}
+//                   </ThemedText>
+
+//                   <ThemedText style={styles.date}>
+//                     {formatRelative(item.created_at)} •{" "}
+//                     {formatDate(item.created_at)} •{" "}
+//                     {formatTime(item.created_at)}
+//                   </ThemedText>
+//                 </ThemedView>
+//               </ThemedView>
+//             );
+//           })}
+
+//         {canLoadLogs && !isError && logs.length > 0 && (
+//           <View
+//             style={{
+//               flexDirection: "row",
+//               alignItems: "center",
+//               justifyContent: "center",
+//               gap: 16,
+//               paddingVertical: r.spacing(24),
+//             }}
+//           >
+//             <Pressable
+//               onPress={handlePrevPage}
+//               disabled={!pageInfo?.hasPrevPage || isFetching}
+//               style={{
+//                 flexDirection: "row",
+//                 alignItems: "center",
+//                 paddingHorizontal: 16,
+//                 paddingVertical: 10,
+//                 borderRadius: 8,
+//                 backgroundColor:
+//                   !pageInfo?.hasPrevPage || isFetching
+//                     ? "#E5E7EB"
+//                     : "#35408E",
+//               }}
+//             >
+//               <Ionicons
+//                 name="chevron-back"
+//                 size={18}
+//                 color={
+//                   !pageInfo?.hasPrevPage || isFetching
+//                     ? "#9CA3AF"
+//                     : "#FFFFFF"
+//                 }
+//               />
+
+//               <ThemedText
+//                 style={{
+//                   marginLeft: 4,
+//                   color:
+//                     !pageInfo?.hasPrevPage || isFetching
+//                       ? "#9CA3AF"
+//                       : "#FFFFFF",
+//                   fontWeight: "600",
+//                 }}
+//               >
+//                 Previous
+//               </ThemedText>
+//             </Pressable>
+
+//             <ThemedText style={{ fontWeight: "600" }}>
+//               Page {currentPage} of {totalPages}
+//             </ThemedText>
+
+//             <Pressable
+//               onPress={handleNextPage}
+//               disabled={!pageInfo?.hasNextPage || isFetching}
+//               style={{
+//                 flexDirection: "row",
+//                 alignItems: "center",
+//                 paddingHorizontal: 16,
+//                 paddingVertical: 10,
+//                 borderRadius: 8,
+//                 backgroundColor:
+//                   !pageInfo?.hasNextPage || isFetching
+//                     ? "#E5E7EB"
+//                     : "#35408E",
+//               }}
+//             >
+//               <ThemedText
+//                 style={{
+//                   marginRight: 4,
+//                   color:
+//                     !pageInfo?.hasNextPage || isFetching
+//                       ? "#9CA3AF"
+//                       : "#FFFFFF",
+//                   fontWeight: "600",
+//                 }}
+//               >
+//                 Next
+//               </ThemedText>
+
+//               <Ionicons
+//                 name="chevron-forward"
+//                 size={18}
+//                 color={
+//                   !pageInfo?.hasNextPage || isFetching
+//                     ? "#9CA3AF"
+//                     : "#FFFFFF"
+//                 }
+//               />
+//             </Pressable>
+//           </View>
+//         )}
+
+//         {canLoadLogs && isFetching && !isLoading && (
+//           <View style={{ alignItems: "center", paddingBottom: 12 }}>
+//             <ActivityIndicator size="small" color="#35408E" />
+//           </View>
+//         )}
+//       </ThemedView>
+//     </ScrollView>
+//   );
+// }

@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import { font, isAndroidTablet, radius, ResponsiveValues, scale, verticalScale } from "../responsive";
+import { font, isAndroidTablet, radius, ResponsiveValues, scale, spacing, verticalScale } from "../responsive";
 
 export function settingsStyles (r: ResponsiveValues) {
     const {
@@ -307,6 +307,21 @@ export function settingsStyles (r: ResponsiveValues) {
     lineHeight: font(14),
     fontWeight: "400",
     padding: scale(10)
+  },
+
+  paginationContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: scale(16),
+    paddingVertical: spacing(24),
+  },
+
+  arrows: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: scale(10),
+    borderRadius: radius(8),
   },
 
   //LANGUAGE

@@ -796,6 +796,7 @@ export function createAuthStyles(r: ResponsiveValues) {
         : isFold || isCompactAndroid                        ? "31%"
         : "48%",
       alignItems: "center",
+      justifyContent: "center",
       gap:
         isAnyIPadPortrait || isNormalFold || isCompactAndroid ||
         isAnyTabletLandscape                                ? spacing(5)
@@ -855,6 +856,7 @@ export function createAuthStyles(r: ResponsiveValues) {
       lineHeight: font(16),
       fontWeight: "600",
       color: "#4B5563",
+      textAlign: "center"
     },
 
     boxTitleSelected: { color: "#35408E" },

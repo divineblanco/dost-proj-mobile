@@ -181,7 +181,7 @@ import { ThemedView } from "@/components/themed-view";
 import { mapEducationResources } from "@/lib/services/educational-resource-mapper";
 import { getEducationalResources } from "@/lib/services/educational-resources";
 import { resourcesPageStyles } from "@/styles/resources/resources-styles";
-import { icon, scale, useResponsive } from "@/styles/responsive";
+import { font, icon, scale, useResponsive } from "@/styles/responsive";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import React, {
@@ -764,6 +764,7 @@ export default function Resources() {
                       "center",
                     marginTop:
                       scale(12),
+                    lineHeight: font(13)
                   }}
                 >
                   {resourcesData.length >
@@ -791,6 +792,7 @@ export default function Resources() {
                           "#35408E",
                         fontWeight:
                           "700",
+                        lineHeight: font(13)
                       }}
                     >
                       Clear filters

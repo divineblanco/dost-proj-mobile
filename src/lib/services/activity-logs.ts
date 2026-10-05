@@ -1,43 +1,69 @@
 import { API_URL } from "@/lib/services/api";
 import axios from "axios";
 
-export interface CreateActivityLogPayload {
-  type: string;
-  description?: string;
-  user_id?: string;
+export interface CreateActivityLogPayload{
+  type:string;
+  description?:string;
+  user_id?:string;
 }
 
 export async function createActivityLog(
-  payload: CreateActivityLogPayload,
-  token?: string
-) {
-  const endpoint = `${API_URL}/maintenance/activity-logs`;
+  payload:CreateActivityLogPayload,
+  token?:string
+){
+  const endpoint=
+    `${API_URL}/maintenance/activity-logs`;
 
-  console.log("[ACTIVITY LOG] Creating activity log");
-  console.log("[ACTIVITY LOG] URL:", endpoint);
-  console.log("[ACTIVITY LOG] Payload:", payload);
-  console.log("[ACTIVITY LOG] Token exists:", Boolean(token));
+  console.log(
+    "[ACTIVITY LOG] Creating activity"
+  );
 
-  const response = await axios.post(endpoint, payload, {
-    headers: {
-      "x-api-key": "testing",
-      "x-api-version": "2026-02-26",
-      ...(token
-        ? {
-            Authorization: `Bearer ${token}`,
-          }
-        : {}),
-      "Content-Type": "application/json",
-    },
-  });
+  console.log(
+    "[ACTIVITY LOG] URL:",
+    endpoint
+  );
+
+  console.log(
+    "[ACTIVITY LOG] USER ID:",
+    payload.user_id
+  );
+
+  console.log(
+    "[ACTIVITY LOG] TOKEN EXISTS:",
+    Boolean(token)
+  );
+
+  const response=await axios.post(
+    endpoint,
+    payload,
+    {
+      headers:{
+        "x-api-key":"testing",
+        "x-api-version":"2026-02-26",
+        ...(token
+          ?{
+              Authorization:
+                `Bearer ${token}`,
+            }
+          :{}),
+        "Content-Type":
+          "application/json",
+      },
+    }
+  );
 
   console.log(
     "[ACTIVITY LOG] Created:",
-    JSON.stringify(response.data, null, 2)
+    JSON.stringify(
+      response.data,
+      null,
+      2
+    )
   );
 
   return response.data;
 }
+
 
 
 // import { API_URL } from "@/lib/services/api";

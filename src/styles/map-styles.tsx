@@ -109,7 +109,7 @@ export function mapStyles(r: ResponsiveValues) {
         // position: "absolute",
         top: -5,
         backgroundColor: "#35408E",
-        padding: 12,
+        padding: 10,
         borderRadius: radius(30),
         zIndex: 999,
     },
@@ -538,7 +538,7 @@ export function mapDropdownStyles(r: ResponsiveValues) {
     
 container: {
     width: 
-        isLargeIPadPortrait || isIPadPortrait ? "94%" :
+        isLargeIPadPortrait || isIPadPortrait ? "93%" :
         isAndroidTabletLandscape || isIPadLandscape
         || isIPadMiniLandscape || isLargeIPadLandscape ? "95%" :
 

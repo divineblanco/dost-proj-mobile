@@ -110,7 +110,7 @@ export function MisinformationFilter({ onClose, onApply }: Props) {
   const LANGUAGE_OPTIONS = [
     "All Languages",
     "English",
-    "Filipino",
+    "Tagalog",
     "Cebuano",
     "Ilocano",
     "Bicolano",

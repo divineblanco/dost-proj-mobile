@@ -121,86 +121,88 @@ import { createAuthStyles } from "@/styles/auth-styles";
 import { icon, useResponsive } from "@/styles/responsive";
 import { Ionicons } from "@expo/vector-icons";
 import { useMemo, useRef, useState } from "react";
-import { ActivityIndicator, Modal, ScrollView, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
+import {
+  ActivityIndicator,
+  Modal,
+  ScrollView,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
 import { ThemedText } from "../themed-text";
 
 type Organization = {
-  id?: number | string;
-  name?: string;
-  organization_name?: string;
-  organizationName?: string;
-};
-
-type OrganizationEdge = {
-  node?: Organization;
-  id?: number | string;
-  name?: string;
-  organization_name?: string;
-  organizationName?: string;
+  organization_id: string;
+  name: string;
+  slug?: string;
+  description?: string;
+  is_deleted?: boolean;
 };
 
 type OrganizationResponse = {
   data?: {
-    edges?: OrganizationEdge[];
+    edges?: Array<{
+      node: Organization;
+      cursor: string;
+    }>;
     pageInfo?: {
-      endCursor?: string;
-      hasNextPage?: boolean;
-      hasPrevPage?: boolean;
-      startCursor?: string;
+      startCursor: string;
+      endCursor: string;
+      hasNextPage: boolean;
+      hasPrevPage: boolean;
     };
-    success?: boolean;
-    timestamp?: string;
     totalCount?: number;
-  };
-  meta?: {
-    api_version?: string;
-    deprecated?: boolean;
-    method?: string;
-    path?: string;
-    query?: Record<string, string>;
-    requested_version?: string;
-    status?: number;
-    sunset_date?: string | null;
     timestamp?: string;
+    success?: boolean;
   };
 };
 
-export function OrgDropdown({
-  value,
-  onChange,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-}) {
+type Props = {
+  value: string | null;
+  onChange: (organization: Organization) => void;
+};
+
+export function OrgDropdown({ value, onChange }: Props) {
   const r = useResponsive();
   const styles = useMemo(() => createAuthStyles(r), [r]);
-  const [open, setOpen] = useState(false);
-  const triggerRef = useRef<View>(null);
-  const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0, width: 0 });
 
-  const { data, isLoading, isError, error } = useFormQuery<OrganizationResponse>({
-    key: ["organizations"],
-    url: "/maintenance/organization",
-    headers: {
-      "x-api-key": "testing",
-      "x-api-version": "2026-02-26",
-    },
-    params: {
-      limit: 20,
-      orderBy: "created_at",
-      sortBy: "desc",
-      startCursor: "",
-      endCursor: "",
-    },
+  const [open, setOpen] = useState(false);
+  const [dropdownPos, setDropdownPos] = useState({
+    top: 0,
+    left: 0,
+    width: 0,
   });
 
-  console.log("ORGANIZATION API RESPONSE:", JSON.stringify(data, null, 2));
-  console.log("ORGANIZATION API ERROR:", error);
+  const triggerRef = useRef<View>(null);
 
-  const organizations = useMemo<OrganizationEdge[]>(
-    () => data?.data?.edges ?? [],
+  const { data, isLoading, isError, error } = useFormQuery<
+    OrganizationResponse,
+    Record<string, never>
+  >({
+    key: ["maintenance-organizations"],
+    url: "/maintenance/organization",
+    enabled: true,
+  });
+
+  const organizations = useMemo(
+    () =>
+      (data?.data?.edges ?? [])
+        .map(edge => edge.node)
+        .filter(organization => !organization.is_deleted),
     [data]
   );
+
+  const selectedOrganization = useMemo(
+    () =>
+      value
+        ? organizations.find(
+            organization => organization.organization_id === value
+          ) ?? null
+        : null,
+    [organizations, value]
+  );
+
+  const hasValue = Boolean(selectedOrganization);
 
   const openDrop = () => {
     if (open) {
@@ -218,8 +220,9 @@ export function OrgDropdown({
     });
   };
 
-  const hasValue = value.length > 0;
-  const iconColor = hasValue ? "#35408E" : "#9BA8C0";
+  if (isError) {
+    console.log("[OrgDropdown] Failed to load organizations:", error);
+  }
 
   return (
     <View>
@@ -228,21 +231,32 @@ export function OrgDropdown({
         style={[styles.orgTrigger, hasValue && styles.orgTriggerFilled]}
         onPress={openDrop}
         activeOpacity={0.8}
+        disabled={isLoading}
       >
-        <Ionicons name="business-outline" size={icon(16)} color={iconColor} />
+        <Ionicons
+          name="business-outline"
+          size={icon(16)}
+          color={hasValue ? "#35408E" : "#9BA8C0"}
+        />
 
         <ThemedText
           style={[styles.orgTriggerText, hasValue && styles.orgTriggerTextActive]}
           numberOfLines={1}
         >
-          {hasValue ? value : "Select organization"}
+          {isLoading
+            ? "Loading organizations..."
+            : selectedOrganization?.name ?? "Select organization"}
         </ThemedText>
 
-        <Ionicons
-          name={open ? "chevron-up" : "chevron-down"}
-          size={icon(14)}
-          color={iconColor}
-        />
+        {isLoading ? (
+          <ActivityIndicator size="small" color="#35408E" />
+        ) : (
+          <Ionicons
+            name={open ? "chevron-up" : "chevron-down"}
+            size={icon(14)}
+            color={hasValue ? "#35408E" : "#9BA8C0"}
+          />
+        )}
       </TouchableOpacity>
 
       <Modal
@@ -250,6 +264,7 @@ export function OrgDropdown({
         transparent
         statusBarTranslucent
         supportedOrientations={["portrait", "landscape"]}
+        onRequestClose={() => setOpen(false)}
       >
         <TouchableWithoutFeedback onPress={() => setOpen(false)}>
           <View style={styles.modalOverlay1}>
@@ -264,57 +279,58 @@ export function OrgDropdown({
                   },
                 ]}
               >
-                {isLoading && (
-                  <View style={{ padding: r.spacing(12), alignItems: "center" }}>
-                    <ActivityIndicator size="small" color="#35408E" />
-                  </View>
-                )}
-
-                {!isLoading && isError && (
+                {isError && (
                   <View style={{ padding: r.spacing(12) }}>
-                    <ThemedText style={styles.orgItemText}>
-                      Failed to load organizations.
+                    <ThemedText style={{ color: "#E53935", textAlign: "center" }}>
+                      Unable to load organizations.
                     </ThemedText>
                   </View>
                 )}
 
-                {!isLoading && !isError && organizations.length === 0 && (
+                {!isLoading && !isError && !organizations.length && (
                   <View style={{ padding: r.spacing(12) }}>
-                    <ThemedText style={styles.orgItemText}>
+                    <ThemedText style={{ color: "#9BA8C0", textAlign: "center" }}>
                       No organizations available.
                     </ThemedText>
                   </View>
                 )}
 
                 {!isLoading && !isError && organizations.length > 0 && (
-                  <ScrollView showsVerticalScrollIndicator={false}>
-                    {organizations.map((edge, index) => {
-                      const org = edge.node ?? edge;
-                      const organizationName =
-                        org.name ?? org.organization_name ?? org.organizationName ?? "";
-
-                      if (!organizationName) return null;
-
-                      const isActive = value === organizationName;
+                  <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    keyboardShouldPersistTaps="handled"
+                  >
+                    {organizations.map(organization => {
+                      const isActive = value === organization.organization_id;
 
                       return (
                         <TouchableOpacity
-                          key={org.id ?? `${organizationName}-${index}`}
-                          style={[styles.orgItem, isActive && styles.orgItemActive]}
+                          key={organization.organization_id}
+                          style={[
+                            styles.orgItem,
+                            isActive && styles.orgItemActive,
+                          ]}
                           onPress={() => {
-                            onChange(organizationName);
+                            onChange(organization);
                             setOpen(false);
                           }}
                           activeOpacity={0.75}
                         >
                           <ThemedText
-                            style={[styles.orgItemText, isActive && styles.orgItemTextActive]}
+                            style={[
+                              styles.orgItemText,
+                              isActive && styles.orgItemTextActive,
+                            ]}
                           >
-                            {organizationName}
+                            {organization.name}
                           </ThemedText>
 
                           {isActive && (
-                            <Ionicons name="checkmark" size={icon(14)} color="#35408E" />
+                            <Ionicons
+                              name="checkmark"
+                              size={icon(14)}
+                              color="#35408E"
+                            />
                           )}
                         </TouchableOpacity>
                       );

@@ -109,4 +109,115 @@ export function faqStyles(r: ResponsiveValues) {
   },
 })};
 
+export function deleteAccountStyles(r: ResponsiveValues) {
+    const {
+      isCompactAndroid,
+      isFold,
+      isIPhone,
+      isLandscape,
+      isPortrait,
+      isLargePhone,
+      isNormalScreen,
+      isShortScreen,
+      isSmallPhone,
+      isExtraTallScreen,
+      isTablet,
+      isTallScreen,
+      isIPad,
+      isIPadMini,
+      isLargeIPad,
+  } = r;
+
+    const isTallFold = r.isFold && r.isTallScreen;
+    const isNormalFold = r.isFold && r.isNormalScreen;
+
+    const isAndroidTabletPortrait = r.isAndroidTablet && r.isPortrait;
+
+    const isAndroidTabletLandscape = r.isAndroidTablet && r.isLandscape;
+
+    const isIPadPortrait = r.isIPad && r.isPortrait;
+    const isIPadLandscape = r.isIPad && r.isLandscape;
+  
+    const isLargeIPadPortrait = r.isLargeIPad && r.isPortrait;
+    const isLargeIPadLandscape = r.isLargeIPad && r.isLandscape;
+  
+    const isIPadMiniPortrait = r.isIPadMini && r.isPortrait;
+    const isIPadMiniLandscape = r.isIPadMini && r.isLandscape;
+    
+  return StyleSheet.create({
+
+   overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: scale(24),
+  },
+  modal: {
+    width: "100%",
+    maxWidth: scale(420),
+    backgroundColor: "#fff",
+    borderRadius: radius(16),
+    padding: scale(24),
+  },
+  header: {
+    alignItems: "center",
+    backgroundColor: "transparent",
+  },
+  iconContainer: {
+    width: scale(52),
+    height: verticalScale(52),
+    borderRadius: radius(26),
+    backgroundColor: "#FDE8E8",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: verticalScale(14),
+  },
+  title: {
+    fontSize: font(20),
+    lineHeight: font(21),
+    fontWeight: "700",
+    color: "#35408E",
+    textAlign: "center",
+    marginBottom: verticalScale(10),
+  },
+  description: {
+    fontSize: font(14),
+    lineHeight: font(21),
+    color: "#666",
+    textAlign: "center",
+  },
+  buttonRow: {
+    flexDirection: "row",
+    gap: scale(10),
+    marginTop: verticalScale(24),
+    backgroundColor: "transparent",
+  },
+  cancelButton: {
+    flex: 1,
+    height: verticalScale(46),
+    borderRadius: radius(8),
+    borderWidth: scale(1),
+    borderColor: "#D0D0D0",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  deleteButton: {
+    flex: 1,
+    height: verticalScale(46),
+    borderRadius: radius(8),
+    backgroundColor: "#E20000",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  cancelText: {
+    color: "#35408E",
+    fontWeight: "600",
+  },
+  deleteText: {
+    color: "#fff",
+    fontWeight: "600",
+  },
+})};
+
 

@@ -85,6 +85,41 @@ export function sharedCardStyles(r: ResponsiveValues) {
     height: verticalScale(12),
     backgroundColor: colors.border,
   },
+
+  paginationContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: scale(16),
+    paddingVertical: verticalScale(18),
+  },
+  paginationButton: {
+    width: scale(38),
+    height: verticalScale(38),
+    borderRadius: radius(19),
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.white,
+    borderWidth: scale(1),
+    borderColor: colors.primary,
+  },
+  paginationButtonDisabled: {
+    borderColor: "#D0D0D0",
+    backgroundColor: "#F5F5F5",
+  },
+  paginationText: {
+    fontSize: font(14),
+    lineHeight: font(15),
+    fontWeight: "600",
+    color: colors.primary,
+  },
+  paginationPage: {
+    color: colors.primary,
+    fontSize: font(13),
+    lineHeight: font(14),
+    fontWeight: "600",
+  },
+
 })};
 
 /* ============================================================
