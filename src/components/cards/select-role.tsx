@@ -113,7 +113,7 @@ const ROLE_UI: Record<
   "general-public": {
     icon: "user",
     color: "#41A5EE",
-    bg: "#EEF7FE",
+    bg: "#e1f1fd",
   },
 
   "government-agencies": {

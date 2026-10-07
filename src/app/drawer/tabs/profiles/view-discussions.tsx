@@ -2,12 +2,12 @@
 // import { ThemedText } from "@/components/themed-text";
 // import { ThemedView } from "@/components/themed-view";
 // import { useAuth } from "@/lib/auth/AuthProvider";
-// import { API_KEY_VALUE, API_URL } from "@/lib/services/api";
+// import useFormQuery from "@/lib/hooks/useFormQuery";
 // import { viewDiscussionStyles } from "@/styles/profile/profile-components-styles";
 // import { profileStyles } from "@/styles/profile/profile-styles";
 // import { icon, scale, useResponsive } from "@/styles/responsive";
 // import { Ionicons } from "@expo/vector-icons";
-// import React, { useCallback, useEffect, useMemo, useState } from "react";
+// import React, { useMemo, useState } from "react";
 // import { Image, Linking, ScrollView, TouchableOpacity, View } from "react-native";
 
 // type DiscussionType = "Contributions" | "Misinformation";
@@ -15,12 +15,11 @@
 
 // type BackendContribution = {
 //   contribution_id: string;
-//   user_id: string;
 //   type: string;
 //   content: string;
 //   slug: string;
 //   classification: "PENDING" | "MISINFORMATION" | "FACTUAL";
-//   classification_method: "MANUAL" | "AI";
+//   classification_method: "MANUAL" | "AI" | "HYBRID";
 //   status: "PENDING" | "APPROVED" | "DECLINED";
 //   is_deleted: boolean;
 //   image_url?: string | null;
@@ -35,6 +34,31 @@
 //   municipality?: string | null;
 //   province?: string | null;
 //   region?: string | null;
+//   sentiment?: "POSITIVE" | "NEGATIVE" | "NEUTRAL" | null;
+// };
+
+// type ContributionEdge = {
+//   node: BackendContribution | null;
+//   cursor?: string;
+// };
+
+// type ContributionsResponse = {
+//   meta?: {
+//     api_version?: string;
+//     status?: number;
+//   };
+//   data?: {
+//     edges?: ContributionEdge[];
+//     pageInfo?: {
+//       startCursor?: string;
+//       endCursor?: string;
+//       hasNextPage?: boolean;
+//       hasPrevPage?: boolean;
+//     };
+//     totalCount?: number;
+//     timestamp?: string;
+//     success?: boolean;
+//   };
 // };
 
 // type Discussion = {
@@ -55,174 +79,138 @@
 //   { label: "Misinformation", value: "Misinformation" },
 // ];
 
-// const STATUS_STYLES: Record<DiscussionStatus, {
-//   bg: string;
-//   text: string;
-//   icon: keyof typeof Ionicons.glyphMap;
-// }> = {
-//   Approved: { bg: "#E6F6EC", text: "#1F9254", icon: "checkmark-circle" },
-//   Pending: { bg: "#FFF6E3", text: "#B8860B", icon: "time-outline" },
-//   Declined: { bg: "#FDEAEA", text: "#C0392B", icon: "close-circle-outline" },
+// const STATUS_STYLES: Record<
+//   DiscussionStatus,
+//   { bg: string; text: string; icon: keyof typeof Ionicons.glyphMap }
+// > = {
+//   Approved: {
+//     bg: "#E6F6EC",
+//     text: "#1F9254",
+//     icon: "checkmark-circle",
+//   },
+//   Pending: {
+//     bg: "#FFF6E3",
+//     text: "#B8860B",
+//     icon: "time-outline",
+//   },
+//   Declined: {
+//     bg: "#FDEAEA",
+//     text: "#C0392B",
+//     icon: "close-circle-outline",
+//   },
 // };
 
 // export default function ViewDiscussions() {
 //   const { token, user, isLoading: authLoading } = useAuth();
 
-//   const [activeFilter, setActiveFilter] = useState<"All" | DiscussionType>("All");
-//   const [statusFilter, setStatusFilter] = useState<StatusFilterValue>("All");
+//   const [activeFilter, setActiveFilter] =
+//     useState<"All" | DiscussionType>("All");
+
+//   const [statusFilter, setStatusFilter] =
+//     useState<StatusFilterValue>("All");
+
 //   const [dropdownVisible, setDropdownVisible] = useState(false);
-//   const [discussions, setDiscussions] = useState<Discussion[]>([]);
-//   const [loading, setLoading] = useState(true);
 
-//   const loadContributions = useCallback(async () => {
-//     console.log("[CONTRIBUTIONS] Loading contributions...");
-//     console.log("[CONTRIBUTIONS] Auth state:", {
-//       authLoading,
-//       hasToken: !!token,
-//       hasUser: !!user,
-//       userId: user?.user_id,
-//     });
+//   const currentUserId = String();
 
-//     if (authLoading) return;
 
-//     if (!token) {
-//       console.log("[CONTRIBUTIONS] No authentication token.");
-//       setLoading(false);
-//       setDiscussions([]);
-//       return;
-//     }
+//   const { data: result, isLoading: loading } = useFormQuery<
+//     ContributionsResponse
+//   >({
+//     key: ["my-contributions", currentUserId],
+//     url: "/maintenance/contribution",
+//     headers: {
+//         Authorization: `Bearer ${token}`,
+//         "x-api-key": "testing",
+//         "x-api-version": "2026-02-26"
+//       },
+//     params: {
+//       limit: 20,
+//         orderBy: "created_at",
+//         sortBy: "desc",
+//         startCursor: "",
+//         endCursor: "",
+//     },
+//   });
 
-//     if (!API_URL) {
-//       console.error("[CONTRIBUTIONS] EXPO_PUBLIC_API_URL is missing.");
-//       setLoading(false);
-//       setDiscussions([]);
-//       return;
-//     }
+//   console.log("RESULT: ", result)
 
-//     if (!API_URL || !API_KEY_VALUE) {
-//       console.error("[CONTRIBUTIONS] EXPO_PUBLIC_API_KEY is missing.");
-//       setLoading(false);
-//       setDiscussions([]);
-//       return;
-//     }
+//   const discussions = useMemo<Discussion[]>(() => {
+//     const edges = Array.isArray(result?.data?.edges)
+//       ? result.data.edges
+//       : [];
 
-//     try {
-//       setLoading(true);
-
-//       const endpoint = `${API_URL}/maintenance/contribution`;
-//       console.log("[CONTRIBUTIONS] GET:", endpoint);
-
-//       const response = await fetch(endpoint, {
-//         method: "GET",
-//         headers: {
-//           Accept: "application/json",
-//           "Content-Type": "application/json",
-//           Authorization: `Bearer ${token}`,
-//           "X-API-Key": process.env.EXPO_PUBLIC_API_KEY ?? "",
-//         },
-//       });
-
-//       console.log("[CONTRIBUTIONS] HTTP status:", response.status);
-
-//       const result = await response.json();
-//       console.log("[CONTRIBUTIONS] API response:", JSON.stringify(result, null, 2));
-
-//       if (!response.ok) {
-//         console.error("[CONTRIBUTIONS] API request failed:", result);
-//         setDiscussions([]);
-//         return;
-//       }
-
-//       const edges = Array.isArray(result?.data?.edges) ? result.data.edges : [];
-//       console.log("[CONTRIBUTIONS] Number of edges:", edges.length);
-
-//       const rawData: BackendContribution[] = edges
-//         .map((edge: { node?: BackendContribution }) => edge?.node)
-//         .filter((node: BackendContribution | undefined): node is BackendContribution => !!node);
-
-//       console.log("[CONTRIBUTIONS] Extracted nodes:", rawData);
-
-//       const mapped: Discussion[] = rawData
-//         .filter((item) => !item.is_deleted)
-//         .map((item) => {
-//           const type: DiscussionType =
-//             item.classification === "MISINFORMATION" ? "Misinformation" : "Contributions";
-
-//           let status: DiscussionStatus = "Pending";
-//           switch (item.status) {
-//             case "APPROVED":
-//               status = "Approved";
-//               break;
-//             case "DECLINED":
-//               status = "Declined";
-//               break;
-//             default:
-//               status = "Pending";
-//           }
-
-//           const title = item.type || item.slug || "Untitled Contribution";
-//           const description = item.content || "No description available.";
-
-//           return {
-//             id: item.contribution_id,
-//             title,
-//             desc: description,
-//             date: item.created_at ? formatDate(item.created_at) : "Date unavailable",
-//             type,
-//             status,
-//             image_url: item.image_url,
-//             source_url: item.source_url || null,
-//             review_reason: item.review_reason || null,
-//           };
-//         });
-
-//       console.log("[CONTRIBUTIONS] Mapped discussions:", mapped);
-//       setDiscussions(mapped);
-//     } catch (error) {
-//       console.error("[CONTRIBUTIONS] Request error:", error);
-//       setDiscussions([]);
-//     } finally {
-//       setLoading(false);
-//       console.log("[CONTRIBUTIONS] Loading finished.");
-//     }
-//   }, [token, user, authLoading]);
-
-//   useEffect(() => {
-//     loadContributions();
-//   }, [loadContributions]);
-
-//   const toggleStatusDropdown = () => {
-//     setDropdownVisible((previous) => !previous);
-//   };
+//     return edges
+//       .map((edge) => edge.node)
+//       .filter(
+//         (node): node is BackendContribution => node !== null,
+//       )
+//       .filter((item) => !item.is_deleted)
+//       .map((item) => ({
+//         id: item.contribution_id,
+//         title: item.type || item.slug || "Untitled Contribution",
+//         desc: item.content || "No description available.",
+//         date: item.created_at
+//           ? formatDate(item.created_at)
+//           : "Date unavailable",
+//         type:
+//           item.classification === "MISINFORMATION"
+//             ? "Misinformation"
+//             : "Contributions",
+//         status:
+//           item.status === "APPROVED"
+//             ? "Approved"
+//             : item.status === "DECLINED"
+//               ? "Declined"
+//               : "Pending",
+//         image_url: item.image_url || null,
+//         source_url: item.source_url || null,
+//         review_reason: item.review_reason || null,
+//       }));
+//   }, [result]);
 
 //   const filteredDiscussions = useMemo(() => {
 //     let filtered =
 //       activeFilter === "All"
 //         ? discussions
-//         : discussions.filter((discussion) => discussion.type === activeFilter);
+//         : discussions.filter(
+//             (item) => item.type === activeFilter,
+//           );
 
 //     if (statusFilter !== "All") {
-//       filtered = filtered.filter((discussion) => discussion.status === statusFilter);
+//       filtered = filtered.filter(
+//         (item) => item.status === statusFilter,
+//       );
 //     }
 
 //     return filtered;
 //   }, [discussions, activeFilter, statusFilter]);
 
-//   const isStatusFilterActive = statusFilter !== "All";
 //   const r = useResponsive();
 //   const styles = useMemo(() => profileStyles(r), [r]);
 //   const discussion = useMemo(() => viewDiscussionStyles(r), [r]);
 
 //   return (
-//     <ScrollView style={styles.pageContainer} contentContainerStyle={styles.scrollContent}>
+//     <ScrollView
+//       style={styles.pageContainer}
+//       contentContainerStyle={styles.scrollContent}
+//     >
 //       <ThemedView style={discussion.headerBlock}>
-//         <ThemedText style={discussion.pageTitle}>My HIV Discussions</ThemedText>
+//         <ThemedText style={discussion.pageTitle}>
+//           My HIV Discussions
+//         </ThemedText>
+
 //         <ThemedText style={discussion.pageSubtitle}>
 //           Track the status of your contributions and reported misinformation.
 //         </ThemedText>
 //       </ThemedView>
 
-//       <ThemedView style={[discussion.filter, { zIndex: 1000, elevation: 1000 }]}>
+//       <ThemedView
+//         style={[
+//           discussion.filter,
+//           { zIndex: 1000, elevation: 1000 },
+//         ]}
+//       >
 //         <ThemedView style={discussion.filterRow}>
 //           {FILTERS.map((filter) => {
 //             const active = activeFilter === filter.value;
@@ -232,7 +220,10 @@
 //                 key={filter.value}
 //                 activeOpacity={0.75}
 //                 onPress={() => setActiveFilter(filter.value)}
-//                 style={[discussion.filterChip, active && discussion.filterChipActive]}
+//                 style={[
+//                   discussion.filterChip,
+//                   active && discussion.filterChipActive,
+//                 ]}
 //               >
 //                 <ThemedText
 //                   style={[
@@ -247,17 +238,35 @@
 //           })}
 //         </ThemedView>
 
-//         <View style={{ position: "relative", zIndex: 9999, elevation: 9999 }}>
+//         <View
+//           style={{
+//             position: "relative",
+//             zIndex: 9999,
+//             elevation: 9999,
+//           }}
+//         >
 //           <TouchableOpacity
 //             style={[
 //               discussion.filterStatus,
-//               isStatusFilterActive && discussion.filterStatusActive,
+//               statusFilter !== "All" &&
+//                 discussion.filterStatusActive,
 //             ]}
 //             activeOpacity={0.8}
-//             onPress={toggleStatusDropdown}
+//             onPress={() =>
+//               setDropdownVisible((value) => !value)
+//             }
 //           >
-//             <Ionicons name="filter" size={15} color="white" />
-//             {isStatusFilterActive && <ThemedView style={discussion.filterStatusDot} />}
+//             <Ionicons
+//               name="filter"
+//               size={15}
+//               color="white"
+//             />
+
+//             {statusFilter !== "All" && (
+//               <ThemedView
+//                 style={discussion.filterStatusDot}
+//               />
+//             )}
 //           </TouchableOpacity>
 
 //           <StatusFilterDropdown
@@ -272,14 +281,24 @@
 //       <ThemedView style={discussion.listCard}>
 //         {loading ? (
 //           <ThemedView style={discussion.emptyState}>
-//             <Ionicons name="sync-outline" size={icon(28)} color="#B7C0D6" />
+//             <Ionicons
+//               name="sync-outline"
+//               size={icon(28)}
+//               color="#B7C0D6"
+//             />
+
 //             <ThemedText style={discussion.emptyText}>
 //               Loading your discussions...
 //             </ThemedText>
 //           </ThemedView>
 //         ) : filteredDiscussions.length === 0 ? (
 //           <ThemedView style={discussion.emptyState}>
-//             <Ionicons name="chatbubbles-outline" size={icon(28)} color="#B7C0D6" />
+//             <Ionicons
+//               name="chatbubbles-outline"
+//               size={icon(28)}
+//               color="#B7C0D6"
+//             />
+
 //             <ThemedText style={discussion.emptyText}>
 //               No entries found in this category.
 //             </ThemedText>
@@ -287,12 +306,15 @@
 //         ) : (
 //           filteredDiscussions.map((item, index) => {
 //             const statusStyle = STATUS_STYLES[item.status];
-//             const isMisinformation = item.type === "Misinformation";
+//             const isMisinformation =
+//               item.type === "Misinformation";
 
 //             return (
 //               <ThemedView key={item.id}>
 //                 <ThemedView style={discussion.row}>
-//                   <ThemedView style={discussion.contentContainer}>
+//                   <ThemedView
+//                     style={discussion.contentContainer}
+//                   >
 //                     <ThemedView
 //                       style={[
 //                         discussion.iconBubble,
@@ -302,18 +324,32 @@
 //                       ]}
 //                     >
 //                       <Ionicons
-//                         name={isMisinformation ? "warning-outline" : "chatbubble-outline"}
+//                         name={
+//                           isMisinformation
+//                             ? "warning-outline"
+//                             : "chatbubble-outline"
+//                         }
 //                         size={icon(18)}
-//                         color={isMisinformation ? "#C0392B" : "#35408E"}
+//                         color={
+//                           isMisinformation
+//                             ? "#C0392B"
+//                             : "#35408E"
+//                         }
 //                       />
 //                     </ThemedView>
 
 //                     <ThemedView style={discussion.textCol}>
-//                       <ThemedText style={discussion.itemTitle} numberOfLines={1}>
+//                       <ThemedText
+//                         style={discussion.itemTitle}
+//                         numberOfLines={1}
+//                       >
 //                         {item.title}
 //                       </ThemedText>
 
-//                       <ThemedText style={discussion.itemDesc} numberOfLines={2}>
+//                       <ThemedText
+//                         style={discussion.itemDesc}
+//                         numberOfLines={2}
+//                       >
 //                         {item.desc}
 //                       </ThemedText>
 
@@ -321,7 +357,10 @@
 //                         <ThemedView
 //                           style={[
 //                             discussion.statusPill,
-//                             { backgroundColor: statusStyle.bg },
+//                             {
+//                               backgroundColor:
+//                                 statusStyle.bg,
+//                             },
 //                           ]}
 //                         >
 //                           <Ionicons
@@ -329,111 +368,72 @@
 //                             size={icon(11)}
 //                             color={statusStyle.text}
 //                           />
+
 //                           <ThemedText
 //                             style={[
 //                               discussion.statusPillText,
-//                               { color: statusStyle.text },
+//                               {
+//                                 color: statusStyle.text,
+//                               },
 //                             ]}
 //                           >
 //                             {item.status}
 //                           </ThemedText>
 //                         </ThemedView>
 
-//                         <ThemedView style={discussion.dateRow}>
+//                         <ThemedView
+//                           style={discussion.dateRow}
+//                         >
 //                           <Ionicons
 //                             name="calendar-outline"
 //                             size={icon(11)}
 //                             color="#9BA8C0"
 //                           />
-//                           <ThemedText style={discussion.itemDate}>
+
+//                           <ThemedText
+//                             style={discussion.itemDate}
+//                           >
 //                             {item.date}
 //                           </ThemedText>
 //                         </ThemedView>
 
 //                         {item.source_url ? (
-//                           (() => {
-//                             const source = item.source_url.trim();
-//                             const isUrl = /^https?:\/\//i.test(source);
-
-//                             if (!isUrl) {
-//                               return (
-//                                 <ThemedView
-//                                   style={{
-//                                     flexDirection: "row",
-//                                     alignItems: "center",
-//                                   }}
-//                                 >
-//                                   <Ionicons
-//                                     name="globe-outline"
-//                                     size={icon(11)}
-//                                     color="#9BA8C0"
-//                                   />
-//                                   <ThemedText
-//                                     style={[
-//                                       styles.itemDate,
-//                                       { marginLeft: scale(4), color: "#9BA8C0" },
-//                                     ]}
-//                                     numberOfLines={1}
-//                                   >
-//                                     {source}
-//                                   </ThemedText>
-//                                 </ThemedView>
-//                               );
+//                           <TouchableOpacity
+//                             onPress={() =>
+//                               Linking.openURL(
+//                                 item.source_url!,
+//                               )
 //                             }
+//                             style={{
+//                               flexDirection: "row",
+//                               alignItems: "center",
+//                             }}
+//                           >
+//                             <Ionicons
+//                               name="link-outline"
+//                               size={icon(11)}
+//                               color="#35408E"
+//                             />
 
-//                             return (
-//                               <TouchableOpacity
-//                                 activeOpacity={0.7}
-//                                 onPress={async () => {
-//                                   try {
-//                                     const supported = await Linking.canOpenURL(source);
-
-//                                     if (supported) {
-//                                       await Linking.openURL(source);
-//                                     } else {
-//                                       console.error(
-//                                         "[CONTRIBUTIONS] Cannot open URL:",
-//                                         source
-//                                       );
-//                                     }
-//                                   } catch (error) {
-//                                     console.error(
-//                                       "[CONTRIBUTIONS] Failed to open source URL:",
-//                                       error
-//                                     );
-//                                   }
-//                                 }}
-//                                 style={{
-//                                   flexDirection: "row",
-//                                   alignItems: "center",
-//                                 }}
-//                               >
-//                                 <Ionicons
-//                                   name="link-outline"
-//                                   size={icon(11)}
-//                                   color="#35408E"
-//                                 />
-//                                 <ThemedText
-//                                   style={[
-//                                     styles.itemDate,
-//                                     {
-//                                       marginLeft: scale(4),
-//                                       color: "#35408E",
-//                                       textDecorationLine: "underline",
-//                                     },
-//                                   ]}
-//                                 >
-//                                   Link
-//                                 </ThemedText>
-//                               </TouchableOpacity>
-//                             );
-//                           })()
+//                             <ThemedText
+//                               style={[
+//                                 discussion.itemDate,
+//                                 {
+//                                   marginLeft: scale(4),
+//                                   color: "#35408E",
+//                                 },
+//                               ]}
+//                             >
+//                               Link
+//                             </ThemedText>
+//                           </TouchableOpacity>
 //                         ) : null}
 //                       </ThemedView>
 
-//                       {item.status === "Declined" && item.review_reason ? (
+//                       {item.status === "Declined" &&
+//                       item.review_reason ? (
 //                         <ThemedView style={styles.declineRow}>
-//                           <Ionicons
+//                            <Ionicons
 //                             name="information-circle-outline"
 //                             size={icon(13)}
 //                             color="#C0392B"
@@ -461,8 +461,11 @@
 //                   ) : null}
 //                 </ThemedView>
 
-//                 {index < filteredDiscussions.length - 1 && (
-//                   <ThemedView style={discussion.rowDivider} />
+//                 {index <
+//                   filteredDiscussions.length - 1 && (
+//                   <ThemedView
+//                     style={discussion.rowDivider}
+//                   />
 //                 )}
 //               </ThemedView>
 //             );
@@ -473,23 +476,20 @@
 //   );
 // }
 
-// function formatDate(value: string): string {
-//   try {
-//     const date = new Date(value);
+// function formatDate(value: string) {
+//   const date = new Date(value);
 
-//     if (Number.isNaN(date.getTime())) {
-//       return "Date unavailable";
-//     }
-
-//     return date.toLocaleDateString("en-US", {
-//       month: "short",
-//       day: "numeric",
-//       year: "numeric",
-//     });
-//   } catch {
+//   if (Number.isNaN(date.getTime())) {
 //     return "Date unavailable";
 //   }
+
+//   return date.toLocaleDateString("en-US", {
+//     month: "short",
+//     day: "numeric",
+//     year: "numeric",
+//   });
 // }
+
 import StatusFilterDropdown, { StatusFilterValue } from "@/components/dropdown/status-dropdown";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
@@ -507,6 +507,7 @@ type DiscussionStatus = "Approved" | "Pending" | "Declined";
 
 type BackendContribution = {
   contribution_id: string;
+  user_id?: string;
   type: string;
   content: string;
   slug: string;
@@ -594,38 +595,38 @@ const STATUS_STYLES: Record<
 
 export default function ViewDiscussions() {
   const { token, user, isLoading: authLoading } = useAuth();
+  const r = useResponsive();
+  const styles = useMemo(() => profileStyles(r), [r]);
+  const discussion = useMemo(() => viewDiscussionStyles(r), [r]);
 
-  const [activeFilter, setActiveFilter] =
-    useState<"All" | DiscussionType>("All");
-
-  const [statusFilter, setStatusFilter] =
-    useState<StatusFilterValue>("All");
-
+  const [activeFilter, setActiveFilter] = useState<"All" | DiscussionType>("All");
+  const [statusFilter, setStatusFilter] = useState<StatusFilterValue>("All");
   const [dropdownVisible, setDropdownVisible] = useState(false);
 
-  const currentUserId = String();
+  const currentUserId = String(user?.user_id ?? "").trim();
 
-
-  const { data: result, isLoading: loading } = useFormQuery<
-    ContributionsResponse
-  >({
-    key: ["my-contributions", currentUserId],
-    url: "/maintenance/contribution",
-    headers: {
+  const { data: result, isLoading: loading } =
+    useFormQuery<ContributionsResponse>({
+      key: ["my-contributions", currentUserId],
+      url: "maintenance/contribution",
+      enabled: Boolean(token && currentUserId),
+      headers: {
         Authorization: `Bearer ${token}`,
         "x-api-key": "testing",
-        "x-api-version": "2026-02-26"
+        "x-api-version": "2026-02-26",
       },
-    params: {
-      limit: 20,
+      params: {
+        limit: 20,
         orderBy: "created_at",
         sortBy: "desc",
         startCursor: "",
         endCursor: "",
-    },
-  });
+        user_id: currentUserId,
+      },
+    });
 
-  console.log("RESULT: ", result)
+  console.log("[VIEW DISCUSSIONS] Logged-in user ID:", currentUserId);
+  console.log("[VIEW DISCUSSIONS] Result:", result);
 
   const discussions = useMemo<Discussion[]>(() => {
     const edges = Array.isArray(result?.data?.edges)
@@ -635,13 +636,19 @@ export default function ViewDiscussions() {
     return edges
       .map((edge) => edge.node)
       .filter(
-        (node): node is BackendContribution => node !== null,
+        (node): node is BackendContribution =>
+          node !== null
       )
       .filter((item) => !item.is_deleted)
       .map((item) => ({
         id: item.contribution_id,
-        title: item.type || item.slug || "Untitled Contribution",
-        desc: item.content || "No description available.",
+        title:
+          item.type ||
+          item.slug ||
+          "Untitled Contribution",
+        desc:
+          item.content ||
+          "No description available.",
         date: item.created_at
           ? formatDate(item.created_at)
           : "Date unavailable",
@@ -666,21 +673,17 @@ export default function ViewDiscussions() {
       activeFilter === "All"
         ? discussions
         : discussions.filter(
-            (item) => item.type === activeFilter,
+            (item) => item.type === activeFilter
           );
 
     if (statusFilter !== "All") {
       filtered = filtered.filter(
-        (item) => item.status === statusFilter,
+        (item) => item.status === statusFilter
       );
     }
 
     return filtered;
   }, [discussions, activeFilter, statusFilter]);
-
-  const r = useResponsive();
-  const styles = useMemo(() => profileStyles(r), [r]);
-  const discussion = useMemo(() => viewDiscussionStyles(r), [r]);
 
   return (
     <ScrollView
@@ -700,7 +703,10 @@ export default function ViewDiscussions() {
       <ThemedView
         style={[
           discussion.filter,
-          { zIndex: 1000, elevation: 1000 },
+          {
+            zIndex: 1000,
+            elevation: 1000,
+          },
         ]}
       >
         <ThemedView style={discussion.filterRow}>
@@ -711,16 +717,20 @@ export default function ViewDiscussions() {
               <TouchableOpacity
                 key={filter.value}
                 activeOpacity={0.75}
-                onPress={() => setActiveFilter(filter.value)}
+                onPress={() =>
+                  setActiveFilter(filter.value)
+                }
                 style={[
                   discussion.filterChip,
-                  active && discussion.filterChipActive,
+                  active &&
+                    discussion.filterChipActive,
                 ]}
               >
                 <ThemedText
                   style={[
                     discussion.filterChipText,
-                    active && discussion.filterChipTextActive,
+                    active &&
+                      discussion.filterChipTextActive,
                   ]}
                 >
                   {filter.label}
@@ -763,7 +773,9 @@ export default function ViewDiscussions() {
 
           <StatusFilterDropdown
             visible={dropdownVisible}
-            onClose={() => setDropdownVisible(false)}
+            onClose={() =>
+              setDropdownVisible(false)
+            }
             selected={statusFilter}
             onSelect={setStatusFilter}
           />
@@ -771,7 +783,7 @@ export default function ViewDiscussions() {
       </ThemedView>
 
       <ThemedView style={discussion.listCard}>
-        {loading ? (
+        {authLoading || loading ? (
           <ThemedView style={discussion.emptyState}>
             <Ionicons
               name="sync-outline"
@@ -797,7 +809,9 @@ export default function ViewDiscussions() {
           </ThemedView>
         ) : (
           filteredDiscussions.map((item, index) => {
-            const statusStyle = STATUS_STYLES[item.status];
+            const statusStyle =
+              STATUS_STYLES[item.status];
+
             const isMisinformation =
               item.type === "Misinformation";
 
@@ -805,7 +819,9 @@ export default function ViewDiscussions() {
               <ThemedView key={item.id}>
                 <ThemedView style={discussion.row}>
                   <ThemedView
-                    style={discussion.contentContainer}
+                    style={
+                      discussion.contentContainer
+                    }
                   >
                     <ThemedView
                       style={[
@@ -830,7 +846,9 @@ export default function ViewDiscussions() {
                       />
                     </ThemedView>
 
-                    <ThemedView style={discussion.textCol}>
+                    <ThemedView
+                      style={discussion.textCol}
+                    >
                       <ThemedText
                         style={discussion.itemTitle}
                         numberOfLines={1}
@@ -845,7 +863,9 @@ export default function ViewDiscussions() {
                         {item.desc}
                       </ThemedText>
 
-                      <ThemedView style={discussion.metaRow}>
+                      <ThemedView
+                        style={discussion.metaRow}
+                      >
                         <ThemedView
                           style={[
                             discussion.statusPill,
@@ -858,14 +878,17 @@ export default function ViewDiscussions() {
                           <Ionicons
                             name={statusStyle.icon}
                             size={icon(11)}
-                            color={statusStyle.text}
+                            color={
+                              statusStyle.text
+                            }
                           />
 
                           <ThemedText
                             style={[
                               discussion.statusPillText,
                               {
-                                color: statusStyle.text,
+                                color:
+                                  statusStyle.text,
                               },
                             ]}
                           >
@@ -893,7 +916,7 @@ export default function ViewDiscussions() {
                           <TouchableOpacity
                             onPress={() =>
                               Linking.openURL(
-                                item.source_url!,
+                                item.source_url!
                               )
                             }
                             style={{
@@ -911,7 +934,8 @@ export default function ViewDiscussions() {
                               style={[
                                 discussion.itemDate,
                                 {
-                                  marginLeft: scale(4),
+                                  marginLeft:
+                                    scale(4),
                                   color: "#35408E",
                                 },
                               ]}
@@ -924,16 +948,23 @@ export default function ViewDiscussions() {
 
                       {item.status === "Declined" &&
                       item.review_reason ? (
-                        <ThemedView style={styles.declineRow}>
-                           <Ionicons
+                        <ThemedView
+                          style={styles.declineRow}
+                        >
+                          <Ionicons
                             name="information-circle-outline"
                             size={icon(13)}
                             color="#C0392B"
                           />
+
                           <ThemedText
                             style={[
                               styles.itemDesc,
-                              { marginLeft: scale(4), color: "#C0392B" },
+                              {
+                                marginLeft:
+                                  scale(4),
+                                color: "#C0392B",
+                              },
                             ]}
                             numberOfLines={2}
                           >
@@ -946,8 +977,12 @@ export default function ViewDiscussions() {
 
                   {item.image_url ? (
                     <Image
-                      source={{ uri: item.image_url }}
-                      style={discussion.thumbnail}
+                      source={{
+                        uri: item.image_url,
+                      }}
+                      style={
+                        discussion.thumbnail
+                      }
                       resizeMode="cover"
                     />
                   ) : null}
@@ -956,7 +991,9 @@ export default function ViewDiscussions() {
                 {index <
                   filteredDiscussions.length - 1 && (
                   <ThemedView
-                    style={discussion.rowDivider}
+                    style={
+                      discussion.rowDivider
+                    }
                   />
                 )}
               </ThemedView>

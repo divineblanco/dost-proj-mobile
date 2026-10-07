@@ -195,7 +195,7 @@ export default function ActivityLog() {
                   </ThemedText>
 
                   <ThemedText style={styles.desc}>
-                    {item.decription}
+                    {item.description}
                   </ThemedText>
 
                   <ThemedText style={styles.date}>

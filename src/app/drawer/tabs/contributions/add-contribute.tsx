@@ -427,7 +427,6 @@
 //     </ScrollView>
 //   );
 // }
-
 import { QuestionOne } from "@/components/cards/question-one";
 import { QuestionTwo } from "@/components/cards/question-two";
 import ContributeSuccess from "@/components/modals/contribute-success";
@@ -446,14 +445,6 @@ import { Image, ScrollView, TextInput, TouchableOpacity } from "react-native";
 
 export type QuestionOneValue = { selected: string | null; otherText: string };
 export type QuestionTwoValue = { region: string | null; province: string | null; city: string | null; barangay: string | null };
-
-type CreateContributionPayload = {
-  title: string; content: string; type: string; classification: "FACTUAL";
-  classification_method: "MANUAL"; status: "PENDING"; barangay: string;
-  municipality: string; province: string; region: string; user_id: string;
-  source_url?: string | null; image_url?: string | null;
-};
-
 type ActivityLogPayload = { type: string; description: string; user_id: string };
 type FormErrors = { questionOne: string; questionTwo: string; experience: string };
 
@@ -471,6 +462,7 @@ export default function AddContribute() {
   const [showLinkInput, setShowLinkInput] = useState(false);
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [imageName, setImageName] = useState<string | null>(null);
+  const [imageType, setImageType] = useState<string>("image/jpeg");
   const [questionOne, setQuestionOne] = useState<QuestionOneValue>({ selected: null, otherText: "" });
   const [questionTwo, setQuestionTwo] = useState<QuestionTwoValue>({ region: null, province: null, city: null, barangay: null });
   const [experience, setExperience] = useState("");
@@ -478,32 +470,42 @@ export default function AddContribute() {
   const [submitError, setSubmitError] = useState("");
   const [errors, setErrors] = useState<FormErrors>(EMPTY_ERRORS);
 
-  const contributionMutation = useFormMutation<CreateContributionPayload, unknown>({
-    key: ["CreateContribution", user?.user_id], url: "maintenance/contribution", method: "POST",
-    headers: { "Content-Type": "application/json", "x-api-key": API_KEY, "x-api-version": "2026-02-26", Authorization: token ? `Bearer ${token}` : "" },
+  // IMPORTANT: Do NOT set Content-Type to application/json here.
+  // Axios/React Native must create the multipart boundary automatically.
+  const contributionMutation = useFormMutation<FormData, unknown>({
+    key: ["CreateContribution", user?.user_id],
+    url: "maintenance/contribution",
+    method: "POST",
+    headers: {
+      "x-api-key": API_KEY,
+      "x-api-version": "2026-02-26",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
   });
 
   const { mutateAsync: createActivityLog, isPending: isLogging } = useFormMutation<ActivityLogPayload, unknown>({
-    key: ["ActivityLog", "ContributionSubmit", user?.user_id], url: "maintenance/activity-logs",
-    method: "POST", params: {},
-    headers: { "Content-Type": "application/json", "x-api-key": API_KEY, "x-api-version": "2026-02-26", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+    key: ["ActivityLog", "ContributionSubmit", user?.user_id],
+    url: "maintenance/activity-logs",
+    method: "POST",
+    params: {},
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": API_KEY,
+      "x-api-version": "2026-02-26",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
   });
 
   const isSubmitting = contributionMutation.isPending || isLogging;
-
   const clearError = () => submitError && setSubmitError("");
 
   const validateForm = () => {
     const next: FormErrors = { ...EMPTY_ERRORS };
     if (!questionOne.selected) next.questionOne = "Please select what you would like to share.";
     else if (questionOne.selected === "Other" && !questionOne.otherText.trim()) next.questionOne = "Please specify what you would like to share.";
-
-    if (!questionTwo.region || !questionTwo.province || !questionTwo.city || !questionTwo.barangay)
-      next.questionTwo = "Please complete all location fields.";
-
+    if (!questionTwo.region || !questionTwo.province || !questionTwo.city || !questionTwo.barangay) next.questionTwo = "Please complete all location fields.";
     if (!experience.trim()) next.experience = "Please tell us about your experience.";
     setErrors(next);
-
     const scrollY = next.questionOne ? 0 : next.questionTwo ? 400 : next.experience ? 750 : null;
     if (scrollY !== null) scrollRef.current?.scrollTo({ y: scrollY, animated: true });
     return !Object.values(next).some(Boolean);
@@ -512,15 +514,34 @@ export default function AddContribute() {
   const pickImage = async () => {
     try {
       const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (!permission.granted) return setSubmitError("Please allow photo library access to upload an image.");
+      if (!permission.granted) {
+        setSubmitError("Please allow photo library access to upload an image.");
+        return;
+      }
 
-      const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], allowsEditing: true, aspect: [4, 3], quality: 0.8 });
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ["images"],
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.8,
+      });
+
       if (result.canceled || !result.assets?.length) return;
 
       const asset = result.assets[0];
+      const name = asset.fileName || `contribution-${Date.now()}.jpg`;
+      const mime = asset.mimeType || "image/jpeg";
+
       setImageUri(asset.uri);
-      setImageName(asset.fileName || "Selected image");
+      setImageName(name);
+      setImageType(mime);
       clearError();
+
+      console.log("[IMAGE SELECTED]", {
+        uri: asset.uri,
+        name,
+        mimeType: mime,
+      });
     } catch (error) {
       console.error("[IMAGE]", error);
       setSubmitError("Unable to select the image. Please try again.");
@@ -550,18 +571,26 @@ export default function AddContribute() {
   };
 
   const handleSubmitError = (error: any) => {
+    console.error("[SUBMIT ERROR]", error?.response?.data || error?.message || error);
     const status = error?.response?.status;
     const message = error?.response?.data?.data?.message || error?.response?.data?.message;
 
-    if (status !== 401) return setSubmitError("Unable to submit your contribution. Please try again.");
+    if (status === 401) {
+      const messages: Record<string, string> = {
+        "Invalid API key": "The API key is invalid. Please check your mobile app API configuration.",
+        "Invalid authorization format": "Your authentication token was not sent correctly.",
+        "Invalid or expired token": "Your session has expired. Please sign in again.",
+      };
+      setSubmitError(messages[message] || "Authentication failed. Please sign in again.");
+      return;
+    }
 
-    const messages: Record<string, string> = {
-      "Invalid API key": "The API key is invalid. Please check your mobile app API configuration.",
-      "Invalid authorization format": "Your authentication token was not sent correctly.",
-      "Invalid or expired token": "Your session has expired. Please sign in again.",
-    };
+    if (status === 500) {
+      setSubmitError("The server could not process the image upload. Please try again.");
+      return;
+    }
 
-    setSubmitError(messages[message] || "Authentication failed. Please sign in again.");
+    setSubmitError(message || "Unable to submit your contribution. Please try again.");
   };
 
   const handleSubmit = async () => {
@@ -576,21 +605,52 @@ export default function AddContribute() {
 
     setSubmitError("");
 
-    const payload: CreateContributionPayload = {
-      title: type, content: experience.trim(), type,
-      classification: "FACTUAL", classification_method: "MANUAL", status: "PENDING",
-      barangay: questionTwo.barangay!, municipality: questionTwo.city!,
-      province: questionTwo.province!, region: questionTwo.region!, user_id: user.user_id,
-      ...(sourceUrl.trim() && { source_url: sourceUrl.trim() }),
-      ...(imageUri && { image_url: imageUri }),
-    };
+    // IMPORTANT:
+    // The image is NOT converted to HTTPS here.
+    // The local file URI is sent as "attachment".
+    // Your existing backend/Multer/S3 code uploads it and creates the HTTPS image_url.
+    const formData = new FormData();
+
+    formData.append("title", type);
+    formData.append("content", experience.trim());
+    formData.append("type", type);
+    formData.append("classification", "FACTUAL");
+    formData.append("classification_method", "MANUAL");
+    formData.append("status", "PENDING");
+    formData.append("barangay", questionTwo.barangay!);
+    formData.append("municipality", questionTwo.city!);
+    formData.append("province", questionTwo.province!);
+    formData.append("region", questionTwo.region!);
+    formData.append("user_id", user.user_id);
+
+    if (sourceUrl.trim()) {
+      formData.append("source_url", sourceUrl.trim());
+    }
+
+    if (imageUri) {
+      formData.append(
+        "attachment",
+        {
+          uri: imageUri,
+          name: imageName || `contribution-${Date.now()}.jpg`,
+          type: imageType || "image/jpeg",
+        } as any,
+      );
+    }
+
+    console.log("[CONTRIBUTION FORM]", {
+      hasImage: !!imageUri,
+      imageUri,
+      imageName,
+      imageMimeType: imageType,
+    });
 
     try {
-      await contributionMutation.mutateAsync(payload);
+      await contributionMutation.mutateAsync(formData);
       await logActivity(type);
       setSuccess(true);
-    } catch (error) {
-      console.error("[CONTRIBUTION]", error);
+    } catch (error: any) {
+      console.error("[CONTRIBUTION]", error?.response?.data || error?.message || error);
       handleSubmitError(error);
     }
   };
@@ -644,8 +704,12 @@ export default function AddContribute() {
           <TextInput
             style={[styles.textArea, errors.experience && styles.inputError]}
             placeholder="Describe what you observed or experienced regarding HIV awareness, stigma, misinformation, access to services, or community discussions."
-            placeholderTextColor={colors.muted} multiline textAlignVertical="top"
-            value={experience} onChangeText={updateExperience} editable={!isSubmitting}
+            placeholderTextColor={colors.muted}
+            multiline
+            textAlignVertical="top"
+            value={experience}
+            onChangeText={updateExperience}
+            editable={!isSubmitting}
           />
           {errors.experience ? <ThemedText style={styles.errorText}>{errors.experience}</ThemedText> : null}
         </ThemedView>
@@ -675,7 +739,7 @@ export default function AddContribute() {
           {imageUri && (
             <ThemedView style={{ marginTop: verticalScale(10), position: "relative" }}>
               <Image source={{ uri: imageUri }} style={{ width: "100%", height: verticalScale(180), borderRadius: 12 }} resizeMode="cover" />
-              <TouchableOpacity onPress={() => { setImageUri(null); setImageName(null); }} disabled={isSubmitting} style={{ position: "absolute", right: 10, top: 10, width: 32, height: 32, borderRadius: 16, backgroundColor: "rgba(0,0,0,0.65)", alignItems: "center", justifyContent: "center" }}>
+              <TouchableOpacity onPress={() => { setImageUri(null); setImageName(null); setImageType("image/jpeg"); }} disabled={isSubmitting} style={{ position: "absolute", right: 10, top: 10, width: 32, height: 32, borderRadius: 16, backgroundColor: "rgba(0,0,0,0.65)", alignItems: "center", justifyContent: "center" }}>
                 <Ionicons name="close" size={icon(18)} color="white" />
               </TouchableOpacity>
               {imageName && <ThemedText style={{ marginTop: 5, color: colors.muted }} numberOfLines={1}>{imageName}</ThemedText>}
@@ -684,7 +748,17 @@ export default function AddContribute() {
 
           {showLinkInput && (
             <ThemedView style={{ marginTop: verticalScale(5) }}>
-              <TextInput style={styles.linkInput} placeholder="Paste supporting link here" placeholderTextColor={colors.muted} value={sourceUrl} onChangeText={setSourceUrl} autoCapitalize="none" autoCorrect={false} keyboardType="url" editable={!isSubmitting} />
+              <TextInput
+                style={styles.linkInput}
+                placeholder="Paste supporting link here"
+                placeholderTextColor={colors.muted}
+                value={sourceUrl}
+                onChangeText={setSourceUrl}
+                autoCapitalize="none"
+                autoCorrect={false}
+                keyboardType="url"
+                editable={!isSubmitting}
+              />
             </ThemedView>
           )}
         </ThemedView>
@@ -698,11 +772,7 @@ export default function AddContribute() {
             </ThemedView>
             <ThemedText style={addStyles.privacyTitle}>Your Privacy Matters</ThemedText>
           </ThemedView>
-
-          <ThemedText style={addStyles.privacyBody}>
-            Your submission will be anonymized and analyzed by AdvocAid PH's AI system to identify trends, stigma, and resource needs while protecting your personal privacy.
-          </ThemedText>
-
+          <ThemedText style={addStyles.privacyBody}>Your submission will be anonymized and analyzed by AdvocAid PH's AI system to identify trends, stigma, and resource needs while protecting your personal privacy.</ThemedText>
           <TouchableOpacity activeOpacity={0.7} onPress={() => router.push("/drawer/tabs/setting/abouts/privacy-policy")}>
             <ThemedText style={addStyles.privacyLink}>Learn more about our privacy policy →</ThemedText>
           </TouchableOpacity>
@@ -734,7 +804,9 @@ function QuestionHeader({ number, title, required, optional, styles }: {
 }) {
   return (
     <ThemedView style={styles.questionRow}>
-      <ThemedView style={styles.qNumber}><ThemedText style={styles.qNumberText}>{number}</ThemedText></ThemedView>
+      <ThemedView style={styles.qNumber}>
+        <ThemedText style={styles.qNumberText}>{number}</ThemedText>
+      </ThemedView>
       <ThemedText style={styles.question}>
         {title}{" "}
         {required && <ThemedText style={styles.required}>*</ThemedText>}

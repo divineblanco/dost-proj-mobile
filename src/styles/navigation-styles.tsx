@@ -260,6 +260,14 @@ export function drawerStyles (r: ResponsiveValues) {
     borderRadius: radius(999)
   },
 
+  profilePlaceholder: {
+    padding: scale(30),
+    borderRadius: radius(100),
+    backgroundColor: "#E9EAF0",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
   userInfo: {
     flex: 1,
     backgroundColor: "transparent"

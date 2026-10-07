@@ -315,7 +315,7 @@ export interface AuthSession{
   data:{
     user_id:string;
     email:string;
-    Profile:{first_name?:string;last_name?:string;location?:string|null};
+    Profile:{first_name?:string;last_name?:string;location?:string|null;image_url?:string|null};
     Role:{name:string;permission:unknown};
     Organization:{name:string};
   };

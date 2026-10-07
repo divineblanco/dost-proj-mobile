@@ -98,7 +98,7 @@ export function profileStyles (r: ResponsiveValues) {
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.18,
     shadowRadius: 5,
-    borderRadius: radius(999)
+    borderRadius: radius(999),
   },
 
   profileInfo: {
@@ -106,6 +106,14 @@ export function profileStyles (r: ResponsiveValues) {
     gap: scale(5),
     padding: scale(10),
     backgroundColor: "transparent",
+  },
+
+  profilePlaceholder: {
+    padding: scale(30),
+    borderRadius: radius(100),
+    backgroundColor: "#E9EAF0",
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   nameRow: {

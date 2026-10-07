@@ -519,129 +519,184 @@ import { icon, useResponsive } from "@/styles/responsive";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useMemo } from "react";
-import { Image, ScrollView, TouchableOpacity } from "react-native";
+import { ActivityIndicator, Image, ScrollView, TouchableOpacity } from "react-native";
 
-interface ActivityLogPayload{
-  type:string;
-  description?:string;
-  user_id:string;
+interface ActivityLogPayload {
+  type: string;
+  description?: string;
+  user_id: string;
 }
 
-const formatMemberSince=(date?:string)=>{
-  if(!date)return"Member since —";
-  return`Member since ${new Date(date).toLocaleDateString("en-US",{month:"numeric",day:"numeric",year:"numeric"})}`;
+const formatMemberSince = (date?: string) => {
+  if (!date) return "Member since —";
+
+  const parsedDate = new Date(date);
+  if (Number.isNaN(parsedDate.getTime())) return "Member since —";
+
+  return `Member since ${parsedDate.toLocaleDateString("en-US", {
+    month: "numeric",
+    day: "numeric",
+    year: "numeric",
+  })}`;
 };
 
-export default function Profile(){
-  const r=useResponsive();
-  const styles=useMemo(()=>profileStyles(r),[r]);
-  const{user,token,clearSession,isLoading:authLoading}=useAuth();
+export default function Profile() {
+  const r = useResponsive();
+  const styles = useMemo(() => profileStyles(r), [r]);
+  const { user, token, clearSession, isLoading: authLoading } = useAuth();
+  const currentUserId = user?.user_id;
 
-  // Keep this as String() because your GET endpoint requires /maintenance/users/
-  // The actual logged-in ID comes from user?.user_id.
-  // const currentUserId=String();
+  const {
+    data: userResponse,
+    isLoading: isUserLoading,
+    isError: isUserError,
+    error: userError,
+  } = useFormQuery<UserByIdInterface>({
+    key: ["users", currentUserId],
+    url: "maintenance/users/",
+    enabled: Boolean(currentUserId && token),
+    headers: {
+      "x-api-key": "testing",
+      "x-api-version": "2026-02-26",
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
 
-  // const{data:userResponse,isLoading:isUserLoading}=useFormQuery<UserByIdInterface>({
-  //   key:["user",currentUserId],
-  //   url:"maintenance/users/",
-  //   enabled:Boolean(token),
-  //   headers:{
-  //     "x-api-key":"testing",
-  //     "x-api-version":"2026-02-26",
-  //     "Content-Type":"application/json",
-  //     ...(token?{Authorization:`Bearer ${token}`}:{})
-  //   }
-  // });
+  const userDetails = userResponse?.data?.edges?.find(
+    (edge) => edge.node.user_id === currentUserId
+  )?.node;
 
-  // const userDetails=userResponse?.data?.edges?.find(
-  //   edge=>edge.node.user_id===user?.user_id
-  // )?.node;
+  const profileImageUrl =
+    userDetails?.Profile?.image_url ||
+    user?.Profile?.image_url ||
+    null;
 
-  // console.log("[PROFILE] Auth user:",user);
-  // console.log("[PROFILE] Current user ID:",user?.user_id);
-  // console.log("[PROFILE] Token exists:",Boolean(token));
-  // console.log("[PROFILE] User response:",userResponse);
-  // console.log("[PROFILE] User details:",userDetails);
+  console.log("[PROFILE] Auth user:", user);
+  console.log("[PROFILE] Current user ID:", currentUserId);
+  console.log("[PROFILE] Token exists:", Boolean(token));
+  console.log("[PROFILE] User response:", userResponse);
+  console.log("[PROFILE] User details:", userDetails);
+  console.log("[PROFILE] Profile:", userDetails?.Profile);
+  console.log("[PROFILE] IMAGE URL:", profileImageUrl);
+  console.log("[PROFILE] First name:", userDetails?.Profile?.first_name);
+  console.log("[PROFILE] Role:", userDetails?.role?.name);
+  console.log("[PROFILE] Created at:", userDetails?.created_at);
 
+  const { mutateAsync: logActivity } =
+    useFormMutation<ActivityLogPayload, unknown>({
+      key: ["activity-log", "logout"],
+      url: "maintenance/activity-logs",
+      method: "POST",
+      headers: {
+        "x-api-key": "testing",
+        "x-api-version": "2026-02-26",
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    });
 
-const currentUserId=user?.user_id;
-
-const{data:userResponse,isLoading:isUserLoading}=useFormQuery<UserByIdInterface>({
-  key:["users",currentUserId],
-  url:"maintenance/users/",
-  enabled:Boolean(currentUserId&&token),
-  headers:{
-    "x-api-key":"testing",
-    "x-api-version":"2026-02-26",
-    "Content-Type":"application/json",
-    ...(token?{Authorization:`Bearer ${token}`}:{})
-  }
-});
-
-const userDetails=userResponse?.data?.edges?.find(
-  edge=>edge.node.user_id===currentUserId
-)?.node;
-
-  console.log("[PROFILE] Auth user:",user);
-  console.log("[PROFILE] Current user ID:",currentUserId);
-  console.log("[PROFILE] Token exists:",Boolean(token));
-  console.log("[PROFILE] User response:",userResponse);
-  console.log("[PROFILE] User details:",userDetails);
-  console.log("[PROFILE] First name:",userDetails?.Profile?.first_name);
-  console.log("[PROFILE] Role:",userDetails?.role?.name);
-  console.log("[PROFILE] Created at:",userDetails?.created_at);
-
-
-  const{mutateAsync:logActivity}=useFormMutation<ActivityLogPayload,unknown>({
-  key:["activity-log","logout"],
-  url:"maintenance/activity-logs",
-  method:"POST",
-  headers:{
-    "x-api-key":"testing",
-    "x-api-version":"2026-02-26",
-    "Content-Type":"application/json",
-    ...(token?{Authorization:`Bearer ${token}`}:{})
-  }
-});
-
-const handleLogout=async()=>{
-  try{
-    if(currentUserId&&token){
-      await logActivity({
-        type:"LOGGED OUT",
-        description:"User logged out of the application.",
-        user_id:currentUserId,
-      });
+  const handleLogout = async () => {
+    try {
+      if (currentUserId && token) {
+        await logActivity({
+          type: "LOGGED OUT",
+          description: "User logged out of the application.",
+          user_id: currentUserId,
+        });
+      }
+    } catch (error) {
+      console.error("[LOGOUT] Activity log failed:", error);
+    } finally {
+      await clearSession();
+      router.replace("/");
     }
-  }catch(error){
-    console.error("[LOGOUT] Activity log failed:",error);
-  }finally{
-    await clearSession();
-    router.replace("/");
-  }
-};
+  };
 
-  if(authLoading){
-    return(
+  if (authLoading || isUserLoading) {
+    return (
       <ThemedView style={styles.pageContainer}>
-        <ThemedText>Loading...</ThemedText>
+        <ThemedView
+          style={{
+            flex: 1,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <ActivityIndicator size="small" color="#35408E" />
+          <ThemedText style={{ marginTop: 10 }}>
+            Loading profile...
+          </ThemedText>
+        </ThemedView>
       </ThemedView>
     );
   }
 
-  return(
-    <ScrollView style={styles.pageContainer} contentContainerStyle={styles.scrollContent}>
+  if (isUserError) {
+    console.error("[PROFILE] Failed to load user:", userError);
+  }
+
+  const firstName =
+    userDetails?.Profile?.first_name ||
+    user?.Profile?.first_name ||
+    "First Name";
+
+  const role =
+    userDetails?.role?.name ||
+    user?.Role?.name ||
+    "General Public";
+
+  const location =
+    userDetails?.Profile?.location ||
+    user?.Profile?.location ||
+    "No Location Set";
+
+  const memberSince = formatMemberSince(userDetails?.created_at);
+
+  return (
+    <ScrollView
+      style={styles.pageContainer}
+      contentContainerStyle={styles.scrollContent}
+      showsVerticalScrollIndicator={false}
+    >
       <ThemedView>
         <ThemedView style={styles.headerContainer}>
-          <TouchableOpacity onPress={()=>router.push("/drawer/tabs/setting/settings")}>
-            <Feather name="settings" size={icon(20)} color="#35408E" style={styles.settings}/>
+          <TouchableOpacity
+            onPress={() => router.push("/drawer/tabs/setting/settings")}
+          >
+            <Feather
+              name="settings"
+              size={icon(20)}
+              color="#35408E"
+              style={styles.settings}
+            />
           </TouchableOpacity>
 
           <ThemedView style={styles.profileContainer}>
-            <ThemedView style={{alignItems:"center"}}>
+            <ThemedView style={{ alignItems: "center" }}>
               <ThemedView style={styles.imageShadow}>
-                <Image source={require("@/assets/images/profile.jpg")} style={styles.profileImg}/>
+                {profileImageUrl ? (
+                  <Image
+                    source={{ uri: profileImageUrl }}
+                    style={styles.profileImg}
+                    resizeMode="cover"
+                    onLoad={() =>
+                      console.log("[PROFILE] Avatar loaded:", profileImageUrl)
+                    }
+                    onError={(event) =>
+                      console.error(
+                        "[PROFILE] Avatar failed to load:",
+                        event.nativeEvent
+                      )
+                    }
+                  />
+                ) : (
+                  <ThemedView style={styles.profilePlaceholder}>
+                    <Ionicons name="person" size={icon(45)} color="#9A9A9A" />
+                  </ThemedView>
+                )}
               </ThemedView>
+
               <ThemedView style={styles.levelBadge}>
                 <ThemedText style={styles.levelText}>Advocate</ThemedText>
               </ThemedView>
@@ -649,42 +704,44 @@ const handleLogout=async()=>{
 
             <ThemedView style={styles.profileInfo}>
               <ThemedView style={styles.nameRow}>
-                <ThemedText style={styles.userName}>
-                  {isUserLoading
-                    ? user?.Profile?.first_name||"Loading..."
-                    : userDetails?.Profile?.first_name||user?.Profile?.first_name||"First Name"}
-                </ThemedText>
+                <ThemedText style={styles.userName}>{firstName}</ThemedText>
               </ThemedView>
 
-              <ThemedText style={styles.role}>
-                {userDetails?.role?.name||user?.Role?.name||"General Public"}
-              </ThemedText>
+              <ThemedText style={styles.role}>{role}</ThemedText>
 
               <ThemedView style={styles.infoRow}>
-                <Ionicons name="location-outline" size={icon(15)} color="#6a6a6dd6"/>
-                <ThemedText style={styles.infoText}>
-                  {userDetails?.Profile?.location||"No Location Set"}
-                </ThemedText>
+                <Ionicons
+                  name="location-outline"
+                  size={icon(15)}
+                  color="#6a6a6dd6"
+                />
+                <ThemedText style={styles.infoText}>{location}</ThemedText>
               </ThemedView>
 
               <ThemedView style={styles.infoRow}>
-                <Ionicons name="calendar-clear-outline" size={icon(15)} color="#6a6a6dd6"/>
-                  <ThemedText style={styles.infoText}>
-                    {formatMemberSince(userDetails?.created_at)}
-                  </ThemedText>
+                <Ionicons
+                  name="calendar-clear-outline"
+                  size={icon(15)}
+                  color="#6a6a6dd6"
+                />
+                <ThemedText style={styles.infoText}>{memberSince}</ThemedText>
               </ThemedView>
             </ThemedView>
           </ThemedView>
         </ThemedView>
 
         <ThemedView style={styles.moreContainer}>
-          <BadgeCard returnTo="/drawer/tabs/profiles/profile"/>
-          <ResourcesDownload/>
-          <MyDiscussions/>
-          <SurveyCard/>
+          <BadgeCard returnTo="/drawer/tabs/profiles/profile" />
+          <ResourcesDownload />
+          <MyDiscussions />
+          <SurveyCard />
 
           <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-            <Ionicons name="exit-outline" size={icon(25)} color="white"/>
+            <Ionicons
+              name="exit-outline"
+              size={icon(25)}
+              color="white"
+            />
             <ThemedText style={styles.logoutTxt}>Log Out</ThemedText>
           </TouchableOpacity>
         </ThemedView>

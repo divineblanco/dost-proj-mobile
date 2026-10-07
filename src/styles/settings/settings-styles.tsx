@@ -198,6 +198,29 @@ export function settingsStyles (r: ResponsiveValues) {
     marginVertical: verticalScale(15),
   },
 
+  profilePlaceholder: {
+    padding: scale(30),
+    borderRadius: radius(100),
+    backgroundColor: "#E9EAF0",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  editImageButton: {
+    position: "absolute",
+    right: 0,
+    bottom: 0,
+    width: scale(32),
+    height: verticalScale(32),
+    borderRadius: radius(16),
+    backgroundColor: "#35408E",
+    borderWidth: scale(2),
+    borderColor: "#FFFFFF",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+
   //ACTIVITY LOG
   headerContainer: {
     padding: scale(20),
@@ -219,7 +242,7 @@ export function settingsStyles (r: ResponsiveValues) {
 
   column: {
     flex: 1,
-    gap: scale(2),
+    gap: scale(3),
     backgroundColor: "transparent",
   },
 

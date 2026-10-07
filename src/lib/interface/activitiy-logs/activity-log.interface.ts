@@ -3,7 +3,7 @@ import { MetaInterface } from "../meta.interface";
 export interface ActivityLogsInterface {
   activity_logs_id: string;
   type: string;
-  decription?: string;
+  description?: string;
   is_deleted: boolean;
   created_at: string;
   updated_at: string;

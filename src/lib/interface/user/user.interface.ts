@@ -57,6 +57,7 @@ export interface ProfileInterface {
   first_name: string;
   last_name: string;
   location?: string | null;
+  image_url?: string | null;
   is_deleted?: boolean;
   created_at?: string;
   updated_at?: string;
