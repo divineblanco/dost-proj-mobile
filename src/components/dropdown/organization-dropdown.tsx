@@ -184,6 +184,16 @@ export function OrgDropdown({ value, onChange }: Props) {
     enabled: true,
   });
 
+  console.log(
+  "[OrgDropdown] DATA:",
+  JSON.stringify(data, null, 2)
+);
+
+console.log(
+  "[OrgDropdown] EDGES:",
+  JSON.stringify(data?.data?.edges, null, 2)
+);
+
   const organizations = useMemo(
     () =>
       (data?.data?.edges ?? [])

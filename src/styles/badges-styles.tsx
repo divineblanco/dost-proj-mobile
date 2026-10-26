@@ -263,7 +263,7 @@ export function viewBadgesStyles(r: ResponsiveValues) {
   },
 
   badgeDesc: {
-    fontSize: font(12),
+    fontSize: font(11.5),
     color: "#6B7280",
     lineHeight: font(17),
   },
@@ -306,6 +306,41 @@ export function viewBadgesStyles(r: ResponsiveValues) {
     borderRadius: radius(11),
     justifyContent: "center",
     alignItems: "center",
+  },
+
+  // Badge list
+  badgeList: {
+    paddingHorizontal: scale(16),
+  },
+  
+  badgeStatus: {
+    fontSize: font(10),
+    marginTop: verticalScale(0),
+  },
+
+  // Progress
+  progressSection: {
+    padding: scale(16),
+  },
+
+  // Loading state
+  loadingContainer: {
+    padding: scale(24),
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  loadingText: {
+    marginTop: verticalScale(10),
+    fontSize: font(13),
+    color: "#6B7280",
+  },
+
+  // Empty state
+  emptyContainer: {
+    paddingHorizontal: scale(20),
+    paddingVertical: verticalScale(28),
+    alignItems: "center",
+    justifyContent: "center",
   },
   
 })};

@@ -64,7 +64,7 @@ export default function DrawerLayout() {
     pathname.startsWith("/drawer/tabs/contributions/add-contribute") ||
     pathname.startsWith("/drawer/tabs/contributions/report-misinfo") ||
     pathname.startsWith("/drawer/tabs/trend/view-trendspost") ||
-    pathname.startsWith("/drawer/tabs/profiles/view-badges") ||
+    pathname.startsWith("/drawer/tabs/badges/view-badges") ||
     pathname.startsWith("/drawer/tabs/profiles/view-resources") ||
     pathname.startsWith("/drawer/tabs/profiles/view-discussions") ||
     pathname.startsWith("/drawer/tabs/setting/profile-settings") ||

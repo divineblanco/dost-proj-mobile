@@ -16,7 +16,7 @@ const LANGUAGES = [
   "Cebuano",
   "Ilocano",
   "Bicolano",
-  "Chavacano",
+  "Pangasinan",
 ];
 
 export default function Language() {

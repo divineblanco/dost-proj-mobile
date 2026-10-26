@@ -493,6 +493,102 @@ export function mapStyles(r: ResponsiveValues) {
         color: "#35408E",
     },
 
+    loadingContainer: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+
+    loadingText: {
+      marginTop: verticalScale(10),
+    },
+
+    // Error state
+    errorContainer: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      padding: scale(30),
+    },
+
+    errorIcon: {
+      marginBottom: 0,
+    },
+
+    errorTitle: {
+      marginTop: verticalScale(12),
+    },
+
+    errorMessage: {
+      marginTop: verticalScale(8),
+      color: "#777777",
+      textAlign: "center",
+    },
+
+    reloadButton: {
+      marginTop: verticalScale(16),
+    },
+
+    reloadText: {
+      color: "#35408E",
+    },
+
+    // Map
+    leafletContainer: {
+      height: "100%",
+      width: "100%",
+      overflow: "hidden",
+    },
+
+    coordinatesText: {
+      alignSelf: "flex-end",
+      lineHeight: font(12),
+    },
+
+    contentStatsRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      backgroundColor: "transparent",
+    },
+
+    // Legend colors
+    legendHigh: {
+      backgroundColor: "red",
+    },
+
+    legendMedium: {
+      backgroundColor: "#FFB633",
+    },
+
+    legendLow: {
+      backgroundColor: "#3BB329",
+    },
+
+    // Treatment hub states
+    emptyStateContainer: {
+      alignItems: "center",
+      paddingVertical: verticalScale(24),
+      backgroundColor: "transparent",
+    },
+
+    emptyStateIcon: {
+      color: "#94A3B8",
+    },
+
+    emptyStateText: {
+      marginTop: verticalScale(10),
+      textAlign: "center",
+    },
+
+    hubsLoading: {
+      marginVertical: verticalScale(24),
+    },
+
+    hubsError: {
+      color: "#D32F2F",
+      paddingVertical: verticalScale(12),
+    },
+
 })};
 
 export function mapDropdownStyles(r: ResponsiveValues) {
@@ -758,3 +854,187 @@ export function mapFilterDrawerStyles(r: ResponsiveValues) {
     color: "#35408E",
   },
 })};
+
+export function treatmentHubStyles(r: ResponsiveValues) {
+  const {
+    isFold,
+    isCompactAndroid,
+    isAndroidTablet,
+    isIPad,
+    isIPadMini,
+    isLargeIPad,
+    isSmallPhone,
+  } = r;
+
+  const isTabletDevice =
+    isAndroidTablet || isIPad || isIPadMini || isLargeIPad;
+
+  const compact = isFold || isCompactAndroid || isSmallPhone;
+
+  return StyleSheet.create({
+    // List
+    list: {
+      width: "100%",
+      gap: verticalScale(compact ? 9 : 12),
+    },
+
+    emptyText: {
+      color: "#6B7280",
+      fontSize: font(13),
+      lineHeight: font(19),
+      paddingVertical: verticalScale(16),
+    },
+
+    // Card
+    card: {
+      width: "100%",
+      backgroundColor: "#FFFFFF",
+      borderWidth: scale(1),
+      borderColor: "#E0E4F0",
+      borderRadius: radius(14),
+      overflow: "hidden",
+      elevation: 2,
+      shadowColor: "#1A1F5E",
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.07,
+      shadowRadius: 5,
+    },
+
+    cardSelected: {
+      borderWidth: scale(1.5),
+      borderColor: "#35408E",
+    },
+
+    accentBar: {
+      width: "100%",
+      height: verticalScale(4),
+      backgroundColor: "#35408E",
+    },
+
+    cardInner: {
+      padding: scale(isTabletDevice ? 18 : compact ? 11 : 14),
+      gap: verticalScale(compact ? 8 : 10),
+    },
+
+    // Card title
+    cardTitleRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: scale(9),
+    },
+
+    cardTitle: {
+      flex: 1,
+      fontSize: font(isTabletDevice ? 17 : compact ? 13 : 15),
+      lineHeight: font(isTabletDevice ? 23 : compact ? 18 : 20),
+      fontWeight: "700",
+      color: "#1E293B",
+    },
+
+    // Information
+    infoRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: scale(8),
+    },
+
+    infoIconBubble: {
+      width: scale(isTabletDevice ? 30 : 26),
+      height: verticalScale(isTabletDevice ? 30 : 26),
+      borderRadius: radius(6),
+      backgroundColor: "#EEF0FA",
+      justifyContent: "center",
+      alignItems: "center",
+    },
+
+    infoText: {
+      flex: 1,
+      color: "#6B7280",
+      fontSize: font(isTabletDevice ? 14 : compact ? 11 : 12),
+      lineHeight: font(isTabletDevice ? 20 : 17),
+    },
+
+    // Services
+    servicesContainer: {
+      gap: verticalScale(4),
+    },
+
+    servicesTitle: {
+      fontSize: font(isTabletDevice ? 14 : 12),
+      lineHeight: font(18),
+      fontWeight: "600",
+      color: "#1E293B",
+    },
+
+    servicesText: {
+      fontSize: font(isTabletDevice ? 14 : compact ? 11 : 12),
+      lineHeight: font(isTabletDevice ? 21 : 18),
+      color: "#6B7280",
+    },
+
+    divider: {
+      height: verticalScale(1),
+      backgroundColor: "#F0F2F8",
+    },
+
+    // Actions
+    actionsContainer: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: scale(compact ? 6 : 8),
+    },
+
+    actionButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: scale(5),
+      backgroundColor: "#F8F9FD",
+      paddingVertical: verticalScale(compact ? 6 : 7),
+      paddingHorizontal: scale(compact ? 8 : 12),
+      borderRadius: radius(8),
+      borderWidth: scale(1),
+      borderColor: "#D1D5E8",
+    },
+
+    actionLabel: {
+      fontSize: font(compact ? 10 : 12),
+      lineHeight: font(compact ? 13 : 16),
+      fontWeight: "600",
+      color: "#35408E",
+    },
+
+    contactLinksContainer: {
+        gap: verticalScale(r.isFold || r.isSmallPhone ? 8 : 10),
+    },
+
+    contactLink: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: scale(9),
+        paddingVertical: verticalScale(4),
+    },
+
+    contactLinkContent: {
+        flex: 1,
+        gap: verticalScale(2),
+    },
+
+    contactLinkLabel: {
+        color: "#64748B",
+        fontSize: font(11),
+        lineHeight: font(14),
+        fontWeight: "500",
+    },
+
+    contactLinkValue: {
+        color: "#35408E",
+        fontSize: font(r.isFold || r.isSmallPhone ? 11 : 12),
+        lineHeight: font(17),
+        fontWeight: "600",
+    },
+  });
+}

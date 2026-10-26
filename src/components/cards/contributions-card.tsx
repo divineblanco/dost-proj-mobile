@@ -2,26 +2,13 @@
 // import { ThemedText } from "@/components/themed-text";
 // import { ThemedView } from "@/components/themed-view";
 // import { useAuth } from "@/lib/auth/AuthProvider";
-// import {
-//   API_KEY_VALUE,
-//   API_URL,
-// } from "@/lib/services/api";
+// import useFormQuery from "@/lib/hooks/useFormQuery";
 // import { colors } from "@/styles/contribute/contribute-colors";
-// import {
-//   contributionsCardStyles,
-//   sharedCardStyles,
-// } from "@/styles/contribute/contribute-component-styles";
+// import { contributionsCardStyles, sharedCardStyles } from "@/styles/contribute/contribute-component-styles";
 // import { icon, useResponsive } from "@/styles/responsive";
 // import { Ionicons } from "@expo/vector-icons";
-// import React, { useCallback, useEffect, useMemo, useState } from "react";
-// import {
-//   Alert,
-//   Image,
-//   ImageSourcePropType,
-//   Linking,
-//   ScrollView,
-//   TouchableOpacity,
-// } from "react-native";
+// import React, { useEffect, useMemo, useState } from "react";
+// import { Alert, Image, ImageSourcePropType, Linking, ScrollView, TouchableOpacity } from "react-native";
 
 // type BackendContribution = {
 //   contribution_id: string;
@@ -29,11 +16,13 @@
 //   content: string;
 //   slug: string;
 //   classification: "PENDING" | "MISINFORMATION" | "FACTUAL";
+//   classification_method?: "MANUAL" | "AI" | "HYBRID" | null;
 //   status: "PENDING" | "APPROVED" | "DECLINED";
 //   is_deleted: boolean;
 //   image_url?: string | null;
 //   source_url?: string | null;
 //   sentiment?: "POSITIVE" | "NEGATIVE" | "NEUTRAL" | null;
+//   language?: string | null;
 //   created_at?: string | null;
 //   barangay?: string | null;
 //   municipality?: string | null;
@@ -41,7 +30,29 @@
 //   region?: string | null;
 // };
 
+// type ContributionEdge = {
+//   node: BackendContribution | null;
+//   cursor?: string;
+// };
+
+// type ContributionsResponse = {
+//   meta?: { api_version?: string; status?: number };
+//   data?: {
+//     edges?: ContributionEdge[];
+//     pageInfo?: {
+//       startCursor?: string;
+//       endCursor?: string;
+//       hasNextPage?: boolean;
+//       hasPrevPage?: boolean;
+//     };
+//     totalCount?: number;
+//     timestamp?: string;
+//     success?: boolean;
+//   };
+// };
+
 // type ContributionsItem = {
+//   id: string;
 //   icon: ImageSourcePropType;
 //   name: string;
 //   type: string;
@@ -54,215 +65,130 @@
 //   location: string;
 //   region?: string | null;
 //   regionCode?: string | null;
+//   language?: string | null;
 //   post: string;
 //   sourceUrl?: string | null;
 // };
 
-// type Props = {
-//   filters: ContributionFilters;
-// };
+// type Props = { filters: ContributionFilters };
+
+// const ITEMS_PER_PAGE = 10;
 
 // export function ContributionsCard({ filters }: Props) {
 //   const r = useResponsive();
-
-//   const sharedStyles = useMemo(
-//     () => sharedCardStyles(r),
-//     [r]
-//   );
-
-//   const styles = useMemo(
-//     () => contributionsCardStyles(r),
-//     [r]
-//   );
-
-//   // const API_URL = process.env.EXPO_PUBLIC_API_URL;
-//   // const API_KEY = process.env.EXPO_PUBLIC_API_KEY;
-
+//   const sharedStyles = useMemo(() => sharedCardStyles(r), [r]);
+//   const styles = useMemo(() => contributionsCardStyles(r), [r]);
 //   const { token, isLoading: authLoading } = useAuth();
 
-//   const [allContributions, setAllContributions] = useState<
-//     ContributionsItem[]
-//   >([]);
+//   const [allContributions, setAllContributions] = useState<ContributionsItem[]>([]);
+//   const [loadingAll, setLoadingAll] = useState(true);
+//   const [cursor, setCursor] = useState("");
+//   const [currentPage, setCurrentPage] = useState(1);
 
-//   const [loading, setLoading] = useState(true);
+//   const { data: result, isLoading: queryLoading } = useFormQuery<ContributionsResponse>({
+//     key: ["all-contributions", cursor],
+//     url: "/maintenance/contribution",
+//     headers: {
+//       Authorization: `Bearer ${token}`,
+//       "x-api-key": "testing",
+//       "x-api-version": "2026-02-26",
+//     },
+//     params: {
+//       limit: 100,
+//       orderBy: "created_at",
+//       sortBy: "desc",
+//       startCursor: "",
+//       endCursor: cursor,
+//     },
+//     enabled: !!token && !authLoading,
+//   });
 
-//   const loadContributions = useCallback(async () => {
+//   const mapContributions = (response?: ContributionsResponse): ContributionsItem[] => {
+//     const edges = Array.isArray(response?.data?.edges) ? response.data.edges : [];
+
+//     return edges
+//       .map(edge => edge?.node)
+//       .filter((node): node is BackendContribution => !!node)
+//       .filter(item => !item.is_deleted && item.status === "APPROVED" && item.classification === "FACTUAL")
+//       .map(item => {
+//         const sentiment = item.sentiment ?? "NEUTRAL";
+//         let sentimentColor = colors.warning;
+//         let sentimentBg = colors.warningBg;
+
+//         if (sentiment === "POSITIVE") {
+//           sentimentColor = colors.success;
+//           sentimentBg = colors.successBg;
+//         } else if (sentiment === "NEGATIVE") {
+//           sentimentColor = colors.danger;
+//           sentimentBg = colors.dangerBg;
+//         }
+
+//         return {
+//           id: item.contribution_id,
+//           icon: require("@/assets/images/profile.jpg"),
+//           name: "Anonymous User",
+//           type: item.type || "Public Discussion",
+//           sentiment: sentiment.charAt(0) + sentiment.slice(1).toLowerCase(),
+//           sentimentColor,
+//           sentimentBg,
+//           image: item.image_url || null,
+//           sourceUrl: item.source_url || null,
+//           createdAt: item.created_at || null,
+//           date: item.created_at ? formatDate(item.created_at) : "Date unavailable",
+//           location: [item.barangay, item.municipality, item.province, item.region].filter(Boolean).join(", ") || "Location unavailable",
+//           region: item.region || null,
+//           regionCode: null,
+//           language: item.language || null,
+//           post: item.content || "No content available.",
+//         };
+//       });
+//   };
+
+//   useEffect(() => {
 //     if (authLoading) return;
 
 //     if (!token) {
 //       setAllContributions([]);
-//       setLoading(false);
+//       setLoadingAll(false);
 //       return;
 //     }
 
-//     if (!API_URL || !API_KEY_VALUE) {
-//       console.error(
-//         "[CONTRIBUTIONS CARD] Missing API configuration"
-//       );
-//       setAllContributions([]);
-//       setLoading(false);
-//       return;
-//     }
-
-
-//     try {
-//       setLoading(true);
-
-//       const response = await fetch(
-//         `${API_URL}/maintenance/contribution`,
-//         {
-//           method: "GET",
-//           headers: {
-//             Accept: "application/json",
-//             "Content-Type": "application/json",
-//             Authorization: `Bearer ${token}`,
-//             "X-API-Key": API_KEY_VALUE,
-//           },
-//         }
-//       );
-
-
-//       const result = await response.json();
-
-//       if (!response.ok) {
-//         console.error(
-//           "[CONTRIBUTIONS CARD] API error:",
-//           result
-//         );
-//         setAllContributions([]);
-//         return;
-//       }
-
-//       const edges = Array.isArray(result?.data?.edges)
-//         ? result.data.edges
-//         : [];
-
-//       const rawData: BackendContribution[] = edges
-//         .map(
-//           (edge: { node?: BackendContribution }) =>
-//             edge?.node
-//         )
-//         .filter(
-//           (
-//             node: BackendContribution | undefined
-//           ): node is BackendContribution => Boolean(node)
-//         );
-
-//       const approvedFactual = rawData.filter(
-//         (item) =>
-//           !item.is_deleted &&
-//           item.classification === "FACTUAL" &&
-//           item.status === "APPROVED"
-//       );
-
-//       const mapped: ContributionsItem[] =
-//         approvedFactual.map((item) => {
-//           const sentiment = item.sentiment ?? "NEUTRAL";
-
-//           let sentimentColor = colors.warning;
-//           let sentimentBg = colors.warningBg;
-
-//           if (sentiment === "POSITIVE") {
-//             sentimentColor = colors.success;
-//             sentimentBg = colors.successBg;
-//           }
-
-//           if (sentiment === "NEGATIVE") {
-//             sentimentColor = colors.danger;
-//             sentimentBg = colors.dangerBg;
-//           }
-
-//           return {
-//             icon: require("@/assets/images/profile.jpg"),
-//             name: "Anonymous User",
-//             type: item.type || "Public Discussion",
-
-//             sentiment:
-//               sentiment.charAt(0) +
-//               sentiment.slice(1).toLowerCase(),
-
-//             sentimentColor,
-//             sentimentBg,
-
-//             image: item.image_url || null,
-//             sourceUrl: item.source_url || null,
-//             createdAt: item.created_at || null,
-
-//             date: item.created_at
-//               ? formatDate(item.created_at)
-//               : "Date unavailable",
-
-//             location:
-//               [
-//                 item.barangay,
-//                 item.municipality,
-//                 item.province,
-//                 item.region,
-//               ]
-//                 .filter(Boolean)
-//                 .join(", ") ||
-//               "Location unavailable",
-
-//             region: item.region || null,
-
-//             /*
-//              * If your contribution API eventually provides
-//              * region_code, you can map it here.
-//              */
-//             regionCode: null,
-
-//             post:
-//               item.content ||
-//               "No content available.",
-//           };
-//         });
-
-//       setAllContributions(mapped);
-//     } catch (error) {
-//       console.error(
-//         "[CONTRIBUTIONS CARD] Failed to load:",
-//         error
-//       );
-
-//       setAllContributions([]);
-//     } finally {
-//       setLoading(false);
-//     }
-//   }, [
-//     // API_URL,
-//     // API_KEY,
-//     token,
-//     authLoading,
-//   ]);
+//     setAllContributions([]);
+//     setCursor("");
+//     setCurrentPage(1);
+//     setLoadingAll(true);
+//   }, [token, authLoading]);
 
 //   useEffect(() => {
-//     loadContributions();
-//   }, [loadContributions]);
+//     if (authLoading || !token || queryLoading) return;
+
+//     const pageItems = mapContributions(result);
+
+//     setAllContributions(previous => {
+//       if (!cursor) return pageItems;
+
+//       const existingIds = new Set(previous.map(item => item.id));
+//       const newItems = pageItems.filter(item => !existingIds.has(item.id));
+
+//       return [...previous, ...newItems];
+//     });
+
+//     const pageInfo = result?.data?.pageInfo;
+
+//     if (pageInfo?.hasNextPage && pageInfo.endCursor && pageInfo.endCursor !== cursor) {
+//       setCursor(pageInfo.endCursor);
+//     } else {
+//       setLoadingAll(false);
+//     }
+//   }, [result, queryLoading, cursor, token, authLoading]);
 
 //   const filteredContributions = useMemo(() => {
-//     return allContributions.filter((item) => {
-//       /*
-//        * =====================================================
-//        * REGION
-//        * =====================================================
-//        */
+//     return allContributions.filter(item => {
+//       if (filters.selectedRegion !== "All Regions") {
+//         const selectedRegion = filters.selectedRegion.trim().toLowerCase();
+//         const itemRegion = item.region?.trim().toLowerCase() || "";
 
-//       if (
-//         filters.selectedRegion !== "All Regions"
-//       ) {
-//         const selectedRegion =
-//           filters.selectedRegion
-//             .trim()
-//             .toLowerCase();
-
-//         const itemRegion =
-//           item.region
-//             ?.trim()
-//             .toLowerCase() || "";
-
-//         if (!itemRegion) {
-//           return false;
-//         }
+//         if (!itemRegion) return false;
 
 //         if (
 //           itemRegion !== selectedRegion &&
@@ -273,387 +199,132 @@
 //         }
 //       }
 
-//       /*
-//        * =====================================================
-//        * CATEGORY
-//        * =====================================================
-//        */
+//       if (filters.selectedCategories !== "All Categories") {
+//         const selectedCategory = filters.selectedCategories.trim().toLowerCase();
+//         const itemCategory = item.type.trim().toLowerCase();
 
-//       if (
-//         filters.selectedCategories !==
-//         "All Categories"
-//       ) {
-//         const selectedCategory =
-//           filters.selectedCategories
-//             .trim()
-//             .toLowerCase();
-
-//         const itemCategory =
-//           item.type
-//             .trim()
-//             .toLowerCase();
-
-//         if (
-//           itemCategory !== selectedCategory
-//         ) {
-//           return false;
-//         }
+//         if (itemCategory !== selectedCategory) return false;
 //       }
 
-//       /*
-//        * =====================================================
-//        * SENTIMENT
-//        * =====================================================
-//        */
+//       if (filters.selectedSentiment !== "All Sentiment") {
+//         const selectedSentiment = filters.selectedSentiment.trim().toLowerCase();
+//         const itemSentiment = item.sentiment.trim().toLowerCase();
 
-//       if (
-//         filters.selectedSentiment !==
-//         "All Sentiment"
-//       ) {
-//         const selectedSentiment =
-//           filters.selectedSentiment
-//             .trim()
-//             .toLowerCase();
-
-//         const itemSentiment =
-//           item.sentiment
-//             .trim()
-//             .toLowerCase();
-
-//         if (
-//           itemSentiment !==
-//           selectedSentiment
-//         ) {
-//           return false;
-//         }
+//         if (itemSentiment !== selectedSentiment) return false;
 //       }
 
-//       /*
-//        * =====================================================
-//        * DATE
-//        * =====================================================
-//        */
+//       if (filters.selectedLanguage !== "All Languages") {
+//         const selectedLanguage = filters.selectedLanguage.trim().toLowerCase();
+//         const itemLanguage = item.language?.trim().toLowerCase() || "";
 
-//       if (!item.createdAt) {
-//         return false;
+//         if (!itemLanguage || itemLanguage !== selectedLanguage) return false;
 //       }
 
-//       const contributionDate =
-//         new Date(item.createdAt);
+//       if (!item.createdAt) return false;
 
-//       if (
-//         Number.isNaN(
-//           contributionDate.getTime()
-//         )
-//       ) {
-//         return false;
+//       const contributionDate = new Date(item.createdAt);
+
+//       if (Number.isNaN(contributionDate.getTime())) return false;
+
+//       if (filters.selectedDate === "Custom Range") {
+//         if (!filters.startDate || !filters.endDate) return true;
+
+//         const start = getStartOfDay(filters.startDate);
+//         const end = getEndOfDay(filters.endDate);
+//         const time = contributionDate.getTime();
+
+//         return time >= start.getTime() && time <= end.getTime();
 //       }
 
-//       /*
-//        * -----------------------------------------------------
-//        * CUSTOM RANGE
-//        * -----------------------------------------------------
-//        */
-
-//       if (
-//         filters.selectedDate ===
-//         "Custom Range"
-//       ) {
-//         /*
-//          * Do not filter until both dates have
-//          * actually been selected.
-//          */
-//         if (
-//           !filters.startDate ||
-//           !filters.endDate
-//         ) {
-//           return true;
-//         }
-
-//         const start =
-//           getStartOfDay(
-//             filters.startDate
-//           );
-
-//         const end =
-//           getEndOfDay(
-//             filters.endDate
-//           );
-
-//         const time =
-//           contributionDate.getTime();
-
-//         return (
-//           time >= start.getTime() &&
-//           time <= end.getTime()
-//         );
+//       if (filters.selectedDate === "Last 7 Days") {
+//         return contributionDate.getTime() >= subtractDays(new Date(), 7).getTime();
 //       }
 
-//       /*
-//        * -----------------------------------------------------
-//        * LAST 7 DAYS
-//        * -----------------------------------------------------
-//        */
-
-//       if (
-//         filters.selectedDate ===
-//         "Last 7 Days"
-//       ) {
-//         const start =
-//           subtractDays(
-//             new Date(),
-//             7
-//           );
-
-//         return (
-//           contributionDate.getTime() >=
-//           start.getTime()
-//         );
+//       if (filters.selectedDate === "Last 30 Days") {
+//         return contributionDate.getTime() >= subtractDays(new Date(), 30).getTime();
 //       }
 
-//       /*
-//        * -----------------------------------------------------
-//        * LAST 30 DAYS
-//        * -----------------------------------------------------
-//        */
-
-//       if (
-//         filters.selectedDate ===
-//         "Last 30 Days"
-//       ) {
-//         const start =
-//           subtractDays(
-//             new Date(),
-//             30
-//           );
-
-//         return (
-//           contributionDate.getTime() >=
-//           start.getTime()
-//         );
+//       if (filters.selectedDate === "Last 90 Days") {
+//         return contributionDate.getTime() >= subtractDays(new Date(), 90).getTime();
 //       }
 
-//       /*
-//        * -----------------------------------------------------
-//        * LAST 90 DAYS
-//        * -----------------------------------------------------
-//        */
-
-//       if (
-//         filters.selectedDate ===
-//         "Last 90 Days"
-//       ) {
-//         const start =
-//           subtractDays(
-//             new Date(),
-//             90
-//           );
-
-//         return (
-//           contributionDate.getTime() >=
-//           start.getTime()
-//         );
-//       }
-
-//       /*
-//        * Unknown date filter.
-//        *
-//        * Do not accidentally hide everything.
-//        */
 //       return true;
 //     });
-//   }, [
-//     allContributions,
-//     filters,
-//   ]);
+//   }, [allContributions, filters]);
+
+//   useEffect(() => {
+//     setCurrentPage(1);
+//   }, [filters]);
+
+//   const totalPages = Math.ceil(filteredContributions.length / ITEMS_PER_PAGE);
+
+//   const paginatedContributions = useMemo(() => {
+//     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+//     const endIndex = startIndex + ITEMS_PER_PAGE;
+
+//     return filteredContributions.slice(startIndex, endIndex);
+//   }, [filteredContributions, currentPage]);
+
+//   const goToPreviousPage = () => {
+//     setCurrentPage(previous => Math.max(previous - 1, 1));
+//   };
+
+//   const goToNextPage = () => {
+//     setCurrentPage(previous => Math.min(previous + 1, totalPages));
+//   };
 
 //   return (
-//     <ScrollView
-//       contentContainerStyle={
-//         styles.scrollContainer
-//       }
-//       showsVerticalScrollIndicator={false}
-//     >
-//       {loading ? (
-//         <ThemedText
-//           style={styles.postText}
-//         >
-//           Loading contributions...
-//         </ThemedText>
+//     <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+//       {loadingAll ? (
+//         <ThemedText style={styles.postText}>Loading all approved contributions...</ThemedText>
 //       ) : filteredContributions.length === 0 ? (
-//         <ThemedText
-//           style={styles.postText}
-//         >
-//           No contributions match the selected
-//           filters.
-//         </ThemedText>
+//         <ThemedText style={styles.postText}>No contributions match the selected filters.</ThemedText>
 //       ) : (
-//         filteredContributions.map(
-//           (item, index) => (
-//             <ThemedView
-//               key={
-//                 item.createdAt
-//                   ? `${item.createdAt}-${index}`
-//                   : String(index)
-//               }
-//               style={styles.card}
-//             >
-//               {/* HEADER */}
+//         <>
+//           {paginatedContributions.map(item => (
+//             <ThemedView key={item.id} style={styles.card}>
+//               <ThemedView style={styles.headerRow}>
+//                 <ThemedView style={sharedStyles.cardUserRow}>
+//                   {/* <Image source={item.icon} style={sharedStyles.cardAvatar} /> */}
+//                   <ThemedView style={sharedStyles.profilePlaceholder}>
+//                     <Ionicons name="person" size={icon(21)} color="#9A9A9A" />
+//                   </ThemedView>
 
-//               <ThemedView
-//                 style={styles.headerRow}
-//               >
-//                 <ThemedView
-//                   style={
-//                     sharedStyles.cardUserRow
-//                   }
-//                 >
-//                   <Image
-//                     source={item.icon}
-//                     style={
-//                       sharedStyles.cardAvatar
-//                     }
-//                   />
-
-//                   <ThemedView
-//                     style={{
-//                       backgroundColor:
-//                         "transparent",
-//                     }}
-//                   >
-//                     <ThemedText
-//                       style={styles.nameText}
-//                     >
-//                       {item.name}
-//                     </ThemedText>
-
-//                     <ThemedText
-//                       style={styles.typeText}
-//                     >
-//                       {item.type}
-//                     </ThemedText>
+//                   <ThemedView style={{ backgroundColor: "transparent" }}>
+//                     <ThemedText style={styles.nameText}>{item.name}</ThemedText>
+//                     <ThemedText style={styles.typeText}>{item.type}</ThemedText>
 //                   </ThemedView>
 //                 </ThemedView>
 
-//                 {/* SENTIMENT */}
-
-//                 <ThemedView
-//                   style={[
-//                     styles.sentimentPill,
-//                     {
-//                       backgroundColor:
-//                         item.sentimentBg,
-//                     },
-//                   ]}
-//                 >
-//                   <ThemedView
-//                     style={[
-//                       styles.sentimentDot,
-//                       {
-//                         backgroundColor:
-//                           item.sentimentColor,
-//                       },
-//                     ]}
-//                   />
-
-//                   <ThemedText
-//                     style={[
-//                       styles.sentimentText,
-//                       {
-//                         color:
-//                           item.sentimentColor,
-//                       },
-//                     ]}
-//                   >
+//                 <ThemedView style={[styles.sentimentPill, { backgroundColor: item.sentimentBg }]}>
+//                   <ThemedView style={[styles.sentimentDot, { backgroundColor: item.sentimentColor }]} />
+//                   <ThemedText style={[styles.sentimentText, { color: item.sentimentColor }]}>
 //                     {item.sentiment}
 //                   </ThemedText>
 //                 </ThemedView>
 //               </ThemedView>
 
-//               {/* IMAGE */}
-
 //               {item.image ? (
-//                 <Image
-//                   source={{
-//                     uri: item.image,
-//                   }}
-//                   style={styles.postImage}
-//                   resizeMode="cover"
-//                 />
+//                 <Image source={{ uri: item.image }} style={styles.postImage} resizeMode="cover" />
 //               ) : null}
 
-//               {/* CONTENT */}
+//               <ThemedText style={styles.postText}>{item.post}</ThemedText>
 
-//               <ThemedText
-//                 style={styles.postText}
-//               >
-//                 {item.post}
-//               </ThemedText>
+//               <ThemedView style={styles.divider} />
 
-//               <ThemedView
-//                 style={styles.divider}
-//               />
-
-//               {/* META */}
-
-//               <ThemedView
-//                 style={styles.metaRow}
-//               >
-//                 <ThemedView
-//                   style={styles.metaItem}
-//                 >
-//                   <Ionicons
-//                     name="calendar-outline"
-//                     size={icon(13)}
-//                     color={
-//                       colors.metaBlue
-//                     }
-//                   />
-
-//                   <ThemedText
-//                     style={styles.metaText}
-//                   >
-//                     {item.date}
-//                   </ThemedText>
+//               <ThemedView style={styles.metaRow}>
+//                 <ThemedView style={styles.metaItem}>
+//                   <Ionicons name="calendar-outline" size={icon(13)} color={colors.metaBlue} />
+//                   <ThemedText style={styles.metaText}>{item.date}</ThemedText>
 //                 </ThemedView>
 
-//                 <ThemedView
-//                   style={
-//                     sharedStyles.cardMetaDivider
-//                   }
-//                 />
+//                 <ThemedView style={sharedStyles.cardMetaDivider} />
 
-//                 <ThemedView
-//                   style={[
-//                     styles.metaItem,
-//                     styles.metaItemShrink,
-//                   ]}
-//                 >
-//                   <Ionicons
-//                     name="location-outline"
-//                     size={icon(13)}
-//                     color={
-//                       colors.metaBlue
-//                     }
-//                   />
+//                 <ThemedView style={[styles.metaItem, styles.metaItemShrink]}>
+//                   <Ionicons name="location-outline" size={icon(13)} color={colors.metaBlue} />
 
-//                   <TouchableOpacity
-//                     style={
-//                       styles.metaItemShrink
-//                     }
-//                     onPress={() =>
-//                       Alert.alert(
-//                         "Location",
-//                         item.location
-//                       )
-//                     }
-//                   >
-//                     <ThemedText
-//                       style={
-//                         styles.metaText
-//                       }
-//                       numberOfLines={1}
-//                     >
+//                   <TouchableOpacity style={styles.metaItemShrink} onPress={() => Alert.alert("Location", item.location)}>
+//                     <ThemedText style={styles.metaText} numberOfLines={1}>
 //                       {item.location}
 //                     </ThemedText>
 //                   </TouchableOpacity>
@@ -661,123 +332,80 @@
 
 //                 {item.sourceUrl ? (
 //                   <>
-//                     <ThemedView
-//                       style={
-//                         sharedStyles.cardMetaDivider
-//                       }
-//                     />
+//                     <ThemedView style={sharedStyles.cardMetaDivider} />
 
-//                     <TouchableOpacity
-//                       style={
-//                         styles.metaItem
-//                       }
-//                       onPress={() =>
-//                         Linking.openURL(
-//                           item.sourceUrl!
-//                         )
-//                       }
-//                     >
-//                       <Ionicons
-//                         name="open-outline"
-//                         size={icon(13)}
-//                         color={
-//                           colors.metaBlue
-//                         }
-//                       />
-
-//                       <ThemedText
-//                         style={
-//                           styles.metaText
-//                         }
-//                       >
-//                         Source
-//                       </ThemedText>
+//                     <TouchableOpacity style={styles.metaItem} onPress={() => Linking.openURL(item.sourceUrl!)}>
+//                       <Ionicons name="open-outline" size={icon(13)} color={colors.metaBlue} />
+//                       <ThemedText style={styles.metaText}>Source</ThemedText>
 //                     </TouchableOpacity>
 //                   </>
 //                 ) : null}
 //               </ThemedView>
 //             </ThemedView>
-//           )
-//         )
+//           ))}
+
+//           {totalPages > 1 && (
+//             <ThemedView style={sharedStyles.paginationContainer}>
+//               <TouchableOpacity
+//                 style={[sharedStyles.paginationButton, currentPage === 1 && sharedStyles.paginationButtonDisabled]}
+//                 disabled={currentPage === 1}
+//                 onPress={goToPreviousPage}
+//               >
+//                 <Ionicons
+//                   name="chevron-back"
+//                   size={icon(18)}
+//                   color={currentPage === 1 ? "#A0A0A0" : colors.primary}
+//                 />
+//               </TouchableOpacity>
+
+//               <ThemedText style={sharedStyles.paginationText}>
+//                 Page {currentPage} of {totalPages}
+//               </ThemedText>
+
+//               <TouchableOpacity
+//                 style={[sharedStyles.paginationButton, currentPage === totalPages && sharedStyles.paginationButtonDisabled]}
+//                 disabled={currentPage === totalPages}
+//                 onPress={goToNextPage}
+//               >
+//                 <Ionicons
+//                   name="chevron-forward"
+//                   size={icon(18)}
+//                   color={currentPage === totalPages ? "#A0A0A0" : colors.primary}
+//                 />
+//               </TouchableOpacity>
+//             </ThemedView>
+//           )}
+//         </>
 //       )}
 //     </ScrollView>
 //   );
 // }
 
-// /*
-//  * =========================================================
-//  * DATE HELPERS
-//  * =========================================================
-//  */
-
-// function getStartOfDay(
-//   value: string
-// ): Date {
-//   const [year, month, day] =
-//     value.split("-").map(Number);
-
-//   return new Date(
-//     year,
-//     month - 1,
-//     day,
-//     0,
-//     0,
-//     0,
-//     0
-//   );
+// function getStartOfDay(value: string): Date {
+//   const [year, month, day] = value.split("-").map(Number);
+//   return new Date(year, month - 1, day, 0, 0, 0, 0);
 // }
 
-// function getEndOfDay(
-//   value: string
-// ): Date {
-//   const [year, month, day] =
-//     value.split("-").map(Number);
-
-//   return new Date(
-//     year,
-//     month - 1,
-//     day,
-//     23,
-//     59,
-//     59,
-//     999
-//   );
+// function getEndOfDay(value: string): Date {
+//   const [year, month, day] = value.split("-").map(Number);
+//   return new Date(year, month - 1, day, 23, 59, 59, 999);
 // }
 
-// function subtractDays(
-//   date: Date,
-//   days: number
-// ): Date {
+// function subtractDays(date: Date, days: number): Date {
 //   const result = new Date(date);
-
-//   result.setDate(
-//     result.getDate() - days
-//   );
-
+//   result.setDate(result.getDate() - days);
 //   return result;
 // }
 
-// function formatDate(
-//   value: string
-// ): string {
+// function formatDate(value: string): string {
 //   const date = new Date(value);
+//   if (Number.isNaN(date.getTime())) return "Date unavailable";
 
-//   if (
-//     Number.isNaN(
-//       date.getTime()
-//     )
-//   ) {
-//     return "Date unavailable";
-//   }
-
-//   return date.toLocaleDateString(
-//     "en-US",
-//     {
-//       month: "short",
-//       day: "numeric",
-//       year: "numeric",
-//     }
-//   );
+//   return date.toLocaleDateString("en-US", {
+//     month: "short",
+//     day: "numeric",
+//     year: "numeric",
+//   });
 // }
 
 import { ContributionFilters } from "@/components/filters/contributions-filter";
@@ -812,21 +440,13 @@ type BackendContribution = {
   region?: string | null;
 };
 
-type ContributionEdge = {
-  node: BackendContribution | null;
-  cursor?: string;
-};
+type ContributionEdge = { node: BackendContribution | null; cursor?: string };
 
 type ContributionsResponse = {
   meta?: { api_version?: string; status?: number };
   data?: {
     edges?: ContributionEdge[];
-    pageInfo?: {
-      startCursor?: string;
-      endCursor?: string;
-      hasNextPage?: boolean;
-      hasPrevPage?: boolean;
-    };
+    pageInfo?: { startCursor?: string; endCursor?: string; hasNextPage?: boolean; hasPrevPage?: boolean };
     totalCount?: number;
     timestamp?: string;
     success?: boolean;
@@ -855,6 +475,11 @@ type ContributionsItem = {
 type Props = { filters: ContributionFilters };
 
 const ITEMS_PER_PAGE = 10;
+const STANDARD_CATEGORIES = [
+  "Personal Experience", "Community Event", "Educational Content",
+  "Resource Availability", "Healthcare Service", "Public Discussion",
+  "Conspiracy Theory", "Harmful Content",
+];
 
 export function ContributionsCard({ filters }: Props) {
   const r = useResponsive();
@@ -875,35 +500,19 @@ export function ContributionsCard({ filters }: Props) {
       "x-api-key": "testing",
       "x-api-version": "2026-02-26",
     },
-    params: {
-      limit: 100,
-      orderBy: "created_at",
-      sortBy: "desc",
-      startCursor: "",
-      endCursor: cursor,
-    },
+    params: { limit: 100, orderBy: "created_at", sortBy: "desc", startCursor: "", endCursor: cursor },
     enabled: !!token && !authLoading,
   });
 
-  const mapContributions = (response?: ContributionsResponse): ContributionsItem[] => {
-    const edges = Array.isArray(response?.data?.edges) ? response.data.edges : [];
-
-    return edges
+  const mapContributions = (response?: ContributionsResponse): ContributionsItem[] =>
+    (Array.isArray(response?.data?.edges) ? response.data.edges : [])
       .map(edge => edge?.node)
       .filter((node): node is BackendContribution => !!node)
       .filter(item => !item.is_deleted && item.status === "APPROVED" && item.classification === "FACTUAL")
       .map(item => {
         const sentiment = item.sentiment ?? "NEUTRAL";
-        let sentimentColor = colors.warning;
-        let sentimentBg = colors.warningBg;
-
-        if (sentiment === "POSITIVE") {
-          sentimentColor = colors.success;
-          sentimentBg = colors.successBg;
-        } else if (sentiment === "NEGATIVE") {
-          sentimentColor = colors.danger;
-          sentimentBg = colors.dangerBg;
-        }
+        const sentimentColor = sentiment === "POSITIVE" ? colors.success : sentiment === "NEGATIVE" ? colors.danger : colors.warning;
+        const sentimentBg = sentiment === "POSITIVE" ? colors.successBg : sentiment === "NEGATIVE" ? colors.dangerBg : colors.warningBg;
 
         return {
           id: item.contribution_id,
@@ -924,17 +533,14 @@ export function ContributionsCard({ filters }: Props) {
           post: item.content || "No content available.",
         };
       });
-  };
 
   useEffect(() => {
     if (authLoading) return;
-
     if (!token) {
       setAllContributions([]);
       setLoadingAll(false);
       return;
     }
-
     setAllContributions([]);
     setCursor("");
     setCurrentPage(1);
@@ -945,18 +551,13 @@ export function ContributionsCard({ filters }: Props) {
     if (authLoading || !token || queryLoading) return;
 
     const pageItems = mapContributions(result);
-
     setAllContributions(previous => {
       if (!cursor) return pageItems;
-
       const existingIds = new Set(previous.map(item => item.id));
-      const newItems = pageItems.filter(item => !existingIds.has(item.id));
-
-      return [...previous, ...newItems];
+      return [...previous, ...pageItems.filter(item => !existingIds.has(item.id))];
     });
 
     const pageInfo = result?.data?.pageInfo;
-
     if (pageInfo?.hasNextPage && pageInfo.endCursor && pageInfo.endCursor !== cursor) {
       setCursor(pageInfo.endCursor);
     } else {
@@ -964,96 +565,49 @@ export function ContributionsCard({ filters }: Props) {
     }
   }, [result, queryLoading, cursor, token, authLoading]);
 
-  const filteredContributions = useMemo(() => {
-    return allContributions.filter(item => {
-      if (filters.selectedRegion !== "All Regions") {
-        const selectedRegion = filters.selectedRegion.trim().toLowerCase();
-        const itemRegion = item.region?.trim().toLowerCase() || "";
+  const filteredContributions = useMemo(() => allContributions.filter(item => {
+    if (filters.selectedRegion !== "All Regions") {
+      const selected = filters.selectedRegion.trim().toLowerCase();
+      const region = item.region?.trim().toLowerCase() || "";
+      if (!region || (region !== selected && !region.includes(selected) && !selected.includes(region))) return false;
+    }
 
-        if (!itemRegion) return false;
+    if (filters.selectedCategories !== "All Categories") {
+      const selected = filters.selectedCategories.trim().toLowerCase();
+      const category = item.type.trim().toLowerCase();
+      if (selected === "others") {
+        if (STANDARD_CATEGORIES.some(value => value.toLowerCase() === category)) return false;
+      } else if (category !== selected) return false;
+    }
 
-        if (
-          itemRegion !== selectedRegion &&
-          !itemRegion.includes(selectedRegion) &&
-          !selectedRegion.includes(itemRegion)
-        ) {
-          return false;
-        }
-      }
+    if (filters.selectedSentiment !== "All Sentiment" && item.sentiment.trim().toLowerCase() !== filters.selectedSentiment.trim().toLowerCase()) return false;
+    if (filters.selectedLanguage !== "All Languages" && item.language?.trim().toLowerCase() !== filters.selectedLanguage.trim().toLowerCase()) return false;
 
-      if (filters.selectedCategories !== "All Categories") {
-        const selectedCategory = filters.selectedCategories.trim().toLowerCase();
-        const itemCategory = item.type.trim().toLowerCase();
+    if (!item.createdAt) return false;
+    const date = new Date(item.createdAt);
+    if (Number.isNaN(date.getTime())) return false;
 
-        if (itemCategory !== selectedCategory) return false;
-      }
+    if (filters.selectedDate === "Custom Range") {
+      if (!filters.startDate || !filters.endDate) return true;
+      const start = getStartOfDay(filters.startDate).getTime();
+      const end = getEndOfDay(filters.endDate).getTime();
+      return date.getTime() >= start && date.getTime() <= end;
+    }
 
-      if (filters.selectedSentiment !== "All Sentiment") {
-        const selectedSentiment = filters.selectedSentiment.trim().toLowerCase();
-        const itemSentiment = item.sentiment.trim().toLowerCase();
+    const days = { "Last 7 Days": 7, "Last 30 Days": 30, "Last 90 Days": 90 }[filters.selectedDate];
+    return days ? date.getTime() >= subtractDays(new Date(), days).getTime() : true;
+  }), [allContributions, filters]);
 
-        if (itemSentiment !== selectedSentiment) return false;
-      }
-
-      if (filters.selectedLanguage !== "All Languages") {
-        const selectedLanguage = filters.selectedLanguage.trim().toLowerCase();
-        const itemLanguage = item.language?.trim().toLowerCase() || "";
-
-        if (!itemLanguage || itemLanguage !== selectedLanguage) return false;
-      }
-
-      if (!item.createdAt) return false;
-
-      const contributionDate = new Date(item.createdAt);
-
-      if (Number.isNaN(contributionDate.getTime())) return false;
-
-      if (filters.selectedDate === "Custom Range") {
-        if (!filters.startDate || !filters.endDate) return true;
-
-        const start = getStartOfDay(filters.startDate);
-        const end = getEndOfDay(filters.endDate);
-        const time = contributionDate.getTime();
-
-        return time >= start.getTime() && time <= end.getTime();
-      }
-
-      if (filters.selectedDate === "Last 7 Days") {
-        return contributionDate.getTime() >= subtractDays(new Date(), 7).getTime();
-      }
-
-      if (filters.selectedDate === "Last 30 Days") {
-        return contributionDate.getTime() >= subtractDays(new Date(), 30).getTime();
-      }
-
-      if (filters.selectedDate === "Last 90 Days") {
-        return contributionDate.getTime() >= subtractDays(new Date(), 90).getTime();
-      }
-
-      return true;
-    });
-  }, [allContributions, filters]);
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [filters]);
+  useEffect(() => setCurrentPage(1), [filters]);
 
   const totalPages = Math.ceil(filteredContributions.length / ITEMS_PER_PAGE);
-
   const paginatedContributions = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const endIndex = startIndex + ITEMS_PER_PAGE;
-
-    return filteredContributions.slice(startIndex, endIndex);
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredContributions.slice(start, start + ITEMS_PER_PAGE);
   }, [filteredContributions, currentPage]);
 
-  const goToPreviousPage = () => {
-    setCurrentPage(previous => Math.max(previous - 1, 1));
-  };
-
-  const goToNextPage = () => {
-    setCurrentPage(previous => Math.min(previous + 1, totalPages));
-  };
+  const goToPreviousPage = () => setCurrentPage(page => Math.max(page - 1, 1));
+  const goToNextPage = () => setCurrentPage(page => Math.min(page + 1, totalPages));
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
@@ -1067,8 +621,9 @@ export function ContributionsCard({ filters }: Props) {
             <ThemedView key={item.id} style={styles.card}>
               <ThemedView style={styles.headerRow}>
                 <ThemedView style={sharedStyles.cardUserRow}>
-                  <Image source={item.icon} style={sharedStyles.cardAvatar} />
-
+                  <ThemedView style={sharedStyles.profilePlaceholder}>
+                    <Ionicons name="person" size={icon(21)} color="#9A9A9A" />
+                  </ThemedView>
                   <ThemedView style={{ backgroundColor: "transparent" }}>
                     <ThemedText style={styles.nameText}>{item.name}</ThemedText>
                     <ThemedText style={styles.typeText}>{item.type}</ThemedText>
@@ -1077,18 +632,12 @@ export function ContributionsCard({ filters }: Props) {
 
                 <ThemedView style={[styles.sentimentPill, { backgroundColor: item.sentimentBg }]}>
                   <ThemedView style={[styles.sentimentDot, { backgroundColor: item.sentimentColor }]} />
-                  <ThemedText style={[styles.sentimentText, { color: item.sentimentColor }]}>
-                    {item.sentiment}
-                  </ThemedText>
+                  <ThemedText style={[styles.sentimentText, { color: item.sentimentColor }]}>{item.sentiment}</ThemedText>
                 </ThemedView>
               </ThemedView>
 
-              {item.image ? (
-                <Image source={{ uri: item.image }} style={styles.postImage} resizeMode="cover" />
-              ) : null}
-
+              {item.image && <Image source={{ uri: item.image }} style={styles.postImage} resizeMode="cover" />}
               <ThemedText style={styles.postText}>{item.post}</ThemedText>
-
               <ThemedView style={styles.divider} />
 
               <ThemedView style={styles.metaRow}>
@@ -1101,24 +650,20 @@ export function ContributionsCard({ filters }: Props) {
 
                 <ThemedView style={[styles.metaItem, styles.metaItemShrink]}>
                   <Ionicons name="location-outline" size={icon(13)} color={colors.metaBlue} />
-
                   <TouchableOpacity style={styles.metaItemShrink} onPress={() => Alert.alert("Location", item.location)}>
-                    <ThemedText style={styles.metaText} numberOfLines={1}>
-                      {item.location}
-                    </ThemedText>
+                    <ThemedText style={styles.metaText} numberOfLines={1}>{item.location}</ThemedText>
                   </TouchableOpacity>
                 </ThemedView>
 
-                {item.sourceUrl ? (
+                {item.sourceUrl && (
                   <>
                     <ThemedView style={sharedStyles.cardMetaDivider} />
-
                     <TouchableOpacity style={styles.metaItem} onPress={() => Linking.openURL(item.sourceUrl!)}>
                       <Ionicons name="open-outline" size={icon(13)} color={colors.metaBlue} />
                       <ThemedText style={styles.metaText}>Source</ThemedText>
                     </TouchableOpacity>
                   </>
-                ) : null}
+                )}
               </ThemedView>
             </ThemedView>
           ))}
@@ -1130,27 +675,17 @@ export function ContributionsCard({ filters }: Props) {
                 disabled={currentPage === 1}
                 onPress={goToPreviousPage}
               >
-                <Ionicons
-                  name="chevron-back"
-                  size={icon(18)}
-                  color={currentPage === 1 ? "#A0A0A0" : colors.primary}
-                />
+                <Ionicons name="chevron-back" size={icon(18)} color={currentPage === 1 ? "#A0A0A0" : colors.primary} />
               </TouchableOpacity>
 
-              <ThemedText style={sharedStyles.paginationText}>
-                Page {currentPage} of {totalPages}
-              </ThemedText>
+              <ThemedText style={sharedStyles.paginationText}>Page {currentPage} of {totalPages}</ThemedText>
 
               <TouchableOpacity
                 style={[sharedStyles.paginationButton, currentPage === totalPages && sharedStyles.paginationButtonDisabled]}
                 disabled={currentPage === totalPages}
                 onPress={goToNextPage}
               >
-                <Ionicons
-                  name="chevron-forward"
-                  size={icon(18)}
-                  color={currentPage === totalPages ? "#A0A0A0" : colors.primary}
-                />
+                <Ionicons name="chevron-forward" size={icon(18)} color={currentPage === totalPages ? "#A0A0A0" : colors.primary} />
               </TouchableOpacity>
             </ThemedView>
           )}
@@ -1179,10 +714,5 @@ function subtractDays(date: Date, days: number): Date {
 function formatDate(value: string): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "Date unavailable";
-
-  return date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }

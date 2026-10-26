@@ -120,6 +120,14 @@ export function sharedCardStyles(r: ResponsiveValues) {
     fontWeight: "600",
   },
 
+  profilePlaceholder: {
+    padding: scale(10),
+    borderRadius: radius(100),
+    backgroundColor: "#E9EAF0",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
 })};
 
 /* ============================================================

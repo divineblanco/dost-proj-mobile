@@ -240,7 +240,10 @@ export function MisinformationPost({ filters }: Props) {
 
                 <ThemedView style={styles.headerRow}>
                   <ThemedView style={sharedStyles.cardUserRow}>
-                    <Image source={item.icon} style={sharedStyles.cardAvatar} />
+                    {/* <Image source={item.icon} style={sharedStyles.cardAvatar} /> */}
+                    <ThemedView style={sharedStyles.profilePlaceholder}>
+                      <Ionicons name="person" size={icon(21)} color="#9A9A9A" />
+                    </ThemedView>
 
                     <ThemedView style={{ backgroundColor: "transparent" }}>
                       <ThemedText style={styles.nameText}>{item.name}</ThemedText>
