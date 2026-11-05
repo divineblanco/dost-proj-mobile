@@ -292,12 +292,17 @@ import useFormMutation from "@/lib/hooks/useFormMutation";
 import useFormQuery from "@/lib/hooks/useFormQuery";
 import { UserByIdInterface } from "@/lib/interface/user/user.interface";
 import { drawerStyles } from "@/styles/navigation-styles";
-import { icon, useResponsive } from "@/styles/responsive";
+import { icon, scale, useResponsive, verticalScale } from "@/styles/responsive";
 import { Ionicons } from "@expo/vector-icons";
 import { DrawerContentComponentProps } from "@react-navigation/drawer";
 import { router, usePathname } from "expo-router";
 import React, { useMemo } from "react";
-import { ActivityIndicator, Image, TouchableOpacity } from "react-native";
+import {
+  ActivityIndicator,
+  Image,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { ThemedText } from "./themed-text";
 import { ThemedView } from "./themed-view";
 
@@ -307,7 +312,133 @@ interface ActivityLogPayload {
   user_id?: string;
 }
 
-export default function CustomDrawer(props: DrawerContentComponentProps) {
+type ItemProps = {
+  icons: string;
+  label: string;
+  route: string;
+  pathname: string;
+  onPress: () => void;
+  danger?: boolean;
+};
+
+function Item({
+  icons,
+  label,
+  route,
+  pathname,
+  onPress,
+  danger,
+}: ItemProps) {
+  const r = useResponsive();
+  const styles = useMemo(() => drawerStyles(r), [r]);
+  const isActive = pathname === route || pathname.startsWith(`${route}/`);
+
+  if (danger) {
+    return (
+      <TouchableOpacity
+        onPress={onPress}
+        style={[styles.drawerItem, styles.logoutItem]}
+        activeOpacity={0.8}
+      >
+        <Ionicons name="log-out-outline" size={25} color="white" />
+        <ThemedText style={[styles.label, { color: "white" }]}>
+          {label}
+        </ThemedText>
+      </TouchableOpacity>
+    );
+  }
+
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      style={[styles.drawerItem, isActive && styles.activeDrawerItem]}
+      activeOpacity={0.8}
+    >
+      <Ionicons
+        name={
+          (isActive
+            ? icons
+            : `${icons}-outline`) as keyof typeof Ionicons.glyphMap
+        }
+        size={25}
+        color={isActive ? "#35408E" : "white"}
+      />
+      <ThemedText style={[styles.label, isActive && styles.activeLabel]}>
+        {label}
+      </ThemedText>
+    </TouchableOpacity>
+  );
+}
+
+// Partner logos are declared outside CustomDrawer to prevent remounting.
+function PartnerLogos() {
+  const logos = [
+    {
+      key: "nu",
+      source: require("@/assets/images/NU_shield.png"),
+      circular: true,
+    },
+    {
+      key: "dost",
+      source: require("@/assets/images/dost-logo-2.png"),
+      circular: false,
+    },
+    {
+      key: "pchrd",
+      source: require("@/assets/images/dost-pchrd-2.png"),
+      circular: false,
+    },
+  ];
+
+  const bubbleSize = scale(42);
+
+  return (
+    <View
+      style={{
+        width: "100%",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: scale(8),
+        paddingHorizontal: scale(4),
+        paddingTop: scale(12),
+        paddingBottom: scale(10),
+        flexShrink: 0,
+        backgroundColor: "transparent",
+      }}
+    >
+      {logos.map((logo) => (
+        <View
+          key={logo.key}
+          style={{
+            width: bubbleSize,
+            height: bubbleSize,
+            borderRadius: logo.circular ? bubbleSize / 2 : scale(9),
+            backgroundColor: "rgba(255,255,255,0.12)",
+            alignItems: "center",
+            justifyContent: "center",
+            overflow: "hidden",
+            flexShrink: 0,
+          }}
+        >
+          <Image
+            source={logo.source}
+            style={{
+              width: "80%",
+              height: "80%",
+            }}
+            resizeMode="contain"
+            fadeDuration={0}
+          />
+        </View>
+      ))}
+    </View>
+  );
+}
+
+export default function CustomDrawer(
+  _props: DrawerContentComponentProps
+) {
   const pathname = usePathname();
   const r = useResponsive();
   const styles = useMemo(() => drawerStyles(r), [r]);
@@ -328,7 +459,7 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
     });
 
   const userDetails = userResponse?.data?.edges?.find(
-    (edge) => edge.node.user_id === currentUserId,
+    (edge) => edge.node.user_id === currentUserId
   )?.node;
 
   const firstName =
@@ -346,11 +477,6 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
     user?.Profile?.image_url ||
     null;
 
-  console.log("[DRAWER] Current user ID:", currentUserId);
-  console.log("[DRAWER] User details:", userDetails);
-  console.log("[DRAWER] Profile:", userDetails?.Profile);
-  console.log("[DRAWER] Avatar URL:", profileImageUrl);
-
   const { mutateAsync: logActivity } =
     useFormMutation<ActivityLogPayload, unknown>({
       key: ["activity-log", "logout"],
@@ -365,10 +491,6 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
     });
 
   const handleLogout = async () => {
-    console.log("[LOGOUT] Logging out from Drawer...");
-    console.log("[LOGOUT] User ID:", currentUserId);
-    console.log("[LOGOUT] Token exists:", Boolean(token));
-
     try {
       if (token && currentUserId) {
         await logActivity({
@@ -376,31 +498,72 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
           description: "User logged out of the application.",
           user_id: currentUserId,
         });
-        console.log("[LOGOUT] Activity log created");
       }
     } catch (error) {
       console.error("[LOGOUT] Failed to create activity log:", error);
     } finally {
       await clearSession();
-      console.log("[LOGOUT] Session cleared");
       router.replace("/");
     }
   };
 
+  const renderAvatar = () => {
+    if (isUserLoading) {
+      return (
+        <View
+          style={[
+            styles.profile,
+            styles.avatarCenter,
+            { backgroundColor: "#E5E7EB" },
+          ]}
+        >
+          <ActivityIndicator size="small" color="#35408E" />
+        </View>
+      );
+    }
+
+    if (profileImageUrl) {
+      return (
+        <Image
+          source={{ uri: profileImageUrl }}
+          style={styles.profile}
+          resizeMode="cover"
+          onError={(event) =>
+            console.error(
+              "[DRAWER] Avatar failed to load:",
+              event.nativeEvent
+            )
+          }
+        />
+      );
+    }
+
+    return (
+      <ThemedView style={styles.profilePlaceholder}>
+        <Ionicons name="person" size={icon(35)} color="#9A9A9A" />
+      </ThemedView>
+    );
+  };
+
   return (
     <ThemedView style={styles.drawerContainer}>
+      {/* Drawer header */}
       <ThemedView style={styles.headerContainer}>
         <ThemedView style={styles.logoBG}>
           <Image
             source={require("@/assets/images/splash-icon.png")}
             style={styles.logo}
+            resizeMode="contain"
           />
         </ThemedView>
-        <ThemedText style={styles.headerTitle}>AdvocAid PH</ThemedText>
+        <ThemedText style={styles.headerTitle}>
+          AdvocAid PH
+        </ThemedText>
       </ThemedView>
 
       <ThemedView style={styles.line} />
 
+      {/* Navigation items */}
       <ThemedView style={styles.tabsContainer}>
         <Item
           icons="home"
@@ -435,7 +598,9 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
           label="Contribute"
           route="/drawer/tabs/contributions/contribute"
           pathname={pathname}
-          onPress={() => router.push("/drawer/tabs/contributions/contribute")}
+          onPress={() =>
+            router.push("/drawer/tabs/contributions/contribute")
+          }
         />
         <Item
           icons="book"
@@ -461,117 +626,72 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
         />
       </ThemedView>
 
-      <ThemedView style={styles.bottomContainer}>
-        <TouchableOpacity
-          onPress={() => router.push("/drawer/tabs/profiles/profile")}
-          activeOpacity={0.8}
-        >
-          {isUserLoading ? (
-            <ThemedView
-              style={{
-                width: styles.profile.width,
-                height: styles.profile.height,
-                borderRadius: Number(styles.profile.width) / 2,
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: "#E5E7EB",
-              }}
-            >
-              <ActivityIndicator size="small" color="#35408E" />
-            </ThemedView>
-          ) : profileImageUrl ? (
-            <Image
-              source={{ uri: profileImageUrl }}
-              style={styles.profile}
-              resizeMode="cover"
-              onLoad={() =>
-                console.log("[DRAWER] Avatar loaded:", profileImageUrl)
-              }
-              onError={(event) =>
-                console.error(
-                  "[DRAWER] Avatar failed to load:",
-                  event.nativeEvent,
-                )
-              }
-            />
-          ) : (
-            <ThemedView style={styles.profilePlaceholder}>
-              <Ionicons name="person" size={icon(45)} color="#9A9A9A" />
-            </ThemedView>
-          )}
-        </TouchableOpacity>
+      {/* Bottom section: user information followed by partner logos */}
+      <View
+        style={{
+          marginTop: verticalScale(35),
+          width: "100%",
+          flexShrink: 0,
+          backgroundColor: "transparent",
+        }}
+      >
+        <View style={styles.bottomDivider} />
 
-        <ThemedView style={styles.userInfo}>
-          <ThemedText style={styles.username} numberOfLines={1}>
-            {firstName}
-          </ThemedText>
-          <ThemedText style={styles.userEmail} numberOfLines={1}>
-            {role}
-          </ThemedText>
+        {/* User information row */}
+        <ThemedView
+          style={[
+            styles.bottomContainer,
+            {
+              marginTop: 0,
+              flexShrink: 0,
+              minHeight: scale(60),
+            },
+          ]}
+        >
+          <TouchableOpacity
+            onPress={() => router.push("/drawer/tabs/profiles/profile")}
+            activeOpacity={0.8}
+          >
+            {renderAvatar()}
+          </TouchableOpacity>
+
+          <ThemedView style={styles.userInfo}>
+            <ThemedText style={styles.username} numberOfLines={1}>
+              {firstName}
+            </ThemedText>
+            <ThemedText style={styles.userEmail} numberOfLines={1}>
+              {role}
+            </ThemedText>
+          </ThemedView>
+
+          <TouchableOpacity
+            onPress={() => router.push("/drawer/tabs/setting/settings")}
+            activeOpacity={0.7}
+            style={styles.iconBtn}
+          >
+            <Ionicons
+              name="settings-outline"
+              size={22}
+              color="white"
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => router.push("/drawer/tabs/notifications")}
+            activeOpacity={0.7}
+            style={styles.iconBtn}
+          >
+            <Ionicons
+              name="notifications-outline"
+              size={22}
+              color="white"
+            />
+          </TouchableOpacity>
         </ThemedView>
 
-        <Ionicons
-          name="settings"
-          size={25}
-          color="white"
-          onPress={() => router.push("/drawer/tabs/setting/settings")}
-        />
-
-        <Ionicons
-          name="notifications"
-          size={25}
-          color="white"
-          onPress={() => router.push("/drawer/tabs/notifications")}
-        />
-      </ThemedView>
+        {/* Four partner logos beneath user information */}
+        <PartnerLogos />
+      </View>
     </ThemedView>
   );
 }
-
-type ItemProps = {
-  icons: string;
-  label: string;
-  route: string;
-  pathname: string;
-  onPress: () => void;
-  danger?: boolean;
-};
-
-function Item({ icons, label, route, pathname, onPress, danger }: ItemProps) {
-  const r = useResponsive();
-  const styles = useMemo(() => drawerStyles(r), [r]);
-  const isActive = pathname === route || pathname.startsWith(`${route}/`);
-
-  if (danger) {
-    return (
-      <TouchableOpacity
-        onPress={onPress}
-        style={[styles.drawerItem, styles.logoutItem]}
-      >
-        <Ionicons name="log-out-outline" size={25} color="white" />
-        <ThemedText style={[styles.label, { color: "white" }]}>
-          {label}
-        </ThemedText>
-      </TouchableOpacity>
-    );
-  }
-
-  return (
-    <TouchableOpacity
-      onPress={onPress}
-      style={[styles.drawerItem, isActive && styles.activeDrawerItem]}
-    >
-      <Ionicons
-        name={
-          (isActive ? icons : `${icons}-outline`) as keyof typeof Ionicons.glyphMap
-        }
-        size={25}
-        color={isActive ? "#35408E" : "white"}
-      />
-      <ThemedText style={[styles.label, isActive && styles.activeLabel]}>
-        {label}
-      </ThemedText>
-    </TouchableOpacity>
-  );
-}
-

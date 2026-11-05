@@ -50,6 +50,7 @@ export function drawerStyles (r: ResponsiveValues) {
       ? verticalScale(30)
       : verticalScale(70),
     backgroundColor: "#35408E",
+    gap: scale(5)
   },
 
   headerContainer: {
@@ -151,7 +152,7 @@ export function drawerStyles (r: ResponsiveValues) {
       isFold || isAndroidTablet || isLargeIPad
       || isIPad || isIPadMini
       ? scale(0.5)
-      : scale(1),
+      : scale(0.3),
     borderColor: "white",
     marginVertical: 
       isAndroidTabletLandscape || isLargeIPadLandscape || isIPadLandscape
@@ -229,7 +230,6 @@ export function drawerStyles (r: ResponsiveValues) {
       || isIPad || isIPadMini
       ? scale(5)
       : scale(15),
-    marginTop: "auto",
     backgroundColor: "transparent"
   },
 
@@ -261,7 +261,7 @@ export function drawerStyles (r: ResponsiveValues) {
   },
 
   profilePlaceholder: {
-    padding: scale(30),
+    padding: scale(10),
     borderRadius: radius(100),
     backgroundColor: "#E9EAF0",
     alignItems: "center",
@@ -294,6 +294,62 @@ export function drawerStyles (r: ResponsiveValues) {
       ? font(9)
       : font(13),
     lineHeight: font(13)
+  },
+
+  bottomWrapper: {
+    marginTop: "auto",
+    width: "100%",
+  },
+
+  bottomDivider: {
+    width: "100%",
+    height: 1,
+    backgroundColor: "rgba(255,255,255,0.2)",
+    marginBottom: scale(12),
+  },
+
+  // Icon buttons in user row
+  iconBtn: {
+    padding: scale(4),
+    borderRadius: scale(8),
+    backgroundColor: "rgba(255,255,255,0.12)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  // Avatar loading state centering
+  avatarCenter: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  // Partner logos rows
+  logosRow: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: scale(8),
+    paddingTop: scale(12),
+    paddingBottom: scale(10),
+    flexShrink: 0,
+    backgroundColor: "transparent",
+  },
+
+  logoBubble: {
+    width: scale(42),
+    height: scale(42),
+    borderRadius: scale(9),
+    backgroundColor: "#FFFFFF",
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+    flexShrink: 0,
+  },
+
+  logoImg: {
+    width: "82%",
+    height: "82%",
   },
 })};
 

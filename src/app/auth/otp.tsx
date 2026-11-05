@@ -343,7 +343,7 @@ export default function OTP() {
 
   const inputRefs = useRef<(TextInput | null)[]>([]);
   const { email } = useLocalSearchParams<{ email?: string }>();
-  const { setSession } = useAuth();
+  const { setSession, showLoginNotice } = useAuth();
 
   useEffect(() => {
     if (resendTimer <= 0) {
@@ -518,6 +518,9 @@ export default function OTP() {
   const handleSuccessfulLogin = () => {
     setModal2Visible(false);
     requestAnimationFrame(() => router.replace("/drawer/tabs/home"));
+      setTimeout(() => {
+      showLoginNotice();
+    }, 300);
   };
 
   const emailChange = () => router.replace("/auth/login");

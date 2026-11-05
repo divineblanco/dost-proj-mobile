@@ -1,542 +1,614 @@
 // import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+// import { AppState, AppStateStatus } from "react-native";
 // import { getStorageItem, removeStorageItem, setStorageItem } from "./storage.native";
 
-// export interface AuthSession{
-//   token:string;
-//   data:{
-//     user_id:string;
-//     email:string;
-//     Profile:{first_name?:string;last_name?:string};
-//     Role:{name:string;permission:unknown};
-//     Organization:{name:string};
+// export interface AuthSession {
+//   token: string;
+//   data: {
+//     user_id: string;
+//     email: string;
+//     Profile: { first_name?: string; last_name?: string; location?: string | null; image_url?: string | null };
+//     Role: { name: string; permission: unknown };
+//     Organization: { name: string };
 //   };
 // }
 
-// interface AuthContextValue{
-//   session:AuthSession|null;
-//   user:AuthSession["data"]|null;
-//   token:string|null;
-//   isAuthenticated:boolean;
-//   isLoading:boolean;
-//   setSession:(session:AuthSession)=>Promise<void>;
-//   clearSession:()=>Promise<void>;
+// interface AuthContextValue {
+//   session: AuthSession | null;
+//   user: AuthSession["data"] | null;
+//   token: string | null;
+//   isAuthenticated: boolean;
+//   isLoading: boolean;
+//   timeUntilExpiry: number | null;
+//   formattedTimeUntilExpiry: string;
+//   setSession: (session: AuthSession) => Promise<void>;
+//   clearSession: () => Promise<void>;
 // }
 
-// interface AuthProviderProps{
-//   children:ReactNode;
-// }
+// interface AuthProviderProps { children: ReactNode }
 
-// const SESSION_KEY="data_sessions";
-// const AuthContext=createContext<AuthContextValue|undefined>(undefined);
+// const SESSION_KEY = "data_sessions";
+// const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-// const getJwtPayload=(token:string):Record<string,any>|null=>{
-//   try{
-//     const parts=token.split(".");
-//     if(parts.length!==3)return null;
-
-//     const base64=parts[1].replace(/-/g,"+").replace(/_/g,"/");
-//     const padded=base64.padEnd(
-//       base64.length+((4-base64.length%4)%4),
-//       "="
-//     );
-
+// const getJwtPayload = (token: string): Record<string, unknown> | null => {
+//   try {
+//     const parts = token.split(".");
+//     if (parts.length !== 3) return null;
+//     const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+//     const padded = base64.padEnd(base64.length + ((4 - base64.length % 4) % 4), "=");
 //     return JSON.parse(atob(padded));
-//   }catch(error){
-//     console.error("[AUTH] JWT decode failed:",error);
+//   } catch (error) {
+//     console.error("[AUTH] JWT decode failed:", error);
 //     return null;
 //   }
 // };
 
-// const getTokenExpiration=(token:string)=>{
-//   const payload=getJwtPayload(token);
-
-//   if(!payload||typeof payload.exp!=="number"){
-//     return null;
-//   }
-
-//   return new Date(payload.exp*1000);
+// const getTokenExpiration = (token: string): number | null => {
+//   const payload = getJwtPayload(token);
+//   return payload && typeof payload.exp === "number" ? payload.exp * 1000 : null;
 // };
 
-// const isTokenExpired=(token:string)=>{
-//   const payload=getJwtPayload(token);
-
-//   if(!payload)return true;
-
-//   if(typeof payload.exp!=="number"){
-//     return false;
-//   }
-
-//   return payload.exp*1000<=Date.now();
+// const isTokenExpired = (token: string): boolean => {
+//   const expiresAt = getTokenExpiration(token);
+//   return expiresAt === null || expiresAt <= Date.now();
 // };
 
-// export function AuthProvider({children}:AuthProviderProps){
-//   const[session,setSessionState]=useState<AuthSession|null>(null);
-//   const[isLoading,setIsLoading]=useState(true);
-//   const mounted=useRef(true);
+// const formatRemainingTime = (milliseconds: number | null): string => {
+//   if (milliseconds === null) return "--:--:--";
+//   const totalSeconds = Math.ceil(milliseconds / 1000);
+//   if (totalSeconds <= 0) return "00:00:00";
+//   const hours = Math.floor(totalSeconds / 3600);
+//   const minutes = Math.floor((totalSeconds % 3600) / 60);
+//   const seconds = totalSeconds % 60;
+//   return [hours, minutes, seconds].map(v => String(v).padStart(2, "0")).join(":");
+// };
 
-//   useEffect(()=>{
-//     mounted.current=true;
+// export function AuthProvider({ children }: AuthProviderProps) {
+//   const [session, setSessionState] = useState<AuthSession | null>(null);
+//   const [isLoading, setIsLoading] = useState(true);
+//   const [timeUntilExpiry, setTimeUntilExpiry] = useState<number | null>(null);
+//   const mounted = useRef(true);
+//   const sessionRef = useRef<AuthSession | null>(null);
 
-//     return()=>{
-//       mounted.current=false;
-//     };
-//   },[]);
+//   const updateSession = useCallback((nextSession: AuthSession | null) => {
+//     sessionRef.current = nextSession;
+//     if (mounted.current) setSessionState(nextSession);
+//   }, []);
 
-//   const loadSession=useCallback(async()=>{
-//     console.log("[AUTH] Loading stored session...");
+//   useEffect(() => {
+//     mounted.current = true;
+//     return () => { mounted.current = false; };
+//   }, []);
 
-//     try{
-//       const stored=await getStorageItem(SESSION_KEY);
-
-//       console.log("[AUTH] Stored session exists:",!!stored);
-
-//       if(!stored){
-//         if(mounted.current)setSessionState(null);
-//         return;
-//       }
-
-//       let parsed:AuthSession;
-
-//       try{
-//         parsed=JSON.parse(stored);
-//       }catch(error){
-//         console.error("[AUTH] Invalid stored JSON:",error);
-
-//         await removeStorageItem(SESSION_KEY);
-
-//         if(mounted.current)setSessionState(null);
-
-//         return;
-//       }
-
-//       console.log("[AUTH] Stored user ID:",parsed?.data?.user_id);
-//       console.log("[AUTH] Token exists:",!!parsed?.token);
-
-//       if(!parsed?.token){
-//         console.log("[AUTH] Stored session has no token");
-
-//         await removeStorageItem(SESSION_KEY);
-
-//         if(mounted.current)setSessionState(null);
-
-//         return;
-//       }
-
-//       const payload=getJwtPayload(parsed.token);
-
-//       if(!payload){
-//         console.log("[AUTH] Unable to decode stored token");
-
-//         await removeStorageItem(SESSION_KEY);
-
-//         if(mounted.current)setSessionState(null);
-
-//         return;
-//       }
-
-//       if(typeof payload.exp==="number"){
-//         const expirationDate=new Date(payload.exp*1000);
-
-//         console.log(
-//           "[AUTH] Token expires:",
-//           expirationDate.toLocaleString()
-//         );
-//       }
-
-//       if(isTokenExpired(parsed.token)){
-//         console.log("[AUTH] Stored token expired");
-
-//         await removeStorageItem(SESSION_KEY);
-
-//         if(mounted.current)setSessionState(null);
-
-//         return;
-//       }
-
-//       console.log("[AUTH] Restoring valid session");
-
-//       if(mounted.current){
-//         setSessionState(parsed);
-//       }
-//     }catch(error){
-//       console.error("[AUTH] loadSession failed:",error);
-
-//       if(mounted.current){
-//         setSessionState(null);
-//       }
-//     }finally{
-//       if(mounted.current){
-//         setIsLoading(false);
-//       }
-//     }
-//   },[]);
-
-//   useEffect(()=>{
-//     loadSession();
-//   },[loadSession]);
-
-//   const setSession=useCallback(async(newSession:AuthSession)=>{
-//     console.log("[AUTH] ===== SET SESSION =====");
-
-//     if(!newSession?.token){
-//       throw new Error("Cannot save session without token");
-//     }
-
-//     if(isTokenExpired(newSession.token)){
-//       console.log("[AUTH] Token already expired");
-
+//   const clearSession = useCallback(async () => {
+//     console.log("[AUTH] Clearing session...");
+//     updateSession(null);
+//     setTimeUntilExpiry(null);
+//     try {
 //       await removeStorageItem(SESSION_KEY);
+//     } catch (error) {
+//       console.error("[AUTH] Failed to remove stored session:", error);
+//     }
+//   }, [updateSession]);
 
-//       if(mounted.current){
-//         setSessionState(null);
+//   const loadSession = useCallback(async () => {
+//     try {
+//       const stored = await getStorageItem(SESSION_KEY);
+//       if (!stored) { updateSession(null); return; }
+
+//       let parsed: AuthSession;
+//       try {
+//         parsed = JSON.parse(stored);
+//       } catch (error) {
+//         console.error("[AUTH] Invalid stored session JSON:", error);
+//         await removeStorageItem(SESSION_KEY);
+//         updateSession(null);
+//         return;
 //       }
 
+//       if (!parsed?.token || !parsed?.data?.user_id || isTokenExpired(parsed.token)) {
+//         console.log("[AUTH] Stored session is invalid or expired");
+//         await removeStorageItem(SESSION_KEY);
+//         updateSession(null);
+//         return;
+//       }
+
+//       console.log("[AUTH] Restoring user:", parsed.data.user_id);
+//       updateSession(parsed);
+//     } catch (error) {
+//       console.error("[AUTH] loadSession failed:", error);
+//       updateSession(null);
+//     } finally {
+//       if (mounted.current) setIsLoading(false);
+//     }
+//   }, [updateSession]);
+
+//   useEffect(() => { void loadSession(); }, [loadSession]);
+
+//   const setSession = useCallback(async (newSession: AuthSession) => {
+//     if (!newSession?.token || !newSession?.data?.user_id) {
+//       throw new Error("Cannot save session without token and user_id");
+//     }
+//     if (isTokenExpired(newSession.token)) {
+//       console.error("[AUTH] Cannot save expired or invalid token");
+//       await clearSession();
 //       return;
 //     }
+//     await setStorageItem(SESSION_KEY, JSON.stringify(newSession));
+//     console.log("[AUTH] Saving authenticated user:", newSession.data.user_id);
+//     updateSession(newSession);
+//   }, [clearSession, updateSession]);
 
-//     const expiration=getTokenExpiration(newSession.token);
+//   // Live countdown and automatic logout at token expiration.
+//   useEffect(() => {
+//     const currentToken = session?.token;
+//     if (!currentToken) { setTimeUntilExpiry(null); return; }
 
-//     if(expiration){
-//       console.log(
-//         "[AUTH] New token expires:",
-//         expiration.toLocaleString()
-//       );
-//     }
+//     const expiresAt = getTokenExpiration(currentToken);
+//     if (expiresAt === null) { void clearSession(); return; }
 
-//     await setStorageItem(
-//       SESSION_KEY,
-//       JSON.stringify(newSession)
-//     );
-
-//     console.log(
-//       "[AUTH] Session written to storage for user:",
-//       newSession.data?.user_id
-//     );
-
-//     if(mounted.current){
-//       setSessionState(newSession);
-//     }
-//   },[]);
-
-//   const clearSession=useCallback(async()=>{
-//     console.log("[AUTH] clearSession()");
-
-//     await removeStorageItem(SESSION_KEY);
-
-//     if(mounted.current){
-//       setSessionState(null);
-//     }
-//   },[]);
-
-//   useEffect(()=>{
-//     if(!session?.token)return;
-
-//     const payload=getJwtPayload(session.token);
-
-//     if(!payload){
-//       clearSession();
-//       return;
-//     }
-
-//     if(typeof payload.exp!=="number"){
-//       return;
-//     }
-
-//     const expirationTime=payload.exp*1000;
-//     const remaining=expirationTime-Date.now();
-
-//     console.log(
-//       "[AUTH] Active token expires:",
-//       new Date(expirationTime).toLocaleString()
-//     );
-
-//     if(remaining<=0){
-//       console.log("[AUTH] Token already expired");
-
-//       clearSession();
-
-//       return;
-//     }
-
-//     const timer=setTimeout(()=>{
-//       console.log(
-//         "[AUTH] Token expired:",
-//         new Date().toLocaleString()
-//       );
-
-//       clearSession();
-//     },remaining);
-
-//     return()=>{
-//       clearTimeout(timer);
+//     const updateCountdown = () => {
+//       if (sessionRef.current?.token !== currentToken) return;
+//       const remaining = Math.max(0, expiresAt - Date.now());
+//       setTimeUntilExpiry(remaining);
+//       if (remaining === 0) {
+//         console.log("[AUTH] Token expired - logging out");
+//         void clearSession();
+//       }
 //     };
-//   },[session?.token,clearSession]);
 
-//   const value=useMemo<AuthContextValue>(()=>({
+//     updateCountdown();
+//     const interval = setInterval(updateCountdown, 1000);
+//     return () => clearInterval(interval);
+//   }, [session?.token, clearSession]);
+
+//   // Recheck token when the app returns to the foreground.
+//   useEffect(() => {
+//     const checkExpiration = (state: AppStateStatus) => {
+//       if (state !== "active") return;
+//       const currentSession = sessionRef.current;
+//       if (currentSession && isTokenExpired(currentSession.token)) {
+//         console.log("[AUTH] Expired token detected on app resume");
+//         void clearSession();
+//       }
+//     };
+//     const subscription = AppState.addEventListener("change", checkExpiration);
+//     checkExpiration(AppState.currentState);
+//     return () => subscription.remove();
+//   }, [clearSession]);
+
+//   const formattedTimeUntilExpiry = formatRemainingTime(timeUntilExpiry);
+
+//   const value = useMemo<AuthContextValue>(() => ({
 //     session,
-//     user:session?.data??null,
-//     token:session?.token??null,
-//     isAuthenticated:Boolean(session?.token),
+//     user: session?.data ?? null,
+//     token: session?.token ?? null,
+//     isAuthenticated: Boolean(session?.token),
 //     isLoading,
+//     timeUntilExpiry,
+//     formattedTimeUntilExpiry,
 //     setSession,
 //     clearSession,
-//   }),[
-//     session,
-//     isLoading,
-//     setSession,
-//     clearSession,
-//   ]);
+//   }), [session, isLoading, timeUntilExpiry, formattedTimeUntilExpiry, setSession, clearSession]);
 
-//   return(
-//     <AuthContext.Provider value={value}>
-//       {children}
-//     </AuthContext.Provider>
-//   );
+//   console.log("EXPIRE TOKEN:" + formattedTimeUntilExpiry, formatRemainingTime);
+//   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 // }
 
-// export function useAuth(){
-//   const context=useContext(AuthContext);
-
-//   if(!context){
-//     throw new Error(
-//       "useAuth must be used within an AuthProvider"
-//     );
-//   }
-
+// export function useAuth() {
+//   const context = useContext(AuthContext);
+//   if (!context) throw new Error("useAuth must be used within an AuthProvider");
 //   return context;
 // }
 
 
-// import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
-// import { getStorageItem, removeStorageItem, setStorageItem } from "./storage.native";
 
-// export interface AuthSession{
-//   token:string;
-//   data:{
-//     user_id:string;
-//     email:string;
-//     Profile:{first_name?:string;last_name?:string;location?:string|null;image_url?:string|null};
-//     Role:{name:string;permission:unknown};
-//     Organization:{name:string};
+// import React, {
+//   createContext,
+//   ReactNode,
+//   useCallback,
+//   useContext,
+//   useEffect,
+//   useMemo,
+//   useRef,
+//   useState,
+// } from "react";
+// import { AppState, AppStateStatus } from "react-native";
+// import AuthNoticeModal, { AuthNotice } from "./AuthNoticeModal";
+// import {
+//   getStorageItem,
+//   removeStorageItem,
+//   setStorageItem,
+// } from "./storage.native";
+
+// export interface AuthSession {
+//   token: string;
+//   data: {
+//     user_id: string;
+//     email: string;
+//     Profile: {
+//       first_name?: string;
+//       last_name?: string;
+//       location?: string | null;
+//       image_url?: string | null;
+//     };
+//     Role: { name: string; permission: unknown };
+//     Organization: { name: string };
 //   };
 // }
 
-// interface AuthContextValue{
-//   session:AuthSession|null;
-//   user:AuthSession["data"]|null;
-//   token:string|null;
-//   isAuthenticated:boolean;
-//   isLoading:boolean;
-//   setSession:(session:AuthSession)=>Promise<void>;
-//   clearSession:()=>Promise<void>;
+// interface AuthContextValue {
+//   session: AuthSession | null;
+//   user: AuthSession["data"] | null;
+//   token: string | null;
+//   isAuthenticated: boolean;
+//   isLoading: boolean;
+//   timeUntilExpiry: number | null;
+//   formattedTimeUntilExpiry: string;
+//   setSession: (session: AuthSession) => Promise<void>;
+//   clearSession: (showNotice?: boolean) => Promise<void>;
 // }
 
-// interface AuthProviderProps{children:ReactNode}
+// interface AuthProviderProps {
+//   children: ReactNode;
+// }
 
-// const SESSION_KEY="data_sessions";
-// const AuthContext=createContext<AuthContextValue|undefined>(undefined);
+// const SESSION_KEY = "data_sessions";
+// const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-// const getJwtPayload=(token:string):Record<string,any>|null=>{
-//   try{
-//     const parts=token.split(".");
-//     if(parts.length!==3)return null;
-//     const base64=parts[1].replace(/-/g,"+").replace(/_/g,"/");
-//     const padded=base64.padEnd(base64.length+((4-base64.length%4)%4),"=");
+// const loginMessages = [
+//   {
+//     title: "Welcome!",
+//     quote: "Every small action can create meaningful change.",
+//   },
+//   {
+//     title: "Ready to Make a Difference?",
+//     quote: "Be the reason someone believes in positive change.",
+//   },
+//   {
+//     title: "Your Journey Continues!",
+//     quote: "Progress begins when someone chooses to take action.",
+//   },
+// ];
+
+// const logoutMessages = [
+//   {
+//     title: "Thank You!",
+//     quote: "Your voice matters, even when you step away.",
+//   },
+//   {
+//     title: "Until We Meet Again!",
+//     quote: "Small acts of awareness can inspire lasting change.",
+//   },
+//   {
+//     title: "Keep Making a Difference!",
+//     quote: "Change begins with people who care enough to act.",
+//   },
+// ];
+
+// function getRandomMessage(
+//   messages: { title: string; quote: string }[],
+// ) {
+//   return messages[Math.floor(Math.random() * messages.length)];
+// }
+
+// const getJwtPayload = (
+//   token: string,
+// ): Record<string, unknown> | null => {
+//   try {
+//     const parts = token.split(".");
+//     if (parts.length !== 3) return null;
+
+//     const base64 = parts[1]
+//       .replace(/-/g, "+")
+//       .replace(/_/g, "/");
+
+//     const padded = base64.padEnd(
+//       base64.length + ((4 - (base64.length % 4)) % 4),
+//       "=",
+//     );
+
 //     return JSON.parse(atob(padded));
-//   }catch(error){
-//     console.error("[AUTH] JWT decode failed:",error);
+//   } catch (error) {
+//     console.error("[AUTH] JWT decode failed:", error);
 //     return null;
 //   }
 // };
 
-// const isTokenExpired=(token:string)=>{
-//   const payload=getJwtPayload(token);
-//   if(!payload)return true;
-//   if(typeof payload.exp!=="number")return false;
-//   return payload.exp*1000<=Date.now();
+// const getTokenExpiration = (token: string): number | null => {
+//   const payload = getJwtPayload(token);
+//   return payload && typeof payload.exp === "number"
+//     ? payload.exp * 1000
+//     : null;
 // };
 
-// export function AuthProvider({children}:AuthProviderProps){
-//   const[session,setSessionState]=useState<AuthSession|null>(null);
-//   const[isLoading,setIsLoading]=useState(true);
-//   const mounted=useRef(true);
+// const isTokenExpired = (token: string): boolean => {
+//   const expiresAt = getTokenExpiration(token);
+//   return expiresAt === null || expiresAt <= Date.now();
+// };
 
-// useEffect(() => {
-//   console.log("[AUTH STATE]", {
-//     isLoading,
-//     isAuthenticated: Boolean(session?.token),
-//     userId: session?.data?.user_id ?? null,
-//     hasToken: Boolean(session?.token),
-//   });
-// }, [session, isLoading]);
+// const formatRemainingTime = (
+//   milliseconds: number | null,
+// ): string => {
+//   if (milliseconds === null) return "--:--:--";
 
+//   const totalSeconds = Math.ceil(milliseconds / 1000);
+//   if (totalSeconds <= 0) return "00:00:00";
 
-//   useEffect(()=>{
-//     mounted.current=true;
-//     return()=>{mounted.current=false};
-//   },[]);
+//   const hours = Math.floor(totalSeconds / 3600);
+//   const minutes = Math.floor((totalSeconds % 3600) / 60);
+//   const seconds = totalSeconds % 60;
 
-//   const loadSession=useCallback(async()=>{
-//     console.log("[AUTH] Loading stored session...");
-//     try{
-//       const stored=await getStorageItem(SESSION_KEY);
-//       if(!stored){
-//         if(mounted.current)setSessionState(null);
-//         return;
+//   return [hours, minutes, seconds]
+//     .map((value) => String(value).padStart(2, "0"))
+//     .join(":");
+// };
+
+// export function AuthProvider({ children }: AuthProviderProps) {
+//   const [session, setSessionState] =
+//     useState<AuthSession | null>(null);
+//   const [isLoading, setIsLoading] = useState(true);
+//   const [timeUntilExpiry, setTimeUntilExpiry] =
+//     useState<number | null>(null);
+//   const [notice, setNotice] = useState<AuthNotice | null>(null);
+
+//   const mounted = useRef(true);
+//   const sessionRef = useRef<AuthSession | null>(null);
+
+//   const updateSession = useCallback(
+//     (nextSession: AuthSession | null) => {
+//       sessionRef.current = nextSession;
+
+//       if (mounted.current) {
+//         setSessionState(nextSession);
+//       }
+//     },
+//     [],
+//   );
+
+//   useEffect(() => {
+//     mounted.current = true;
+
+//     return () => {
+//       mounted.current = false;
+//     };
+//   }, []);
+
+//   const clearSession = useCallback(
+//     async (showNotice = true) => {
+//       const wasAuthenticated = Boolean(
+//         sessionRef.current?.token,
+//       );
+
+//       console.log("[AUTH] Clearing session...");
+
+//       updateSession(null);
+//       setTimeUntilExpiry(null);
+
+//       if (showNotice && wasAuthenticated && mounted.current) {
+//         setNotice({
+//           type: "logout",
+//           ...getRandomMessage(logoutMessages),
+//         });
 //       }
 
-//       let parsed:AuthSession;
-//       try{
-//         parsed=JSON.parse(stored);
-//       }catch(error){
-//         console.error("[AUTH] Invalid stored session JSON:",error);
+//       try {
 //         await removeStorageItem(SESSION_KEY);
-//         if(mounted.current)setSessionState(null);
+//       } catch (error) {
+//         console.error(
+//           "[AUTH] Failed to remove stored session:",
+//           error,
+//         );
+//       }
+//     },
+//     [updateSession],
+//   );
+
+//   const loadSession = useCallback(async () => {
+//     try {
+//       const stored = await getStorageItem(SESSION_KEY);
+
+//       if (!stored) {
+//         updateSession(null);
 //         return;
 //       }
 
-//       if(!parsed?.token||!parsed?.data?.user_id){
-//         console.error("[AUTH] Stored session is missing token or user_id");
+//       let parsed: AuthSession;
+
+//       try {
+//         parsed = JSON.parse(stored);
+//       } catch (error) {
+//         console.error(
+//           "[AUTH] Invalid stored session JSON:",
+//           error,
+//         );
 //         await removeStorageItem(SESSION_KEY);
-//         if(mounted.current)setSessionState(null);
+//         updateSession(null);
 //         return;
 //       }
 
-//       if(isTokenExpired(parsed.token)){
-//         console.log("[AUTH] Stored token expired");
+//       if (
+//         !parsed?.token ||
+//         !parsed?.data?.user_id ||
+//         isTokenExpired(parsed.token)
+//       ) {
+//         console.log(
+//           "[AUTH] Stored session is invalid or expired",
+//         );
 //         await removeStorageItem(SESSION_KEY);
-//         if(mounted.current)setSessionState(null);
+//         updateSession(null);
 //         return;
 //       }
 
-//       console.log("[AUTH] Restoring user:",parsed.data.user_id);
-
-//       if(mounted.current){
-//         setSessionState(parsed);
+//       // Restore the session without showing a login notice.
+//       updateSession(parsed);
+//     } catch (error) {
+//       console.error("[AUTH] loadSession failed:", error);
+//       updateSession(null);
+//     } finally {
+//       if (mounted.current) {
+//         setIsLoading(false);
 //       }
-//     }catch(error){
-//       console.error("[AUTH] loadSession failed:",error);
-//       if(mounted.current)setSessionState(null);
-//     }finally{
-//       if(mounted.current)setIsLoading(false);
 //     }
-//   },[]);
+//   }, [updateSession]);
 
-//   useEffect(()=>{
-//     loadSession();
-//   },[loadSession]);
+//   useEffect(() => {
+//     void loadSession();
+//   }, [loadSession]);
 
-//   const setSession=useCallback(async(newSession:AuthSession)=>{
-//     if(!newSession?.token)throw new Error("Cannot save session without token");
-//     if(!newSession?.data?.user_id)throw new Error("Cannot save session without user_id");
+//   const setSession = useCallback(
+//     async (newSession: AuthSession) => {
+//       if (!newSession?.token || !newSession?.data?.user_id) {
+//         throw new Error(
+//           "Cannot save session without token and user_id",
+//         );
+//       }
 
-//     if(isTokenExpired(newSession.token)){
-//       console.error("[AUTH] Cannot save expired token");
-//       await removeStorageItem(SESSION_KEY);
-//       if(mounted.current)setSessionState(null);
+//       if (isTokenExpired(newSession.token)) {
+//         console.error(
+//           "[AUTH] Cannot save expired or invalid token",
+//         );
+//         await clearSession(false);
+//         return;
+//       }
+
+//       await setStorageItem(
+//         SESSION_KEY,
+//         JSON.stringify(newSession),
+//       );
+
+//       console.log(
+//         "[AUTH] Saving authenticated user:",
+//         newSession.data.user_id,
+//       );
+
+//       updateSession(newSession);
+
+//       if (mounted.current) {
+//         setNotice({
+//           type: "login",
+//           ...getRandomMessage(loginMessages),
+//         });
+//       }
+//     },
+//     [clearSession, updateSession],
+//   );
+
+//   // Live countdown and automatic logout at token expiration.
+//   useEffect(() => {
+//     const currentToken = session?.token;
+
+//     if (!currentToken) {
+//       setTimeUntilExpiry(null);
 //       return;
 //     }
 
-//     console.log("[AUTH] Saving authenticated user:",newSession.data.user_id);
+//     const expiresAt = getTokenExpiration(currentToken);
 
-//     await setStorageItem(SESSION_KEY,JSON.stringify(newSession));
-
-//     if(mounted.current){
-//       setSessionState(newSession);
+//     if (expiresAt === null) {
+//       void clearSession();
+//       return;
 //     }
-//   },[]);
 
-//   const clearSession=useCallback(async()=>{
-//     console.log("[AUTH] Clearing session...");
-//     await removeStorageItem(SESSION_KEY);
-//     if(mounted.current)setSessionState(null);
-//   },[]);
+//     const updateCountdown = () => {
+//       if (sessionRef.current?.token !== currentToken) return;
 
-//   // useEffect(()=>{
-//   //   if(!session?.token)return;
+//       const remaining = Math.max(0, expiresAt - Date.now());
+//       setTimeUntilExpiry(remaining);
 
-//   //   const payload=getJwtPayload(session.token);
-//   //   if(!payload){
-//   //     clearSession();
-//   //     return;
-//   //   }
+//       if (remaining === 0) {
+//         console.log("[AUTH] Token expired - logging out");
+//         void clearSession();
+//       }
+//     };
 
-//   //   if(typeof payload.exp!=="number")return;
+//     updateCountdown();
 
-//   //   const remaining=payload.exp*1000-Date.now();
+//     const interval = setInterval(updateCountdown, 1000);
+//     return () => clearInterval(interval);
+//   }, [session?.token, clearSession]);
 
-//   //   if(remaining<=0){
-//   //     clearSession();
-//   //     return;
-//   //   }
-
-//   //   const timer=setTimeout(()=>{
-//   //     console.log("[AUTH] Token expired");
-//   //     clearSession();
-//   //   },remaining);
-
-//   //   return()=>clearTimeout(timer);
-//   // },[session?.token,clearSession]);
-
+//   // Recheck token when the app returns to the foreground.
 //   useEffect(() => {
-//   if (!session?.token) return;
+//     const checkExpiration = (state: AppStateStatus) => {
+//       if (state !== "active") return;
 
-//   const payload = getJwtPayload(session.token);
+//       const currentSession = sessionRef.current;
 
-//   if (!payload || typeof payload.exp !== "number") {
-//     clearSession();
-//     return;
-//   }
+//       if (
+//         currentSession &&
+//         isTokenExpired(currentSession.token)
+//       ) {
+//         console.log(
+//           "[AUTH] Expired token detected on app resume",
+//         );
+//         void clearSession();
+//       }
+//     };
 
-//   const expiresAt = payload.exp * 1000;
+//     const subscription = AppState.addEventListener(
+//       "change",
+//       checkExpiration,
+//     );
 
-//   const logoutIfExpired = () => {
-//     if (Date.now() >= expiresAt) {
-//       console.log("[AUTH] Token expired - logging out");
-//       clearSession();
-//     }
-//   };
+//     checkExpiration(AppState.currentState);
 
-//   // Check immediately
-//   logoutIfExpired();
+//     return () => subscription.remove();
+//   }, [clearSession]);
 
-//   // Schedule logout at expiration
-//   const remaining = expiresAt - Date.now();
+//   const formattedTimeUntilExpiry =
+//     formatRemainingTime(timeUntilExpiry);
 
-//   if (remaining > 0) {
-//     const timer = setTimeout(logoutIfExpired, remaining);
+//   const value = useMemo<AuthContextValue>(
+//     () => ({
+//       session,
+//       user: session?.data ?? null,
+//       token: session?.token ?? null,
+//       isAuthenticated: Boolean(session?.token),
+//       isLoading,
+//       timeUntilExpiry,
+//       formattedTimeUntilExpiry,
+//       setSession,
+//       clearSession,
+//     }),
+//     [
+//       session,
+//       isLoading,
+//       timeUntilExpiry,
+//       formattedTimeUntilExpiry,
+//       setSession,
+//       clearSession,
+//     ],
+//   );
 
-//     return () => clearTimeout(timer);
-//   }
-// }, [session?.token, clearSession]);
-
-
-//   const value=useMemo<AuthContextValue>(()=>({
-//     session,
-//     user:session?.data??null,
-//     token:session?.token??null,
-//     isAuthenticated:Boolean(session?.token),
-//     isLoading,
-//     setSession,
-//     clearSession
-//   }),[session,isLoading,setSession,clearSession]);
-
-//   return(
+//   return (
 //     <AuthContext.Provider value={value}>
 //       {children}
+
+//       <AuthNoticeModal
+//         notice={notice}
+//         onClose={() => setNotice(null)}
+//       />
 //     </AuthContext.Provider>
 //   );
 // }
 
-// export function useAuth(){
-//   const context=useContext(AuthContext);
-//   if(!context)throw new Error("useAuth must be used within an AuthProvider");
+// export function useAuth() {
+//   const context = useContext(AuthContext);
+
+//   if (!context) {
+//     throw new Error(
+//       "useAuth must be used within an AuthProvider",
+//     );
+//   }
+
 //   return context;
 // }
 
 
 import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { AppState, AppStateStatus } from "react-native";
+import AuthNoticeModal, { AuthNotice } from "./AuthNoticeModal";
 import { getStorageItem, removeStorageItem, setStorageItem } from "./storage.native";
 
 export interface AuthSession {
@@ -559,7 +631,8 @@ interface AuthContextValue {
   timeUntilExpiry: number | null;
   formattedTimeUntilExpiry: string;
   setSession: (session: AuthSession) => Promise<void>;
-  clearSession: () => Promise<void>;
+  clearSession: (showNotice?: boolean) => Promise<void>;
+  showLoginNotice: () => void;
 }
 
 interface AuthProviderProps { children: ReactNode }
@@ -567,12 +640,28 @@ interface AuthProviderProps { children: ReactNode }
 const SESSION_KEY = "data_sessions";
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
+const loginMessages = [
+  { title: "Welcome!", quote: "Every small action can create meaningful change." },
+  { title: "Ready to Make a Difference?", quote: "Be the reason someone believes in positive change." },
+  { title: "Your Journey Continues!", quote: "Progress begins when someone chooses to take action." },
+];
+
+const logoutMessages = [
+  { title: "Thank You!", quote: "Your voice matters, even when you step away." },
+  { title: "Until We Meet Again!", quote: "Small acts of awareness can inspire lasting change." },
+  { title: "Keep Making a Difference!", quote: "Change begins with people who care enough to act." },
+];
+
+function getRandomMessage(messages: { title: string; quote: string }[]) {
+  return messages[Math.floor(Math.random() * messages.length)];
+}
+
 const getJwtPayload = (token: string): Record<string, unknown> | null => {
   try {
     const parts = token.split(".");
     if (parts.length !== 3) return null;
     const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
-    const padded = base64.padEnd(base64.length + ((4 - base64.length % 4) % 4), "=");
+    const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), "=");
     return JSON.parse(atob(padded));
   } catch (error) {
     console.error("[AUTH] JWT decode failed:", error);
@@ -597,13 +686,14 @@ const formatRemainingTime = (milliseconds: number | null): string => {
   const hours = Math.floor(totalSeconds / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
-  return [hours, minutes, seconds].map(v => String(v).padStart(2, "0")).join(":");
+  return [hours, minutes, seconds].map(value => String(value).padStart(2, "0")).join(":");
 };
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [session, setSessionState] = useState<AuthSession | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [timeUntilExpiry, setTimeUntilExpiry] = useState<number | null>(null);
+  const [notice, setNotice] = useState<AuthNotice | null>(null);
   const mounted = useRef(true);
   const sessionRef = useRef<AuthSession | null>(null);
 
@@ -617,10 +707,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
     return () => { mounted.current = false; };
   }, []);
 
-  const clearSession = useCallback(async () => {
+  const showLoginNotice = useCallback(() => {
+    if (mounted.current) setNotice({ type: "login", ...getRandomMessage(loginMessages) });
+  }, []);
+
+  const clearSession = useCallback(async (showNotice = true) => {
+    const wasAuthenticated = Boolean(sessionRef.current?.token);
     console.log("[AUTH] Clearing session...");
     updateSession(null);
     setTimeUntilExpiry(null);
+    if (showNotice && wasAuthenticated && mounted.current) {
+      setNotice({ type: "logout", ...getRandomMessage(logoutMessages) });
+    }
     try {
       await removeStorageItem(SESSION_KEY);
     } catch (error) {
@@ -632,7 +730,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       const stored = await getStorageItem(SESSION_KEY);
       if (!stored) { updateSession(null); return; }
-
       let parsed: AuthSession;
       try {
         parsed = JSON.parse(stored);
@@ -642,15 +739,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
         updateSession(null);
         return;
       }
-
       if (!parsed?.token || !parsed?.data?.user_id || isTokenExpired(parsed.token)) {
         console.log("[AUTH] Stored session is invalid or expired");
         await removeStorageItem(SESSION_KEY);
         updateSession(null);
         return;
       }
-
-      console.log("[AUTH] Restoring user:", parsed.data.user_id);
       updateSession(parsed);
     } catch (error) {
       console.error("[AUTH] loadSession failed:", error);
@@ -663,43 +757,34 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => { void loadSession(); }, [loadSession]);
 
   const setSession = useCallback(async (newSession: AuthSession) => {
-    if (!newSession?.token || !newSession?.data?.user_id) {
-      throw new Error("Cannot save session without token and user_id");
-    }
+    if (!newSession?.token || !newSession?.data?.user_id) throw new Error("Cannot save session without token and user_id");
     if (isTokenExpired(newSession.token)) {
       console.error("[AUTH] Cannot save expired or invalid token");
-      await clearSession();
+      await clearSession(false);
       return;
     }
     await setStorageItem(SESSION_KEY, JSON.stringify(newSession));
     console.log("[AUTH] Saving authenticated user:", newSession.data.user_id);
     updateSession(newSession);
+    // Do not show the login notice here. The Home page will trigger it after Sign In.
   }, [clearSession, updateSession]);
 
-  // Live countdown and automatic logout at token expiration.
   useEffect(() => {
     const currentToken = session?.token;
     if (!currentToken) { setTimeUntilExpiry(null); return; }
-
     const expiresAt = getTokenExpiration(currentToken);
     if (expiresAt === null) { void clearSession(); return; }
-
     const updateCountdown = () => {
       if (sessionRef.current?.token !== currentToken) return;
       const remaining = Math.max(0, expiresAt - Date.now());
       setTimeUntilExpiry(remaining);
-      if (remaining === 0) {
-        console.log("[AUTH] Token expired - logging out");
-        void clearSession();
-      }
+      if (remaining === 0) { console.log("[AUTH] Token expired - logging out"); void clearSession(); }
     };
-
     updateCountdown();
     const interval = setInterval(updateCountdown, 1000);
     return () => clearInterval(interval);
   }, [session?.token, clearSession]);
 
-  // Recheck token when the app returns to the foreground.
   useEffect(() => {
     const checkExpiration = (state: AppStateStatus) => {
       if (state !== "active") return;
@@ -715,21 +800,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [clearSession]);
 
   const formattedTimeUntilExpiry = formatRemainingTime(timeUntilExpiry);
-
   const value = useMemo<AuthContextValue>(() => ({
-    session,
-    user: session?.data ?? null,
-    token: session?.token ?? null,
-    isAuthenticated: Boolean(session?.token),
-    isLoading,
-    timeUntilExpiry,
-    formattedTimeUntilExpiry,
-    setSession,
-    clearSession,
-  }), [session, isLoading, timeUntilExpiry, formattedTimeUntilExpiry, setSession, clearSession]);
+    session, user: session?.data ?? null, token: session?.token ?? null,
+    isAuthenticated: Boolean(session?.token), isLoading, timeUntilExpiry,
+    formattedTimeUntilExpiry, setSession, clearSession, showLoginNotice,
+  }), [session, isLoading, timeUntilExpiry, formattedTimeUntilExpiry, setSession, clearSession, showLoginNotice]);
 
-  console.log("EXPIRE TOKEN:" + formattedTimeUntilExpiry, formatRemainingTime);
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+      <AuthNoticeModal notice={notice} onClose={() => setNotice(null)} />
+    </AuthContext.Provider>
+  );
 }
 
 export function useAuth() {
