@@ -41,98 +41,133 @@ export function authNoticeModal (r: ResponsiveValues) {
 
   return StyleSheet.create({ 
   overlay: {
-    flex: 1,
-    backgroundColor: "rgba(12, 18, 45, 0.72)",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: scale(24),
-  },
-  card: {
-    width: "100%",
-    maxWidth: scale(380),
-    backgroundColor: "#FFFFFF",
-    borderRadius: radius(24),
-    paddingHorizontal: scale(26),
-    paddingTop: verticalScale(34),
-    paddingBottom: verticalScale(26),
-    alignItems: "center",
-    elevation: 12,
-    shadowColor: "#000000",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
-    shadowRadius: 16,
-  },
-  closeButton: {
-    position: "absolute",
-    top: 12,
-    right: 12,
-    width: scale(36),
-    height: verticalScale(36),
-    borderRadius: radius(18),
-    backgroundColor: "#F0F1F7",
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 1,
-  },
-  closeText: {
-    fontSize: font(28),
-    lineHeight: font(31),
-    color: "#35408E",
-    fontWeight: "500",
-  },
-  iconCircle: {
-    width: scale(55),
-    height: verticalScale(55),
-    borderRadius: radius(32),
-    backgroundColor: "#EEF0FF",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: verticalScale(16),
-  },
-  iconText: {
-    fontSize: font(32),
-    lineHeight: font(40),
-    color: "#35408E",
-    fontWeight: "bold",
-  },
-  brand: {
-    fontSize: font(11),
-    lineHeight: font(12),
-    fontWeight: "800",
-    letterSpacing: 1,
-    color: "#35408E",
-    marginBottom: verticalScale(12),
-  },
-  title: {
-    fontSize: font(25),
-    lineHeight: font(31),
-    fontWeight: "800",
-    color: "#20264F",
-    textAlign: "center",
-    marginBottom: verticalScale(12),
-  },
-  quoteContainer: {
-    width: "100%",
-    borderLeftWidth: scale(3),
-    borderLeftColor: "#35408E",
-    backgroundColor: "#F4F5FC",
-    borderRadius: radius(10),
-    paddingHorizontal: scale(15),
-    paddingVertical: verticalScale(14),
-    marginTop: verticalScale(4),
-  },
-  quoteMark: {
-    fontSize: font(24),
-    lineHeight: font(28),
-    fontWeight: "bold",
-    color: "#35408E",
-  },
-  quote: {
-    fontSize: font(14),
-    lineHeight: font(22),
-    fontStyle: "italic",
-    color: "#353B61",
-  },
+  flex: 1,
+  backgroundColor: "rgba(15, 20, 60, 0.6)",
+  justifyContent: "center",
+  alignItems: "center",
+  padding: scale(24),
+},
+ 
+card: {
+  width: 
+    isLargeIPadPortrait || isIPadPortrait || isIPadMiniPortrait || isFold
+    ? "75%"
+    : isLargeIPadLandscape || isIPadLandscape || isIPadMiniLandscape 
+    ? "55%"
+    : "100%",
+  maxWidth: scale(380),
+  backgroundColor: "#FFFFFF",
+  borderRadius: radius(20),
+  borderWidth: 1.5,
+  borderColor: "#E0E4F0",
+  paddingHorizontal: scale(26),
+  paddingTop: verticalScale(34),
+  paddingBottom: verticalScale(26),
+  alignItems: "center",
+  elevation: 12,
+  shadowColor: "#1A1F5E",
+  shadowOffset: { width: 0, height: 8 },
+  shadowOpacity: 0.18,
+  shadowRadius: 20,
+},
+ 
+closeButton: {
+  position: "absolute",
+  top: verticalScale(12),
+  right: scale(12),
+  width: 
+    isLargeIPad || isIPad || isIPadMini || isFold
+    ? scale(20)
+    : scale(32),
+  height: 
+    isLargeIPad || isIPad || isIPadMini || isFold
+    ? scale(20)
+    : scale(32),
+  borderRadius: radius(16),
+  backgroundColor: "#F3F4F6",
+  alignItems: "center",
+  justifyContent: "center",
+  zIndex: 1,
+},
+ 
+closeText: {
+  fontSize: font(28),
+  lineHeight: font(31),
+  color: "#35408E",
+  fontWeight: "500",
+},
+ 
+iconCircle: {
+  width: 
+    isLargeIPad 
+    ? scale(38)
+    : isIPad || isIPadMini || isFold
+    ? scale(40)
+    : scale(58),
+  height: 
+    isLargeIPad
+    ? scale(38)
+    : isIPad || isIPadMini || isFold
+    ? scale(40)
+    : scale(58),
+  borderRadius: radius(32),
+  alignItems: "center",
+  justifyContent: "center",
+  marginBottom: verticalScale(16),
+},
+ 
+iconText: {
+  fontSize: font(32),
+  lineHeight: font(40),
+  color: "#35408E",
+  fontWeight: "bold",
+},
+ 
+brand: {
+  fontSize: font(11),
+  lineHeight: font(12),
+  fontWeight: "800",
+  letterSpacing: 1.1,
+  color: "#9BA8C0",
+  marginBottom: verticalScale(10),
+},
+ 
+title: {
+  fontSize: font(22),
+  lineHeight: font(28),
+  fontWeight: "700",
+  color: "#1A1F5E",
+  textAlign: "center",
+  marginBottom: verticalScale(16),
+},
+ 
+quoteContainer: {
+  width: "100%",
+  borderLeftWidth: scale(3),
+  borderLeftColor: "#35408E",
+  backgroundColor: "#F8F9FD",
+  borderRadius: radius(10),
+  borderWidth: 1,
+  borderColor: "#F0F2F8",
+  paddingHorizontal: scale(15),
+  paddingVertical: verticalScale(12),
+},
+ 
+quoteMark: {
+  fontSize: font(24),
+  lineHeight: font(26),
+  fontWeight: "bold",
+  color: "#35408E",
+  opacity: 0.5,
+},
+ 
+quote: {
+  fontSize: font(13),
+  lineHeight: font(21),
+  fontStyle: "italic",
+  color: "#4B5563",
+},
+ 
 })};
 
 export function createAuthStyles(r: ResponsiveValues) {

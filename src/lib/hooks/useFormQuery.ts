@@ -144,7 +144,8 @@ const useFormQuery=<TData=unknown,TVariables=unknown>({
       );
 
       const response=await axios.get<TData>(
-        requestUrl,
+        //requestUrl,
+        `https://dost-server-git-development-joshuaramins-projects.vercel.app/${url}`,
         {
           headers,
           params,

@@ -180,13 +180,13 @@ export function drawerStyles (r: ResponsiveValues) {
     paddingVertical: 
       isTallFold 
       ? verticalScale(10)
-      : isNormalFold || isAndroidTabletPortrait || isLargeIPadPortrait
+      : isAndroidTabletPortrait || isLargeIPadPortrait
       || isIPadPortrait || isIPadMiniPortrait
       ? verticalScale(8)
-      : isAndroidTabletLandscape || isLargeIPadLandscape || isIPadLandscape
+      : isIPadLandscape || isIPadMiniLandscape
+      ? verticalScale(1)
+      : isAndroidTabletLandscape || isLargeIPadLandscape || isNormalFold
       ? verticalScale(4)
-      : isIPadMiniLandscape
-      ? verticalScale(3)
       : verticalScale(12),
     borderRadius: radius(12),
   },
@@ -222,6 +222,17 @@ export function drawerStyles (r: ResponsiveValues) {
     color: "#35408E",
   },
 
+  bottom: {
+    marginTop: 
+      isLargeIPadLandscape || isIPadLandscape || isIPadMiniLandscape
+      || isFold
+      ? verticalScale(10)
+      : verticalScale(35),
+    width: "100%",
+    flexShrink: 0,
+    backgroundColor: "transparent",
+  },
+
   bottomContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -230,7 +241,21 @@ export function drawerStyles (r: ResponsiveValues) {
       || isIPad || isIPadMini
       ? scale(5)
       : scale(15),
-    backgroundColor: "transparent"
+    backgroundColor: "transparent",
+    marginTop: 
+      isLargeIPad || isIPad || isIPadMiniLandscape
+      || isFold
+      ? scale(-15)
+      : 0,
+    flexShrink: 0,
+    minHeight: 
+      isLargeIPadLandscape || isFold
+      ? scale(40)
+      : isIPadLandscape 
+      ? scale(50)
+      : isIPadMiniLandscape
+      ? scale(45)
+      : scale(60),
   },
 
   profile: {
@@ -261,7 +286,12 @@ export function drawerStyles (r: ResponsiveValues) {
   },
 
   profilePlaceholder: {
-    padding: scale(10),
+    padding: 
+      isLargeIPad || isIPad || isFold
+      ? scale(5)
+      : isIPadMini
+      ? scale(7)
+      : scale(10),
     borderRadius: radius(100),
     backgroundColor: "#E9EAF0",
     alignItems: "center",
@@ -322,35 +352,105 @@ export function drawerStyles (r: ResponsiveValues) {
     alignItems: "center",
     justifyContent: "center",
   },
+})};
 
-  // Partner logos rows
-  logosRow: {
-    width: "100%",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: scale(8),
-    paddingTop: scale(12),
-    paddingBottom: scale(10),
-    flexShrink: 0,
-    backgroundColor: "transparent",
-  },
+export function logoStyles (r: ResponsiveValues) {
+    const {
+      isCompactAndroid,
+      isFold,
+      isIPhone,
+      isLandscape,
+      isPortrait,
+      isLargePhone,
+      isNormalScreen,
+      isShortScreen,
+      isSmallPhone,
+      isExtraTallScreen,
+      isTablet,
+      isTallScreen,
+      isIPad,
+      isIPadMini,
+      isLargeIPad,
+      isAndroidTablet,
+  } = r;
 
-  logoBubble: {
-    width: scale(42),
-    height: scale(42),
-    borderRadius: scale(9),
-    backgroundColor: "#FFFFFF",
-    alignItems: "center",
-    justifyContent: "center",
-    overflow: "hidden",
-    flexShrink: 0,
-  },
+    const isTallFold = r.isFold && r.isTallScreen;
+    const isNormalFold = r.isFold && r.isNormalScreen;
 
-  logoImg: {
-    width: "82%",
-    height: "82%",
-  },
+    const isAndroidTabletPortrait = r.isAndroidTablet && r.isPortrait;
+
+    const isAndroidTabletLandscape = r.isAndroidTablet && r.isLandscape;
+
+    const isIPadPortrait = r.isIPad && r.isPortrait;
+    const isIPadLandscape = r.isIPad && r.isLandscape;
+  
+    const isLargeIPadPortrait = r.isLargeIPad && r.isPortrait;
+    const isLargeIPadLandscape = r.isLargeIPad && r.isLandscape;
+  
+    const isIPadMiniPortrait = r.isIPadMini && r.isPortrait;
+    const isIPadMiniLandscape = r.isIPadMini && r.isLandscape;
+
+    const bubbleSize = 
+      isLargeIPad || isIPadMiniLandscape 
+      ? scale(25)
+      : isFold
+      ? scale(22)
+      : isIPad || isIPadMiniPortrait
+      ? scale(30)
+      : scale(42);
+
+  return StyleSheet.create({ 
+  container: {
+      width: "100%",
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: scale(8),
+      paddingHorizontal: scale(4),
+      paddingTop: 
+        isLargeIPadPortrait || isIPadPortrait || isIPadMiniLandscape
+        || isFold
+        ? scale(0)
+        : isLargeIPadLandscape || isIPadLandscape 
+        ? scale(-20)
+        : scale(12),
+      paddingBottom: scale(10),
+      flexShrink: 0,
+      backgroundColor: "transparent",
+    },
+
+    logoContainer: {
+      width: bubbleSize,
+      height: bubbleSize,
+      backgroundColor: "rgba(255,255,255,0.12)",
+      alignItems: "center",
+      justifyContent: "center",
+      overflow: "hidden",
+      flexShrink: 0,
+    },
+
+    circularLogo: {
+      borderRadius: bubbleSize / 2,
+    },
+
+    squareLogo: {
+      borderRadius: scale(9),
+    },
+
+    logo: {
+      width: 
+        isLargeIPad || isIPad || isFold
+        ? "65%"
+        : isIPadMini
+        ? "70%"
+        : "80%",
+      height: 
+        isLargeIPad || isIPad || isFold
+        ? "65%"
+        : isIPadMini
+        ? "70%"
+        : "80%",
+    },
 })};
 
 export function profileDropdownStyles (r: ResponsiveValues) {

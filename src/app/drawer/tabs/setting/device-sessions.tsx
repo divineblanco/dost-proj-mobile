@@ -123,7 +123,7 @@ export default function DeviceSessions() {
   const { data, isLoading, isError, error, refetch } =
     useFormQuery<DeviceSessionsResult>({
       key: ["device-sessions", userId],
-      url: `/auth/device-sessions/${userId}`,
+      url: `auth/device-sessions/${userId}`,
       enabled: !authLoading && !!token && !!userId,
       headers: {
         Authorization: `Bearer ${token}`,

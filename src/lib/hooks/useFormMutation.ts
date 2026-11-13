@@ -167,7 +167,8 @@ const useFormMutation = <TVariables = unknown, TData = unknown>({
         `${url.replace(/^\//, "")}`;
 
       console.log("[MUTATION REQUEST]", {
-        url: requestUrl,
+        // url: requestUrl,
+        url: `https://dost-server-git-development-joshuaramins-projects.vercel.app/${url}`,
         method,
         data: isMultipart
           ? "[FormData]"
@@ -176,7 +177,8 @@ const useFormMutation = <TVariables = unknown, TData = unknown>({
 
       try {
         const res = await axios({
-          url: requestUrl,
+          // url: requestUrl,
+          url: `https://dost-server-git-development-joshuaramins-projects.vercel.app/${url}`,
           method,
           headers,
           params,

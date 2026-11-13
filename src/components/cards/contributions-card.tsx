@@ -494,7 +494,7 @@ export function ContributionsCard({ filters }: Props) {
 
   const { data: result, isLoading: queryLoading } = useFormQuery<ContributionsResponse>({
     key: ["all-contributions", cursor],
-    url: "/maintenance/contribution",
+    url: "maintenance/contribution",
     headers: {
       Authorization: `Bearer ${token}`,
       "x-api-key": "testing",

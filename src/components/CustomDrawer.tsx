@@ -291,8 +291,8 @@ import { useAuth } from "@/lib/auth/AuthProvider";
 import useFormMutation from "@/lib/hooks/useFormMutation";
 import useFormQuery from "@/lib/hooks/useFormQuery";
 import { UserByIdInterface } from "@/lib/interface/user/user.interface";
-import { drawerStyles } from "@/styles/navigation-styles";
-import { icon, scale, useResponsive, verticalScale } from "@/styles/responsive";
+import { drawerStyles, logoStyles, } from "@/styles/navigation-styles";
+import { useResponsive } from "@/styles/responsive";
 import { Ionicons } from "@expo/vector-icons";
 import { DrawerContentComponentProps } from "@react-navigation/drawer";
 import { router, usePathname } from "expo-router";
@@ -372,6 +372,8 @@ function Item({
 
 // Partner logos are declared outside CustomDrawer to prevent remounting.
 function PartnerLogos() {
+  const r = useResponsive();
+  const styles = useMemo(() => logoStyles(r), [r]);
   const logos = [
     {
       key: "nu",
@@ -390,43 +392,19 @@ function PartnerLogos() {
     },
   ];
 
-  const bubbleSize = scale(42);
-
   return (
-    <View
-      style={{
-        width: "100%",
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: scale(8),
-        paddingHorizontal: scale(4),
-        paddingTop: scale(12),
-        paddingBottom: scale(10),
-        flexShrink: 0,
-        backgroundColor: "transparent",
-      }}
-    >
+    <View style={styles.container}>
       {logos.map((logo) => (
         <View
           key={logo.key}
-          style={{
-            width: bubbleSize,
-            height: bubbleSize,
-            borderRadius: logo.circular ? bubbleSize / 2 : scale(9),
-            backgroundColor: "rgba(255,255,255,0.12)",
-            alignItems: "center",
-            justifyContent: "center",
-            overflow: "hidden",
-            flexShrink: 0,
-          }}
+          style={[
+            styles.logoContainer,
+            logo.circular ? styles.circularLogo : styles.squareLogo,
+          ]}
         >
           <Image
             source={logo.source}
-            style={{
-              width: "80%",
-              height: "80%",
-            }}
+            style={styles.logo}
             resizeMode="contain"
             fadeDuration={0}
           />
@@ -540,7 +518,7 @@ export default function CustomDrawer(
 
     return (
       <ThemedView style={styles.profilePlaceholder}>
-        <Ionicons name="person" size={icon(35)} color="#9A9A9A" />
+        <Ionicons name="person" size={25} color="#9A9A9A" />
       </ThemedView>
     );
   };
@@ -628,25 +606,13 @@ export default function CustomDrawer(
 
       {/* Bottom section: user information followed by partner logos */}
       <View
-        style={{
-          marginTop: verticalScale(35),
-          width: "100%",
-          flexShrink: 0,
-          backgroundColor: "transparent",
-        }}
+        style={styles.bottom}
       >
         <View style={styles.bottomDivider} />
 
         {/* User information row */}
         <ThemedView
-          style={[
-            styles.bottomContainer,
-            {
-              marginTop: 0,
-              flexShrink: 0,
-              minHeight: scale(60),
-            },
-          ]}
+          style={styles.bottomContainer}
         >
           <TouchableOpacity
             onPress={() => router.push("/drawer/tabs/profiles/profile")}

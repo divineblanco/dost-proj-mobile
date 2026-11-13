@@ -112,7 +112,7 @@ export default function EarnPointsCard() {
 
   const { data: response, isLoading, isError } = useFormQuery<unknown>({
     key: ["maintenance", "rewards", "rule"],
-    url: "/maintenance/rewards/rule",
+    url: "maintenance/rewards/rule",
     headers: {
       Authorization: `Bearer ${token}`,
       "x-api-key": "testing",

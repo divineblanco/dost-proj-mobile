@@ -81,7 +81,7 @@ export function MisinformationPost({ filters }: Props) {
 
   const { data: result, isLoading: queryLoading } = useFormQuery<ContributionsResponse>({
     key: ["approved-misinformation", cursor],
-    url: "/maintenance/contribution",
+    url: "maintenance/contribution",
     headers: {
       Authorization: `Bearer ${token}`,
       "x-api-key": "testing",

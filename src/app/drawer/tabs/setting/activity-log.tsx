@@ -25,7 +25,7 @@ export default function ActivityLog() {
   const { data, isLoading, isFetching, isError, error } =
     useFormQuery<ActivityLogsInterfaceResult>({
       key: ["activity-logs", currentUserId, token],
-      url: `/maintenance/activity-logs/${currentUserId}`,
+      url: `maintenance/activity-logs/${currentUserId}`,
       enabled: canLoadLogs,
       headers: {
         "x-api-key": "testing",

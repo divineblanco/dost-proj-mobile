@@ -172,7 +172,7 @@ import useFormQuery from "@/lib/hooks/useFormQuery";
 import { meetsBadgeRequirement } from "@/lib/types/badges";
 import { extractItems, RewardBadge } from "@/lib/types/rewards";
 import { viewBadgesStyles } from "@/styles/badges-styles";
-import { icon, useResponsive } from "@/styles/responsive";
+import { font, icon, useResponsive } from "@/styles/responsive";
 import { Ionicons, SimpleLineIcons } from "@expo/vector-icons";
 import React, { useEffect, useMemo } from "react";
 import { ActivityIndicator, ScrollView, View } from "react-native";
@@ -191,7 +191,7 @@ export default function Badges() {
 
   const { data, isLoading, isError, error } = useFormQuery<unknown>({
     key: ["reward-badges", token],
-    url: "/maintenance/rewards/badge",
+    url: "maintenance/rewards/badge",
     enabled: Boolean(token),
     headers,
   });
@@ -319,7 +319,7 @@ export default function Badges() {
 
             {earnedBadges.length === 0 ? (
               <ThemedView style={styles.emptyContainer}>
-                <ThemedText>No earned badges to display yet.</ThemedText>
+                <ThemedText style={{lineHeight: font(15)}}>No earned badges to display yet.</ThemedText>
               </ThemedView>
             ) : (
               <ThemedView style={styles.badgeList}>

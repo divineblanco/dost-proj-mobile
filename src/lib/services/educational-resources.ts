@@ -153,7 +153,7 @@ interface EducationalResourceDetailsResponse {
  */
 
 const EDUCATIONAL_RESOURCES_ENDPOINT =
-  "/maintenance/educational-resource";
+  "maintenance/educational-resource";
 
 /**
  * IMPORTANT:

@@ -3,7 +3,6 @@ import { ThemedView } from "@/components/themed-view";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import useFormQuery from "@/lib/hooks/useFormQuery";
 import { SurveyResponse } from "@/lib/interface/survey-management/survey.interface";
-import { SURVEY_URL } from "@/lib/services/api";
 import { profileStyles } from "@/styles/profile/profile-styles";
 import { icon, useResponsive } from "@/styles/responsive";
 import {
@@ -88,7 +87,7 @@ export function SurveyCard() {
               <TouchableOpacity
                 onPress={() =>
                   Linking.openURL(
-                    `${SURVEY_URL}/survey/${slug}`
+                    `https://dost-ap8f.vercel.app/survey/${slug}`
                   )
                 }
                 style={styles.surveyRow}
